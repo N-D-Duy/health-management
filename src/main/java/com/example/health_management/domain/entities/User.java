@@ -1,13 +1,11 @@
 package com.example.health_management.domain.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
+import org.springframework.lang.Nullable;
+
 import java.time.LocalDate;
+import java.util.Set;
+
 @Entity
 @Table(name = "users") // Tên bảng là "users" thay vì "user" để tránh từ khóa của SQL
 public class User {
@@ -33,7 +31,6 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Key key;
-
     // Constructors, getters, and setters
     public User() {}
 
