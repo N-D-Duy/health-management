@@ -1,11 +1,17 @@
 package com.example.health_management.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "telemedicine_sessions")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class TelemedicineSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

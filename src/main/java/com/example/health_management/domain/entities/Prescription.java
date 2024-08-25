@@ -1,16 +1,23 @@
 package com.example.health_management.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
 @Table(name = "prescriptions")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class Prescription {
     //todo: namnx refractor later on
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
     private String diagnosis;
     private String treatment;

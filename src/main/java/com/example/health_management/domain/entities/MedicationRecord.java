@@ -1,9 +1,15 @@
 package com.example.health_management.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "medication_records")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class MedicationRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

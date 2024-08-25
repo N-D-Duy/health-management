@@ -1,12 +1,18 @@
 package com.example.health_management.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
 @Table(name = "physical_activities")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class PhysicalActivity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

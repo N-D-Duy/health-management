@@ -1,9 +1,15 @@
 package com.example.health_management.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Table(name = "addresses")
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class Address {
 
     @Id

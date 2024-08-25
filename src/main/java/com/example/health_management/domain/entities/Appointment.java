@@ -1,6 +1,7 @@
 package com.example.health_management.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -9,6 +10,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "appointments")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
