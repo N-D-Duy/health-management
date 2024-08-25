@@ -18,7 +18,7 @@ public class Key {
     private Integer id;
 
     @OneToOne
-    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @Column(name = "public_key", nullable = false, length = 2048)
@@ -30,8 +30,7 @@ public class Key {
     @Column(name = "refresh_token", nullable = false, length = 255)
     private String refreshToken;
 
-    public Key(Integer id, User user, String publicKey, String privateKey, String refreshToken) {
-        this.id = id;
+    public Key(User user, String publicKey, String privateKey, String refreshToken) {
         this.user = user;
         this.publicKey = publicKey;
         this.privateKey = privateKey;
@@ -81,9 +80,9 @@ public class Key {
         this.refreshToken = refreshToken;
     }
 
-    
-    
 
-    
+
+
+
 
 }

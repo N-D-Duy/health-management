@@ -25,13 +25,13 @@ public class Account implements Serializable {
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "phone", length = 20)
+    @Column(name = "phone", nullable = true, length = 20)
     private String phone;
 
     @Enumerated(EnumType.STRING)
@@ -54,7 +54,7 @@ public class Account implements Serializable {
     public Account(String username, String passwordHash, String email, String phone, Role role,
                    String passwordResetToken, String accountStatus, User user) {
         this.username = username;
-        this.passwordHash = passwordHash;
+        this.password = passwordHash;
         this.email = email;
         this.phone = phone;
         this.role = role;
@@ -79,12 +79,12 @@ public class Account implements Serializable {
         this.username = username;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String passwordHash) {
+        this.password = passwordHash;
     }
 
     public String getEmail() {

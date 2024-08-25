@@ -1,12 +1,7 @@
 package com.example.health_management.domain.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 @Entity
 @Table(name = "users") // Tên bảng là "users" thay vì "user" để tránh từ khóa của SQL
@@ -16,16 +11,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "first_name", nullable = false, length = 50)
+    @Column(name = "first_name", nullable = true, length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 50)
+    @Column(name = "last_name", nullable = true, length = 50)
     private String lastName;
 
-    @Column(name = "date_of_birth", nullable = false)
+    @Column(name = "date_of_birth", nullable = true)
     private LocalDate dateOfBirth;
 
-    @Column(name = "gender", nullable = false, length = 10)
+    @Column(name = "gender", nullable = true, length = 10)
     private String gender;
 
     @OneToOne(mappedBy = "user")
