@@ -14,7 +14,7 @@ public class HealthProvider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String providerName;
+    private String healthProviderName;
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = HealthProviderType.class)
     @JoinColumn(referencedColumnName = "id", nullable = false)
     private HealthProviderType healthProviderType;

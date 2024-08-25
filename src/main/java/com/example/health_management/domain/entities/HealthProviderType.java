@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "provider_types")
+@Table(name = "health_provider_types")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
