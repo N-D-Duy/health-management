@@ -1,12 +1,13 @@
 package com.example.health_management.application.guards;
 
-import com.example.health_management.domain.services.JwtService;
+import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.domain.services.KeyService;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,40 +16,45 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final KeyService keyService;
-    private final JwtService jwtService;
+    private final JwtProvider jwtProvider;
 
-    public JwtAuthenticationFilter(KeyService keyService, JwtService jwtService) {
+    public JwtAuthenticationFilter(KeyService keyService, JwtProvider jwtProvider) {
         this.keyService = keyService;
-        this.jwtService = jwtService;
+        this.jwtProvider = jwtProvider;
     }
 
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            FilterChain chain
+    ) throws IOException, ServletException {
+
         final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
+        String token = jwtProvider.extractToken(request);
+        logger.info("Token: {}", token);
+        if(token == null) {
             chain.doFilter(request, response);
             return;
         }
-
-        String token = header.substring(7);
 
         try {
             Claims claims = Jwts.parser()
                     .setSigningKeyResolver(new SigningKeyResolverAdapter() {
                         @Override
                         public Key resolveSigningKey(JwsHeader header, Claims claims) {
-                            int userId = Integer.parseInt(claims.getSubject());
+                            int userId = Integer.parseInt(claims.get("id").toString());
                             String publicKeyPEM = keyService.findPublicKeyByUserId(userId);
                             if (publicKeyPEM == null) {
                                 throw new RuntimeException("Public key not found for user: " + userId);
@@ -72,18 +78,20 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 logger.warn("Token is expired");
                 SecurityContextHolder.clearContext();
                 chain.doFilter(request, response);
-                return;
+                throw new RuntimeException("Token is expired");
             }
 
+            // Get role from claims and convert to Role enum
+            String roleName = claims.get("role", String.class); // Get the role from token claims
+            Role role = Role.valueOf(roleName); // Convert roleName string to Role enum
 
-            String role = claims.get("role", String.class); // Get the single role
-            List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+            // Get authorities from Role
+            List<SimpleGrantedAuthority> authorities = role.getAuthorities(); // Get all authorities including ROLE_ and permissions
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     claims.getSubject(), null, authorities
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
 
         } catch (ExpiredJwtException e) {
             logger.warn("JWT token is expired: {}", e.getMessage());

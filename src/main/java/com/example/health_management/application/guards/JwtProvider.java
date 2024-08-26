@@ -1,9 +1,10 @@
-package com.example.health_management.domain.services;
+package com.example.health_management.application.guards;
 
 import com.example.health_management.common.utils.TokenExpiration;
 import com.example.health_management.domain.entities.Payload;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
 import java.security.*;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class JwtService {
+public class JwtProvider {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public Map<String, String> generateKeyPair() {
@@ -51,10 +52,9 @@ public class JwtService {
         } catch (Exception e) {
             return null;
         }
-        Map<String, Object> claimsMap = objectMapper.convertValue(payload, Map.class);
         return Jwts
                 .builder()
-                .claims(claimsMap)
+                .claims(objectMapper.convertValue(payload, Map.class))
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(new Date(System.currentTimeMillis() + expirationMillis)) // 15 minutes
                 .signWith(privateKey, Jwts.SIG.RS256)
@@ -79,7 +79,6 @@ public class JwtService {
         } catch (Exception e) {
             return false;
         }
-
         try {
             Jwts.parser()
                     .verifyWith(publicKey)
@@ -89,6 +88,14 @@ public class JwtService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public String extractToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            return null;
+        }
+        return header.substring(7);
     }
 }
 

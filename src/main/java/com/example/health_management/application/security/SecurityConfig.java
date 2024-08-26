@@ -1,55 +1,50 @@
 package com.example.health_management.application.security;
 
-import com.example.health_management.application.guards.CustomAuthenticationFilter;
 import com.example.health_management.application.guards.JwtAuthenticationFilter;
-import com.example.health_management.domain.services.JwtService;
+import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.domain.services.KeyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private final JwtService jwtService;
-    @Autowired
+    private final JwtProvider jwtProvider;
     private final KeyService keyService;
+//    private final AuthenticationProvider authenticationProvider;
 
-    public SecurityConfig(JwtService jwtService, KeyService keyService) {
-        this.jwtService = jwtService;
-        this.keyService = keyService;
-    }
+    private final String[] WHITE_LIST = {
+            "/api/v1/auth/**"
+    };
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/public/**").permitAll() // Public endpoints
+                                .requestMatchers(WHITE_LIST).permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/user/**").hasRole("USER")
-                                .anyRequest().authenticated() // All other requests require authentication
+                                .anyRequest()
+                                .authenticated()
                 )
-                .addFilterBefore(new CustomAuthenticationFilter(authenticationManager(http)), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtAuthenticationFilter(keyService, jwtService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(keyService, jwtProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationConfiguration authenticationConfiguration = http.getSharedObject(AuthenticationConfiguration.class);
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
 }
+
 
 
 

@@ -1,16 +1,14 @@
-package com.example.health_management.application.DTOs.auth;
+package com.example.health_management.domain.cqrs.commands.impl.auth;
 
 import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.domain.entities.Account;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Builder
 @AllArgsConstructor
-@Data
 @NoArgsConstructor
-public class RegisterDto {
+@Data
+public class RegisterCommand {
     private String email;
     private String username;
     private String password;
