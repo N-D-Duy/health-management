@@ -1,14 +1,13 @@
 package com.example.health_management.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Setter
-@Getter
+@Builder
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "users") // Tên bảng là "users" thay vì "user" để tránh từ khóa của SQL

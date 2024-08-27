@@ -19,7 +19,6 @@ public class UserController {
         return "Hello World!";
     }
 
-
     @GetMapping("/health")
     public @ResponseBody String getHealth() {
         return "OK";

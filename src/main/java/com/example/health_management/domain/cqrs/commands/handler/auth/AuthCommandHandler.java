@@ -30,7 +30,7 @@ public class AuthCommandHandler {
         final Account account = accountRepository.findByEmail(command.getEmail());
         final User user = account.getUser();
 
-        final String key = keyRepository.findPrivateKeyByUserId(user.getId());
+        final String key = keyRepository.findKeyByUserId(user.getId()).getPrivateKey();
         final Payload payload = new Payload(user.getId(), account.getRole().name(), account.getEmail());
         final String accessToken = jwtProvider.generateAccessToken(payload, key);
         final String refreshToken = jwtProvider.generateRefreshToken(payload, key);

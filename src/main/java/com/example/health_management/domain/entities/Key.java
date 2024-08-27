@@ -8,12 +8,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Setter
-@Getter
+@Builder
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "keys")

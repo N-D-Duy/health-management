@@ -54,10 +54,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .setSigningKeyResolver(new SigningKeyResolverAdapter() {
                         @Override
                         public Key resolveSigningKey(JwsHeader header, Claims claims) {
-                            int userId = Integer.parseInt(claims.get("id").toString());
-                            String publicKeyPEM = keyService.findPublicKeyByUserId(userId);
+                            String email = claims.get("email", String.class);
+                            String publicKeyPEM = jwtProvider.getPublicKeyByEmail(email);
                             if (publicKeyPEM == null) {
-                                throw new RuntimeException("Public key not found for user: " + userId);
+                                throw new RuntimeException("Public key not found for user: " + email);
                             }
                             try {
                                 byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);

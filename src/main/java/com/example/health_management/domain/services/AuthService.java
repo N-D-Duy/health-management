@@ -2,6 +2,7 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.auth.AuthRequestDto;
 import com.example.health_management.application.DTOs.auth.AuthResponseDto;
+import com.example.health_management.application.DTOs.auth.LoginDto;
 import com.example.health_management.application.DTOs.auth.RegisterDto;
 import com.example.health_management.domain.cqrs.commands.handler.auth.AuthCommandHandler;
 import com.example.health_management.domain.cqrs.commands.handler.auth.RegisterCommandHandler;
@@ -23,7 +24,7 @@ public class AuthService {
     private final AuthCommandHandler authCommandHandler;
     private final RegisterCommandHandler registerCommandHandler;
 
-    public User register(RegisterDto registerDto) {
+    public AuthResponseDto register(RegisterDto registerDto) {
         return registerCommandHandler.handle((new RegisterCommand(
                 registerDto.getEmail(),
                 registerDto.getUsername(),
@@ -34,5 +35,9 @@ public class AuthService {
 
     public AuthResponseDto authenticate(AuthRequestDto authRequestDto) {
         return authCommandHandler.handle(new AuthCommand(authRequestDto.getEmail(), authRequestDto.getPassword()));
+    }
+
+    public AuthResponseDto login(LoginDto login) {
+        return null;
     }
 }

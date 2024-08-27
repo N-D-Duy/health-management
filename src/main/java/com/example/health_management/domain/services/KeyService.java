@@ -1,20 +1,20 @@
 package com.example.health_management.domain.services;
 
 
+import com.example.health_management.domain.entities.Key;
 import com.example.health_management.domain.repositories.KeyRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class KeyService {
-    @Autowired
-    private KeyRepository keyRepository;
 
-    public KeyService(KeyRepository keyRepository) {
-        this.keyRepository = keyRepository;
+    private final KeyRepository keyRepository;
+
+    public Key findKeyByUserId(Integer userId) {
+        return keyRepository.findKeyByUserId(userId);
     }
 
-    public String findPublicKeyByUserId(Integer userId) {
-        return keyRepository.findPublicKeyByUserId(userId);
-    }
 }

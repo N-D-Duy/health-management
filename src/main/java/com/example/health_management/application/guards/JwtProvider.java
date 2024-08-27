@@ -2,9 +2,12 @@ package com.example.health_management.application.guards;
 
 import com.example.health_management.common.utils.TokenExpiration;
 import com.example.health_management.domain.entities.Payload;
+import com.example.health_management.domain.repositories.AccountRepository;
+import com.example.health_management.domain.services.KeyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.*;
@@ -16,13 +19,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class JwtProvider {
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final KeyService keyService;
+    private final AccountRepository accountRepository;
 
     public Map<String, String> generateKeyPair() {
         try {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-            keyGen.initialize(4096);
+            keyGen.initialize(2048);
             KeyPair pair = keyGen.generateKeyPair();
             PrivateKey privateKey = pair.getPrivate();
             PublicKey publicKey = pair.getPublic();
@@ -68,6 +74,19 @@ public class JwtProvider {
     public String generateRefreshToken(Payload payload, String privateKeyPEM) {
         return generateToken(payload, privateKeyPEM, TokenExpiration.REFRESH_TOKEN_EXPIRATION);
     }
+
+
+    public String getPrivateKeyByEmail(String email){
+        Integer userId = accountRepository.findByEmail(email).getId();
+        return keyService.findKeyByUserId(userId).getPrivateKey();
+    }
+
+    public String getPublicKeyByEmail(String email){
+        Integer userId = accountRepository.findByEmail(email).getId();
+        return keyService.findKeyByUserId(userId).getPublicKey();
+    }
+
+
 
     public boolean verifyToken(String token, String publicKeyPEM) {
         // convert publicKeyPEM from PEM string to PublicKey

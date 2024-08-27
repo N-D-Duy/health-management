@@ -15,16 +15,4 @@ class HealthManagementApplicationTests {
 		System.out.println("Context loaded successfully");
 	}
 
-	@Test
-	void generateKeyPair(){
-		JwtProvider jwtProviderTest = new JwtProvider();
-		Map<String, String> keyPair = jwtProviderTest.generateKeyPair();
-
-		System.out.println("Public key: " + keyPair.get("publicKey"));
-		System.out.println("Private key: " + keyPair.get("privateKey"));
-
-		Payload payload = new Payload(1, "ROLE_ADMIN", "duy999@gmail.com");
-		String token = jwtProviderTest.generateToken(payload, keyPair.get("privateKey"), 900000);
-		System.out.println("Token: " + token);
-	}
 }

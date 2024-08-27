@@ -20,11 +20,12 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) {
         final Account account = accountRepository.findByEmail(email);
-        logger.info("executing loadUserByUsername");
 
         if (account == null) {
+            logger.warn("User not found with email: {}", email);
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
+        logger.info(account.getUsername());
 
         return User.withUsername(account.getEmail())
                 .password(account.getPassword())

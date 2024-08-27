@@ -15,6 +15,9 @@ public class RefreshTokenCommandHandler {
     public void handle(RefreshTokenCommand command) {
         String token = jwtProvider.extractToken(command.getRequest());
         if(token != null) {
+            // extract the email from the token
+
+            // get the public key from the database
 
         }
     }
