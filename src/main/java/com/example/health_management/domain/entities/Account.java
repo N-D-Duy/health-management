@@ -11,12 +11,22 @@ import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 import com.example.health_management.common.shared.enums.Role;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Entity
 @Table(name = "accounts")
-public class Account implements Serializable {
+public class Account implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,13 +35,13 @@ public class Account implements Serializable {
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "phone", length = 20)
+    @Column(name = "phone", nullable = true, length = 20)
     private String phone;
 
     @Enumerated(EnumType.STRING)
@@ -42,97 +52,36 @@ public class Account implements Serializable {
     private String passwordResetToken;
 
     @Column(name = "account_status", nullable = false, length = 20)
-    private String accountStatus;
+    private String accountStatus = "PENDING";
 
     @OneToOne
-    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
-    // Constructors, getters, and setters
-    public Account() {}
 
-    public Account(String username, String passwordHash, String email, String phone, Role role,
-                   String passwordResetToken, String accountStatus, User user) {
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.email = email;
-        this.phone = phone;
-        this.role = role;
-        this.passwordResetToken = passwordResetToken;
-        this.accountStatus = accountStatus;
-        this.user = user;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
     }
 
-    public Integer getId() {
-        return id;
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
     }
 
-    public String getUsername() {
-        return username;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public String getPasswordResetToken() {
-        return passwordResetToken;
-    }
-
-    public void setPasswordResetToken(String passwordResetToken) {
-        this.passwordResetToken = passwordResetToken;
-    }
-
-    public String getAccountStatus() {
-        return accountStatus;
-    }
-
-    public void setAccountStatus(String accountStatus) {
-        this.accountStatus = accountStatus;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 }
 

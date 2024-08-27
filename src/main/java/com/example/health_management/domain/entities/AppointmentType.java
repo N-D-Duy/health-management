@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ApppointmentType {
+public class AppointmentType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

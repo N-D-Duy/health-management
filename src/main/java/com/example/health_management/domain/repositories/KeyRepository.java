@@ -6,4 +6,5 @@ import com.example.health_management.domain.entities.Key;
 
 @Repository
 public interface KeyRepository extends JpaRepository<Key, Integer> {
+    Key findKeyByUserId(Integer userId);
 }
