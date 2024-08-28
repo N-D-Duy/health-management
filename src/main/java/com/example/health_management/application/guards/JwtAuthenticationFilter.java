@@ -50,28 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKeyResolver(new SigningKeyResolverAdapter() {
-                        @Override
-                        public Key resolveSigningKey(JwsHeader header, Claims claims) {
-                            String email = claims.get("email", String.class);
-                            String publicKeyPEM = jwtProvider.getPublicKeyByEmail(email);
-                            if (publicKeyPEM == null) {
-                                throw new RuntimeException("Public key not found for user: " + email);
-                            }
-                            try {
-                                byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
-                                X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
-                                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                                return keyFactory.generatePublic(spec);
-                            } catch (Exception e) {
-                                throw new RuntimeException("Error generating public key", e);
-                            }
-                        }
-                    })
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+            Claims claims = jwtProvider.extractClaimsFromToken(token);
 
             // Check if token is expired
             if (claims.getExpiration().before(new Date())) {

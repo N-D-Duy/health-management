@@ -3,6 +3,8 @@ package com.example.health_management.application.security;
 import com.example.health_management.application.guards.JwtAuthenticationFilter;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.guards.LocalAuthenticationFilter;
+import com.example.health_management.domain.repositories.AccountRepository;
+import com.example.health_management.domain.repositories.KeyRepository;
 import com.example.health_management.domain.services.KeyService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,8 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final KeyService keyService;
+    private final KeyRepository keyRepository;
+    private final AccountRepository accountRepository;
 
     private final String[] WHITE_LIST = {
             "/api/v1/auth/**",
@@ -35,7 +39,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider);
+        final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider, keyRepository, accountRepository);
         localAuthenticationFilter.setFilterProcessesUrl("/api/v1/auth/login");
 
         http
