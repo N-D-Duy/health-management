@@ -1,6 +1,7 @@
 package com.example.health_management.application.guards;
 
 import com.example.health_management.common.shared.enums.Role;
+import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.services.KeyService;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
@@ -89,7 +90,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             List<SimpleGrantedAuthority> authorities = role.getAuthorities(); // Get all authorities including ROLE_ and permissions
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    claims.getSubject(), null, authorities
+                    Account.builder().username(claims.get("email", String.class)).build(), null, authorities
+
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
