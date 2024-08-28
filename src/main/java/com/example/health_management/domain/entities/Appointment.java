@@ -3,10 +3,7 @@ package com.example.health_management.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "appointments")
@@ -27,8 +24,8 @@ public class Appointment {
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = User.class,optional = false)
     @JoinColumn(referencedColumnName = "id",nullable = false)
     private User user;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = ApppointmentType.class, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = AppointmentType.class, optional = false)
     @JoinColumn(referencedColumnName = "id",nullable = false)
-    private ApppointmentType apppointmentType;
+    private AppointmentType appointmentType;
 
 }
