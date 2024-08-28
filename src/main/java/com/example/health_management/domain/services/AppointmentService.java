@@ -2,6 +2,7 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.appointment.AppointmentResponseDto;
 import com.example.health_management.application.DTOs.appointment.CreateAppointmentRequestDto;
+import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.mapper.appointment.AppointmentMapper;
 import com.example.health_management.domain.entities.Appointment;
 import com.example.health_management.domain.entities.AppointmentType;
@@ -25,10 +26,10 @@ public class AppointmentService {
     private HealthProviderRepository healthProviderRepository;
     private CountryRepository countryRepository;
     private UserRepository userRepository;
-    private JwtService jwtService;
+    private JwtProvider jwtService;
 
     @Autowired
-    public AppointmentService(AppointmentRepository appointmentRepository, AppointmentMapper appointmentMapper, HealthProviderRepository healthProviderRepository, CountryRepository countryRepository, AppointmentTypeRepository appointmentTypeRepository, JwtService jwtService) {
+    public AppointmentService(AppointmentRepository appointmentRepository, AppointmentMapper appointmentMapper, HealthProviderRepository healthProviderRepository, CountryRepository countryRepository, AppointmentTypeRepository appointmentTypeRepository, JwtProvider jwtService) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
         this.healthProviderRepository = healthProviderRepository;
@@ -89,8 +90,6 @@ public class AppointmentService {
 
     public AppointmentResponseDto updateAppointment(Integer id, CreateAppointmentRequestDto createAppointmentRequestDto) {
         try {
-
-//            User user = jwtService.extractUserFromToken();
             Appointment appointment = appointmentRepository.findByIdAndUser_Id(id, jwtService.extractUserFromToken().getId())
                     .orElseThrow(() -> new RuntimeException("Appointment not found"));
                         HealthProvider healthProvider = healthProviderRepository.findById(createAppointmentRequestDto.getHealthProviderId())

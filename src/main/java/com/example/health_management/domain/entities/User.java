@@ -19,16 +19,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "first_name", nullable = true, length = 50)
+    @Column(name = "first_name", length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = true, length = 50)
+    @Column(name = "last_name", length = 50)
     private String lastName;
 
-    @Column(name = "date_of_birth", nullable = true)
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Column(name = "gender", nullable = true, length = 10)
+    @Column(name = "gender", length = 10)
     private String gender;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

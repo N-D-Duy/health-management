@@ -1,30 +1,29 @@
 package com.example.health_management.application.guards;
 
+import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.common.shared.enums.Role;
-import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.services.KeyService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
-
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final KeyService keyService;
     private final JwtProvider jwtProvider;
@@ -51,64 +50,83 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKeyResolver(new SigningKeyResolverAdapter() {
-                        @Override
-                        public Key resolveSigningKey(JwsHeader header, Claims claims) {
-                            String email = claims.get("email", String.class);
-                            String publicKeyPEM = jwtProvider.getPublicKeyByEmail(email);
-                            if (publicKeyPEM == null) {
-                                throw new RuntimeException("Public key not found for user: " + email);
-                            }
-                            try {
-                                byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
-                                X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
-                                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                                return keyFactory.generatePublic(spec);
-                            } catch (Exception e) {
-                                throw new RuntimeException("Error generating public key", e);
-                            }
-                        }
-                    })
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
+            Claims claims = jwtProvider.extractClaimsFromToken(token);
+            if(claims == null) {
+                ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token", null);
+                writeResponse(responseWrapper, response);
+                return;
+            }
             // Check if token is expired
             if (claims.getExpiration().before(new Date())) {
-                logger.warn("Token is expired");
                 SecurityContextHolder.clearContext();
-                chain.doFilter(request, response);
-                throw new RuntimeException("Token is expired");
+                ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Token expired", null);
+                writeResponse(responseWrapper, response);
+                return;
             }
 
-            // Get role from claims and convert to Role enum
-            String roleName = claims.get("role", String.class); // Get the role from token claims
+            Double id = claims.get("id", Double.class);
+            Integer userId = id.intValue();
+            String roleName = claims.get("role", String.class);
+            String email = claims.get("email", String.class);
+
             Role role = Role.valueOf(roleName); // Convert roleName string to Role enum
 
             // Get authorities from Role
             List<SimpleGrantedAuthority> authorities = role.getAuthorities(); // Get all authorities including ROLE_ and permissions
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    Account.builder().username(claims.get("email", String.class)).build(), null, authorities
+            // Tạo một CustomUserDetails hoặc sử dụng một class đơn giản để chứa thông tin bổ sung như id
+            MyUserDetails customUserDetails = new MyUserDetails(userId, email, authorities);
 
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    customUserDetails, null, authorities
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (ExpiredJwtException e) {
-            logger.warn("JWT token is expired: {}", e.getMessage());
+            ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Token expired", null);
+            writeResponse(responseWrapper, response);
+            return;
         } catch (UnsupportedJwtException e) {
-            logger.warn("JWT token is unsupported: {}", e.getMessage());
+            ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Unsupported JWT token", null);
+            writeResponse(responseWrapper, response);
+            return;
         } catch (MalformedJwtException e) {
-            logger.warn("Invalid JWT token: {}", e.getMessage());
+            ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Malformed JWT token", null);
+            writeResponse(responseWrapper, response);
+            return;
         } catch (SignatureException e) {
-            logger.warn("Invalid JWT signature: {}", e.getMessage());
+            ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT signature", null);
+            writeResponse(responseWrapper, response);
+            return;
         } catch (IllegalArgumentException e) {
-            logger.warn("JWT claims string is empty: {}", e.getMessage());
+            ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "JWT claims string is empty", null);
+            writeResponse(responseWrapper, response);
+            return;
         } catch (Exception e) {
-            logger.error("Unable to parse JWT token: {}", e.getMessage());
+            ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Unable to parse JWT token", null);
+            writeResponse(responseWrapper, response);
+            return;
         }
-
         chain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String[] patterns = {"/api/v1/auth/register"};
+        AntPathMatcher pathMatcher = new AntPathMatcher();
+        for (String pattern : patterns) {
+            if (pathMatcher.match(pattern, request.getServletPath())) {
+                return true;
+            }
+        }
+        return false;    }
+
+
+    private void writeResponse(ApiResponse apiResponse, HttpServletResponse response) throws IOException {
+        response.setStatus(apiResponse.getCode());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        ObjectMapper mapper = new ObjectMapper();
+        response.getWriter().write(mapper.writeValueAsString(apiResponse));
+        response.getWriter().flush();
     }
 }

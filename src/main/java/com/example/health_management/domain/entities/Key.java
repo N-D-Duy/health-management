@@ -32,6 +32,6 @@ public class Key {
     @Column(name = "private_key", nullable = false, length = 4096)
     private String privateKey;
 
-    @Column(name = "refresh_token", nullable = false, length = 4096)
+    @Column(name = "refresh_token", length = 4096)
     private String refreshToken;
 }

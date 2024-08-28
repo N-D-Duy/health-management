@@ -1,29 +1,42 @@
 package com.example.health_management.application.guards;
 
 import com.example.health_management.common.utils.TokenExpiration;
+import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.entities.Payload;
+import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
+import com.example.health_management.domain.repositories.UserRepository;
 import com.example.health_management.domain.services.KeyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SigningKeyResolverAdapter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JwtProvider {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final KeyService keyService;
     private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
 
     public Map<String, String> generateKeyPair() {
         try {
@@ -115,6 +128,84 @@ public class JwtProvider {
             return null;
         }
         return header.substring(7);
+    }
+
+    public Claims extractClaimsFromToken(String token) {
+        try{
+            return Jwts.parser()
+                    .setSigningKeyResolver(new SigningKeyResolverAdapter() {
+                        @Override
+                        public Key resolveSigningKey(JwsHeader header, Claims claims1) {
+                            String email = claims1.get("email", String.class);
+                            String publicKeyPEM = getPublicKeyByEmail(email);
+                            if (publicKeyPEM == null) {
+                                throw new RuntimeException("Public key not found for user: " + email);
+                            }
+                            try {
+                                byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
+                                X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
+                                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                                return keyFactory.generatePublic(spec);
+                            } catch (Exception e) {
+                                throw new RuntimeException("Error generating public key", e);
+                            }
+                        }
+                    })
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Map<String, String> refreshToken(String accessToken, String refreshToken) {
+        Claims claims = extractClaimsFromToken(accessToken);
+        if (claims == null) {
+            return null;
+        }
+        String email = claims.get("email", String.class);
+        String role = claims.get("role", String.class);
+        Double id = claims.get("id", Double.class);
+        int uid = id.intValue();
+        if (!verifyToken(refreshToken, getPublicKeyByEmail(email))) {
+            return null;
+        }
+
+        String privateKeyPEM = getPrivateKeyByEmail(email);
+        Payload payload = Payload.builder()
+                .email(email)
+                .id(uid)
+                .role(role)
+                .build();
+        return Map.of(
+                "accessToken", generateAccessToken(payload, privateKeyPEM),
+                "refreshToken", refreshToken
+        );
+    }
+
+     public MyUserDetails extractUserDetailsFromToken() {
+        try{
+            MyUserDetails myUserDetails = null;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof MyUserDetails) {
+                myUserDetails = (MyUserDetails) authentication.getPrincipal();
+            }
+            return myUserDetails;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public User extractUserFromToken() {
+        try {
+            MyUserDetails myUserDetails = extractUserDetailsFromToken();
+            User user = userRepository.findByAccount_Email(myUserDetails.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
+            return user;
+        } catch (RuntimeException e) {
+            log.error("User extract error: ", e);
+            throw new RuntimeException("User extract error: ", e);
+        }
     }
 }
 
