@@ -11,6 +11,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.*;
@@ -173,6 +175,19 @@ public class JwtProvider {
                 "accessToken", generateAccessToken(payload, privateKeyPEM),
                 "refreshToken", refreshToken
         );
+    }
+
+    public MyUserDetails extractUserDetailsFromToken() {
+        try{
+            MyUserDetails myUserDetails = null;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof MyUserDetails) {
+                myUserDetails = (MyUserDetails) authentication.getPrincipal();
+            }
+            return myUserDetails;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
 

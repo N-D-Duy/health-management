@@ -4,10 +4,15 @@ package com.example.health_management.api.controllers;
 import com.example.health_management.application.DTOs.auth.AuthResponseDto;
 import com.example.health_management.application.DTOs.auth.TokensRequestDto;
 import com.example.health_management.application.DTOs.auth.RegisterDto;
+import com.example.health_management.application.apiresponse.ApiResponse;
+import com.example.health_management.application.guards.JwtProvider;
+import com.example.health_management.application.guards.MyUserDetails;
 import com.example.health_management.domain.services.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -17,6 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final JwtProvider jwtProvider;
 
     @PostMapping("/register")
     public @ResponseBody AuthResponseDto register(@RequestBody RegisterDto registerDto) {
@@ -44,4 +50,18 @@ public class AuthController {
         authService.logout(refreshToken);
     }
 
+    @GetMapping("/user")
+    public @ResponseBody ResponseEntity<ApiResponse> getAuthenticatedUser() {
+        try {
+            MyUserDetails userDetails = jwtProvider.extractUserDetailsFromToken();
+
+            ApiResponse response = new ApiResponse();
+            response.setData(userDetails);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse response = new ApiResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage(), null);
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(response);
+        }
+    }
 }
