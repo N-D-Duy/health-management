@@ -12,6 +12,5 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 public class RefreshTokenCommand {
-    private String accessToken;
     private String refreshToken;
 }

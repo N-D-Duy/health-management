@@ -3,6 +3,8 @@ package com.example.health_management.application.security;
 import com.example.health_management.application.guards.JwtAuthenticationFilter;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.guards.LocalAuthenticationFilter;
+import com.example.health_management.application.guards.RateLimitingFilter;
+import com.example.health_management.common.Constants;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
 import com.example.health_management.domain.services.KeyService;
@@ -31,10 +33,7 @@ public class SecurityConfig {
     private final KeyRepository keyRepository;
     private final AccountRepository accountRepository;
 
-    private final String[] WHITE_LIST = {
-            "/api/v1/auth/**",
-            "/swagger/api-docs/**"
-    };
+    private final String[] WHITE_LIST = Constants.WHITE_LIST;
 
 
     @Bean
@@ -51,6 +50,7 @@ public class SecurityConfig {
                                 .anyRequest()
                                 .authenticated()
                 )
+                .addFilterBefore(new RateLimitingFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(localAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(keyService, jwtProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();

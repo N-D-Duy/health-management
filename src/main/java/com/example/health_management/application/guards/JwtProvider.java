@@ -152,8 +152,8 @@ public class JwtProvider {
         }
     }
 
-    public Map<String, String> refreshToken(String accessToken, String refreshToken) {
-        Claims claims = extractClaimsFromToken(accessToken);
+    public Map<String, String> refreshToken(String refreshToken) {
+        Claims claims = extractClaimsFromToken(refreshToken);
         if (claims == null) {
             return null;
         }

@@ -15,7 +15,7 @@ public class RefreshTokenCommandHandler {
     private final JwtProvider jwtProvider;
 
     public AuthResponseDto handle(RefreshTokenCommand command) {
-        Map<String, String> tokens = jwtProvider.refreshToken(command.getAccessToken(), command.getRefreshToken());
+        Map<String, String> tokens = jwtProvider.refreshToken(command.getRefreshToken());
         return AuthResponseDto.builder()
                 .accessToken(tokens.get("accessToken"))
                 .refreshToken(tokens.get("refreshToken"))

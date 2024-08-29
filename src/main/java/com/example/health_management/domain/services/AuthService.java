@@ -34,8 +34,8 @@ public class AuthService {
         return authCommandHandler.handle(new AuthCommand(authRequestDto.getEmail(), authRequestDto.getPassword()));
     }
 
-    public AuthResponseDto refreshToken(String accessToken, String refreshToken) {
-        return refreshTokenHandler.handle(new RefreshTokenCommand(accessToken, refreshToken));
+    public AuthResponseDto refreshToken(String refreshToken) {
+        return refreshTokenHandler.handle(new RefreshTokenCommand(refreshToken));
     }
 
     public void logout(String refreshToken) {

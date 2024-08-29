@@ -10,12 +10,14 @@ import com.example.health_management.application.guards.MyUserDetails;
 import com.example.health_management.domain.services.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -23,6 +25,7 @@ import java.util.Map;
 public class AuthController {
     private final AuthService authService;
     private final JwtProvider jwtProvider;
+    private final CacheManager cacheManager;
 
     @PostMapping("/register")
     public @ResponseBody AuthResponseDto register(@RequestBody RegisterDto registerDto) {
@@ -30,9 +33,15 @@ public class AuthController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Cacheable(value = "health-management", key = "'health'")
     @GetMapping("/health")
-    public @ResponseBody String health() {
-        return "OK";
+    public @ResponseBody ApiResponse health() {
+        if(Objects.requireNonNull(cacheManager.getCache("health-management")).get("health") != null) {
+            ApiResponse response = new ApiResponse();
+            response.setData("OK");
+            return response;
+        }
+        return new ApiResponse(HttpServletResponse.SC_OK, "OK", null);
     }
 
     @PostMapping("/login")
@@ -40,8 +49,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public @ResponseBody AuthResponseDto refreshToken(@RequestBody TokensRequestDto tokensRequestDto) {
-        return authService.refreshToken(tokensRequestDto.getAccessToken(), tokensRequestDto.getRefreshToken());
+    public @ResponseBody AuthResponseDto refreshToken(@RequestBody Map<String, String> body) {
+        String refreshToken = body.get("refresh_token");
+        return authService.refreshToken(refreshToken);
     }
 
     @PostMapping("/logout")
@@ -50,18 +60,24 @@ public class AuthController {
         authService.logout(refreshToken);
     }
 
+    @Cacheable(value = "health-management", key = "'getAuthenticatedUser'")
     @GetMapping("/user")
-    public @ResponseBody ResponseEntity<ApiResponse> getAuthenticatedUser() {
+    public @ResponseBody ApiResponse getAuthenticatedUser() {
+        ApiResponse cachedResponse = Objects.requireNonNull(cacheManager.getCache("health-management")).get("getAuthenticatedUser", ApiResponse.class);
+        if (cachedResponse != null) {
+            ApiResponse response = new ApiResponse();
+            response.setData(cachedResponse.getData());
+            return response;
+        }
         try {
             MyUserDetails userDetails = jwtProvider.extractUserDetailsFromToken();
 
             ApiResponse response = new ApiResponse();
             response.setData(userDetails);
 
-            return ResponseEntity.ok(response);
+            return response;
         } catch (Exception e) {
-            ApiResponse response = new ApiResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage(), null);
-            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(response);
+            return new ApiResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage(), null);
         }
     }
 }

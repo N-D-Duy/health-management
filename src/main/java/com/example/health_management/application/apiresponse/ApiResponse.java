@@ -4,9 +4,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Setter
 @Getter
-public class ApiResponse {
+public class ApiResponse implements Serializable {
 
     // Getter và Setter
     private int code;
