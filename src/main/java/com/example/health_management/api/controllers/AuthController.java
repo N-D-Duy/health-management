@@ -60,7 +60,7 @@ public class AuthController {
         authService.logout(refreshToken);
     }
 
-    @Cacheable(value = "health-management", key = "'getAuthenticatedUser'")
+    @Cacheable(value = "user", key = "'getAuthenticatedUser'")
     @GetMapping("/user")
     public @ResponseBody ApiResponse getAuthenticatedUser() {
         ApiResponse cachedResponse = Objects.requireNonNull(cacheManager.getCache("health-management")).get("getAuthenticatedUser", ApiResponse.class);

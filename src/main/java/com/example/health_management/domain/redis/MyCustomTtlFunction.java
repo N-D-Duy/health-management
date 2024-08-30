@@ -1,6 +1,7 @@
 package com.example.health_management.domain.redis;
 
 import io.micrometer.common.lang.Nullable;
+import org.slf4j.Logger;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 
 import java.time.Duration;
@@ -11,11 +12,6 @@ public enum MyCustomTtlFunction implements RedisCacheWriter.TtlFunction {
 
     @Override
     public Duration getTimeToLive(Object key, @Nullable Object value) {
-        if (key instanceof String keyStr) {
-            if (keyStr.startsWith("health-management:")) {
-                return Duration.ofMinutes(5);
-            }
-        }
-        return Duration.ofMinutes(1);
+        return Duration.ofSeconds(60);
     }
 }
