@@ -14,18 +14,16 @@ import java.util.Set;
 @Getter
 @Setter
 public class Prescription {
-    //todo: namnx refractor later on
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-    private Long id;
+    private int id;
     private String diagnosis;
     private String treatment;
     private LocalDate create_date;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = User.class)
     @JoinColumn(referencedColumnName = "id", nullable = false)
     private User user;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,targetEntity = Medication.class)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = Medication.class)
     @JoinTable(name = "prescription_medications",
             joinColumns = @JoinColumn(name = "prescription_id"),
             inverseJoinColumns = @JoinColumn(name = "medication_id"))

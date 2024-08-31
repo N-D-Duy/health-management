@@ -5,6 +5,7 @@ import com.example.health_management.application.DTOs.appointment.CreateAppointm
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.domain.services.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/appointment")
 @PreAuthorize("hasRole('ROLE_USER')")
 @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Appointment", description = "Appointment API")
 public class AppointmentController {
 
     private final AppointmentService appointmentService;

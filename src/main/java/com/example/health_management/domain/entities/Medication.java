@@ -15,13 +15,13 @@ import java.time.LocalDate;
 public class Medication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     private String name;
     private String image_url;
     private String description;
     private LocalDate mfgDate;
     private LocalDate expDate;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = MedicationType.class)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = {CascadeType.MERGE, CascadeType.PERSIST},targetEntity = MedicationType.class)
     @JoinColumn(referencedColumnName = "id",nullable = false)
     private MedicationType medicationType;
 }
