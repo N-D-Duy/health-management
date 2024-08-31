@@ -10,18 +10,18 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class MedicationRecord {
+public class MedicalRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     ///todo: ask about the last_name field
     private String note;
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = Prescription.class)
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = Prescription.class,orphanRemoval = true)
     private Prescription prescription;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = User.class)
     @JoinColumn(referencedColumnName = "id",nullable = false)
     private User user;
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = Appointment.class)
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = Appointment.class, orphanRemoval = true)
     private Appointment appointment;
 
 }
