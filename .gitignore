@@ -33,3 +33,5 @@ build/
 .vscode/
 ### ENV ###
 .env
+### FIREBASE CONFIG FILE ###
+firebase.json
