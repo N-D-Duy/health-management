@@ -44,7 +44,6 @@ public class PrescriptionService {
             List<Prescription> prescriptions = prescriptionRepository.findByUser_Id(userId);
             return prescriptions.stream().map(prescriptionMapper::toPrescriptionResponseDto).collect(Collectors.toList());
         } catch (Exception e) {
-            ///todo: inspect whether to get message or string as the whole
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }

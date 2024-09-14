@@ -10,12 +10,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AzureOpenAiService {
-//    @Value("${spring.ai.azure.openai.api-key}")
-//    private  String azureOpenAiKey;
-//    @Value("${spring.ai.azure.openai.endpoint}")
-//    private  String azureOpenAiEndpoint;
-//    @Value("${spring.ai.azure.openai.chat.options.deployment-name}")
-//    private  String azureOpenAiModel;
     @Qualifier("azureOpenAiChatOptions")
     private final AzureOpenAiChatOptions options;
     @Qualifier("openAIClient")
