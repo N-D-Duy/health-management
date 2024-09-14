@@ -14,7 +14,6 @@ public class MedicationRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    ///todo: ask about the last_name field
     private String note;
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = Prescription.class)
     private Prescription prescription;

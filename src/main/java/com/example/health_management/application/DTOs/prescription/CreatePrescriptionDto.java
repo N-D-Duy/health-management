@@ -15,7 +15,6 @@ import java.util.Set;
 @Value
 @Builder
 @AllArgsConstructor
-@JsonNaming(value = com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CreatePrescriptionDto implements Serializable {
     Integer userId;
     String diagnosis;

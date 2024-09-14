@@ -32,7 +32,7 @@ public class SecurityConfig {
     private final KeyRepository keyRepository;
     private final AccountRepository accountRepository;
 
-    private final String[] WHITE_LIST = {"/auth/**", "/api-docs/**", "/diagnose-disease/**","/firebase-message/**"};
+    private final String[] WHITE_LIST = {"/auth/**", "/api-docs/**", "/diagnose-diseases/**","/firebase-message/**"};
 
 
     @Bean

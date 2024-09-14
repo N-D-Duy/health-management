@@ -21,7 +21,7 @@ public class AzureOpenAiService {
         this.client = client;
     }
 
-    public String diagnoseDiseases(int heart, String bloodPressure, int bodyTemperature, int respiratoryRate, int sp02) {
+    public String diagnoseDiseases(int heart, String bloodPressure, int bodyTemperature, int respiratoryRate, int spO2) {
         final String promptText = """
                 You are given health indicators such as heart rate, blood pressure, body temperature, respiratory rate, SpO2, age, weight, height, and other relevant data. Your task is to analyze these inputs and output a list of potential diagnoses (e.g., hypertension, arrhythmia, diabetes, cardiovascular diseases), each accompanied by a confidence score expressed as a percentage. The output should be based on pattern recognition from the input values, but it is important to note that the predictions are estimates and do not require 100% accuracy. 
                 Example Input: Heart rate: 85 bpm
@@ -34,7 +34,7 @@ public class AzureOpenAiService {
                       Blood pressure: {bloodPressure} mmHg
                       Body temperature: {bodyTemperature}°C
                       Respiratory Rate: {respiratoryRate} (breaths/min)
-                      Sp02: {sp02} %
+                      Sp02: {spO2} %
                 """;
 
         final PromptTemplate promptTemplate = new PromptTemplate(promptText);
@@ -42,9 +42,14 @@ public class AzureOpenAiService {
         promptTemplate.add("bloodPressure", bloodPressure);
         promptTemplate.add("bodyTemperature", bodyTemperature);
         promptTemplate.add("respiratoryRate", respiratoryRate);
-        promptTemplate.add("sp02", sp02);
+        promptTemplate.add("spO2", spO2);
         AzureOpenAiChatModel model = new AzureOpenAiChatModel(client, options);
-        ChatResponse response = model.call(promptTemplate.create());
+        ChatResponse response = null;
+        try {
+            response = model.call(promptTemplate.create());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return response.getResult().getOutput().getContent();
     }
 }
