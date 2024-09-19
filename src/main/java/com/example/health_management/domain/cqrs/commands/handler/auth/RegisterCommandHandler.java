@@ -2,6 +2,7 @@ package com.example.health_management.domain.cqrs.commands.handler.auth;
 
 import com.example.health_management.application.DTOs.auth.AuthResponseDto;
 import com.example.health_management.application.guards.JwtProvider;
+import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
 import com.example.health_management.domain.entities.Account;
@@ -51,6 +52,10 @@ public class RegisterCommandHandler {
         User user = new User();
         userRepository.save(user);
 
+        if(command.getRole() == null) {
+            command.setRole(Role.USER);
+        }
+
         logger.warn("creating account");
         // Hash password
         command.setPassword(passwordEncoder.encode(command.getPassword()));
@@ -65,6 +70,7 @@ public class RegisterCommandHandler {
         // Create Key entity
         Key key = new Key();
         Payload payload = new Payload();
+        payload.setVersion(1);
         payload.setId(user.getId());
         payload.setEmail(account.getEmail());
         payload.setRole(account.getRole().toString());
@@ -76,7 +82,12 @@ public class RegisterCommandHandler {
         final String accessToken = jwtProvider.generateAccessToken(payload, keyPair.get("privateKey"));
         final String refreshToken = jwtProvider.generateRefreshToken(payload, keyPair.get("privateKey"));
         key.setRefreshToken(refreshToken);
+        key.setVersion(1);
+        key.setNotificationKey(command.getNotificationKey());
 
+        logger.warn("key: {}", key);
+        logger.warn("account: {}", account);
+        logger.warn("user: {}", user);
         logger.warn("final set");
         // Associate account with user
         user.setAccount(account);

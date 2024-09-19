@@ -12,6 +12,6 @@ public enum MyCustomTtlFunction implements RedisCacheWriter.TtlFunction {
 
     @Override
     public Duration getTimeToLive(Object key, @Nullable Object value) {
-        return Duration.ofSeconds(60);
+        return Duration.ofSeconds(30);
     }
 }

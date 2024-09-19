@@ -34,4 +34,10 @@ public class Key {
 
     @Column(name = "refresh_token", length = 4096)
     private String refreshToken;
+
+    @Column(name = "version", nullable = false)
+    private Integer version;
+
+    @Column(name = "notification_key", nullable = false)
+    private String notificationKey;
 }

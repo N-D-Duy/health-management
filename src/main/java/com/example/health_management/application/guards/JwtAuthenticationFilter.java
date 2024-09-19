@@ -41,7 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         String token = jwtProvider.extractToken(request);
-        logger.info("Token: {}", token);
         if(token == null) {
             chain.doFilter(request, response);
             return;
@@ -50,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Claims claims = jwtProvider.extractClaimsFromToken(token);
             if(claims == null) {
-                ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token", null);
+                ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or Expired JWT token", null);
                 writeResponse(responseWrapper, response);
                 return;
             }
@@ -64,6 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             Double id = claims.get("id", Double.class);
             Integer userId = id.intValue();
+            Double version = claims.get("version", Double.class);
+            Integer keyVersion = version.intValue();
             String roleName = claims.get("role", String.class);
             String email = claims.get("email", String.class);
 
@@ -72,8 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Get authorities from Role
             List<SimpleGrantedAuthority> authorities = role.getAuthorities(); // Get all authorities including ROLE_ and permissions
 
-            // Tạo một CustomUserDetails hoặc sử dụng một class đơn giản để chứa thông tin bổ sung như id
-            MyUserDetails customUserDetails = new MyUserDetails(userId, email, authorities);
+            MyUserDetails customUserDetails = new MyUserDetails(userId, email, authorities, keyVersion);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     customUserDetails, null, authorities

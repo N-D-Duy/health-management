@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 public class LogoutCommandHandler {
     private final KeyRepository keyRepository;
 
-    public void handle(String refreshToken) {
+    public void handle(String uid) {
         try{
-            keyRepository.updateRefreshToken(refreshToken);
+            keyRepository.signOut(uid);
         } catch (Exception e) {
             throw new RuntimeException("Error while logging out (update key failed)");
         }

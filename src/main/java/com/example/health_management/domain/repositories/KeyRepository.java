@@ -14,14 +14,13 @@ public interface KeyRepository extends JpaRepository<Key, Integer> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Key k SET k.refreshToken = NULL WHERE k.refreshToken = :refreshToken")
-    void updateRefreshToken(@Param("refreshToken") String refreshToken);
+    @Query("UPDATE Key k SET k.refreshToken = NULL, k.notificationKey = NULL WHERE k.user.id = :uid")
+    void signOut(String uid);
 
 
     @Modifying
     @Transactional
     @Query("UPDATE Key k SET k.refreshToken = :refreshToken WHERE k.user.id = :userId")
     void updateRefreshTokenByUserId(@Param("refreshToken") String refreshToken, @Param("userId") Integer userId);
-
 }
 

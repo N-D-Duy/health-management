@@ -5,12 +5,11 @@ import com.example.health_management.domain.entities.Payload;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.services.KeyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwsHeader;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SigningKeyResolverAdapter;
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,7 @@ public class JwtProvider {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final KeyService keyService;
     private final AccountRepository accountRepository;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public Map<String, String> generateKeyPair() {
         try {
@@ -83,16 +83,19 @@ public class JwtProvider {
 
 
     public String getPrivateKeyByEmail(String email){
-        Integer userId = accountRepository.findByEmail(email).getId();
+        Integer userId = accountRepository.findByEmail(email).getUser().getId();
         return keyService.findKeyByUserId(userId).getPrivateKey();
     }
 
     public String getPublicKeyByEmail(String email){
-        Integer userId = accountRepository.findByEmail(email).getId();
+        Integer userId = accountRepository.findByEmail(email).getUser().getId();
         return keyService.findKeyByUserId(userId).getPublicKey();
     }
 
-
+    public int getVersionByEmail(String email){
+        Integer userId = accountRepository.findByEmail(email).getUser().getId();
+        return keyService.findKeyByUserId(userId).getVersion();
+    }
 
     public boolean verifyToken(String token, String publicKeyPEM) {
         // convert publicKeyPEM from PEM string to PublicKey
@@ -125,7 +128,7 @@ public class JwtProvider {
 
     public Claims extractClaimsFromToken(String token) {
         try{
-            return Jwts.parser()
+            Claims claims = Jwts.parser()
                     .setSigningKeyResolver(new SigningKeyResolverAdapter() {
                         @Override
                         public Key resolveSigningKey(JwsHeader header, Claims claims1) {
@@ -147,9 +150,27 @@ public class JwtProvider {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
+
+
+            int version = claims.get("version", Double.class).intValue();
+            String email = claims.get("email", String.class);
+            if(versioningVerify(version, email)){
+                return claims;
+            } else {
+                return null;
+            }
+        } catch (ExpiredJwtException e) {
+            logger.warn("Token expired");
+            return null;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public boolean versioningVerify(int version, String email){
+        //get version from database
+        int dbVersion = getVersionByEmail(email);
+        return version == dbVersion;
     }
 
     public Map<String, String> refreshToken(String refreshToken) {
@@ -188,6 +209,10 @@ public class JwtProvider {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public void updateVersion(Integer userId, int version) {
+        keyService.updateVersion(userId, version);
     }
 }
 

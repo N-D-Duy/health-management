@@ -32,7 +32,7 @@ public class AuthController {
         return authService.register(registerDto);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Cacheable(value = "health-management", key = "'health'")
     @GetMapping("/health")
     public @ResponseBody ApiResponse health() {

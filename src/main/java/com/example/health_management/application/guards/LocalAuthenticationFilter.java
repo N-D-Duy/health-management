@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -27,6 +28,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
     private final JwtProvider jwtProvider;
     private final KeyRepository keyRepository;
     private final AccountRepository accountRepository;
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -64,15 +66,21 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         * finally generate the tokens from private key
         * */
         String email = ((UserDetails) authResult.getPrincipal()).getUsername();
+        logger.warning("email: " + email);
         Integer userId = accountRepository.findByEmail(email).getUser().getId();
-
+        logger.warning("userId: " + userId);
         // Lấy privateKey từ email
         String privateKey = jwtProvider.getPrivateKeyByEmail(email);
+        int version = jwtProvider.getVersionByEmail(email);
+        jwtProvider.updateVersion(userId, ++version);
+
 
         // Tạo payload cho tokens
         Payload payload = new Payload();
         payload.setEmail(email);
         payload.setRole(((UserDetails) authResult.getPrincipal()).getAuthorities().iterator().next().getAuthority());
+        payload.setId(userId);
+        payload.setVersion(version);
 
         // Tạo tokens
         String accessToken = jwtProvider.generateAccessToken(payload, privateKey);

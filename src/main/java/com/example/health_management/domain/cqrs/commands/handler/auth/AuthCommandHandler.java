@@ -4,6 +4,7 @@ import com.example.health_management.application.DTOs.auth.AuthResponseDto;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.domain.cqrs.commands.impl.auth.AuthCommand;
 import com.example.health_management.domain.entities.Account;
+import com.example.health_management.domain.entities.Key;
 import com.example.health_management.domain.entities.Payload;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
@@ -30,10 +31,11 @@ public class AuthCommandHandler {
         final Account account = accountRepository.findByEmail(command.getEmail());
         final User user = account.getUser();
 
-        final String key = keyRepository.findKeyByUserId(user.getId()).getPrivateKey();
-        final Payload payload = new Payload(user.getId(), account.getRole().name(), account.getEmail());
-        final String accessToken = jwtProvider.generateAccessToken(payload, key);
-        final String refreshToken = jwtProvider.generateRefreshToken(payload, key);
+        final Key key = keyRepository.findKeyByUserId(user.getId());
+        final String privateKey = key.getPrivateKey();
+        final Payload payload = new Payload(user.getId(), account.getRole().name(), key.getVersion(), account.getEmail());
+        final String accessToken = jwtProvider.generateAccessToken(payload, privateKey);
+        final String refreshToken = jwtProvider.generateRefreshToken(payload, privateKey);
 
         return AuthResponseDto.builder()
                 .accessToken(accessToken)

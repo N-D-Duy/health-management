@@ -17,4 +17,12 @@ public class KeyService {
         return keyRepository.findKeyByUserId(userId);
     }
 
+    public void updateVersion(Integer userId, int version) {
+        Key key = keyRepository.findKeyByUserId(userId);
+        if(version == Integer.MAX_VALUE){
+            version = 0;
+        }
+        key.setVersion(version);
+        keyRepository.save(key);
+    }
 }

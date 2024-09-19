@@ -12,5 +12,6 @@ import java.io.Serializable;
 public class Payload implements Serializable {
     private int id;
     private String role;
+    private int version;
     private String email;
 }

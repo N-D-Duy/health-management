@@ -26,7 +26,8 @@ public class AuthService {
                 registerDto.getEmail(),
                 registerDto.getUsername(),
                 registerDto.getPassword(),
-                registerDto.getRole()
+                registerDto.getRole(),
+                registerDto.getNotificationKey()
         )));
     }
 
@@ -38,8 +39,8 @@ public class AuthService {
         return refreshTokenHandler.handle(new RefreshTokenCommand(refreshToken));
     }
 
-    public void logout(String refreshToken) {
-        logoutCommandHandler.handle(refreshToken);
+    public void logout(String uid) {
+        logoutCommandHandler.handle(uid);
     }
 
 }

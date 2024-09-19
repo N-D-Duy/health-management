@@ -2,6 +2,7 @@ package com.example.health_management.application.DTOs.auth;
 
 import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.domain.entities.Account;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -15,4 +16,6 @@ public class RegisterDto {
     private String username;
     private String password;
     private Role role;
+    @JsonProperty("notification_key")
+    private String notificationKey;
 }
