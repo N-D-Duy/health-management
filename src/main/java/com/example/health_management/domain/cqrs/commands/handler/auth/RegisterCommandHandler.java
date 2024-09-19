@@ -83,7 +83,7 @@ public class RegisterCommandHandler {
         final String refreshToken = jwtProvider.generateRefreshToken(payload, keyPair.get("privateKey"));
         key.setRefreshToken(refreshToken);
         key.setVersion(1);
-        key.setNotificationKey(command.getNotificationKey());
+        key.setNotificationKey("");
 
         logger.warn("key: {}", key);
         logger.warn("account: {}", account);

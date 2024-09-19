@@ -25,4 +25,10 @@ public class KeyService {
         key.setVersion(version);
         keyRepository.save(key);
     }
+
+    public void updateKey(Integer userId, String fcmToken) {
+        Key userKey = keyRepository.findKeyByUserId(userId);
+        userKey.setNotificationKey(fcmToken);
+        keyRepository.save(userKey);
+    }
 }

@@ -26,8 +26,7 @@ public class AuthService {
                 registerDto.getEmail(),
                 registerDto.getUsername(),
                 registerDto.getPassword(),
-                registerDto.getRole(),
-                registerDto.getNotificationKey()
+                registerDto.getRole()
         )));
     }
 

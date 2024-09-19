@@ -4,6 +4,7 @@ import com.example.health_management.application.DTOs.auth.AuthResponseDto;
 import com.example.health_management.domain.entities.Payload;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
+import com.example.health_management.domain.services.KeyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -42,6 +43,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
 
         String email = requestBody.get("email");
         String password = requestBody.get("password");
+        String fcmToken = requestBody.get("notification_key");
         // Logging for debugging
         System.out.println("Attempting authentication for user: " + email);
 
@@ -49,6 +51,8 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         try {
             Authentication authentication = authenticationManager.authenticate(authRequest);
             System.out.println("Authentication result: Success");
+            //update notification key
+            jwtProvider.updateFcmToken(email, fcmToken);
             return authentication;
         } catch (AuthenticationException e) {
             // Log the failure

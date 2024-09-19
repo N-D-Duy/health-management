@@ -16,6 +16,4 @@ public class RegisterDto {
     private String username;
     private String password;
     private Role role;
-    @JsonProperty("notification_key")
-    private String notificationKey;
 }

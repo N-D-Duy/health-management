@@ -214,5 +214,10 @@ public class JwtProvider {
     public void updateVersion(Integer userId, int version) {
         keyService.updateVersion(userId, version);
     }
+
+    public void updateFcmToken(String email, String fcmToken) {
+        Integer userId = accountRepository.findByEmail(email).getUser().getId();
+        keyService.updateKey(userId, fcmToken);
+    }
 }
 
