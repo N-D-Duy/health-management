@@ -42,7 +42,7 @@ public class RegisterCommandHandler {
         // command is a DTO object that contains the account details
         final Logger logger = LoggerFactory.getLogger(RegisterCommandHandler.class);
 
-        logger.warn("checking email");
+        logger.warn("checking email: {}", command.getEmail());
         Account existingAccount = accountRepository.findByEmail(command.getEmail());
         if (existingAccount != null) {
             throw new ConflictException("error.emailAlreadyExists");

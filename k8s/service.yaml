@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: health-management-be-service
+  labels:
+    app: health-management-be-service
+    service: health-management-be-service
+spec:
+  ports:
+  - port: 9080
+    targetPort: 8080
+    name: http
+  selector:
+    app: health-management-be
+    version: v1

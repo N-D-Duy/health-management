@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-management-be
+  labels:
+    app: health-management-be
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: health-management-be
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: health-management-be
+        version: v1
+    spec:
+      serviceAccountName: health-management-be-service-account
+      containers:
+      - name: health-management-be
+        image: docker.io/duynguyen03/health-management-be:v3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: DB_URL
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: DB_PASSWORD
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: REDIS_PORT
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: REDIS_PASSWORD
