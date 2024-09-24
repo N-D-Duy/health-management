@@ -8,6 +8,7 @@ import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.guards.MyUserDetails;
 import com.example.health_management.domain.services.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
@@ -20,8 +21,9 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "Endpoints for user authentication")
 public class AuthController {
     private final AuthService authService;
     private final JwtProvider jwtProvider;
@@ -46,6 +48,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public void login(HttpServletResponse response) {
+
     }
 
     @PostMapping("/refresh-token")

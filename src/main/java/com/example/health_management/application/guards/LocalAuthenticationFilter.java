@@ -1,17 +1,9 @@
 package com.example.health_management.application.guards;
 
-import com.example.health_management.application.DTOs.auth.AuthResponseDto;
-import com.example.health_management.domain.entities.Payload;
-import com.example.health_management.domain.repositories.AccountRepository;
-import com.example.health_management.domain.repositories.KeyRepository;
-import com.example.health_management.domain.services.KeyService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.Map;
+import java.util.logging.Logger;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,9 +11,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.logging.Logger;
+import com.example.health_management.application.DTOs.auth.AuthResponseDto;
+import com.example.health_management.domain.entities.Payload;
+import com.example.health_management.domain.repositories.AccountRepository;
+import com.example.health_management.domain.repositories.KeyRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFilter {

@@ -1,30 +1,22 @@
 package com.example.health_management.application.apiresponse;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Setter
-@Getter
-public class ApiResponse implements Serializable {
-
-    // Getter và Setter
+@Getter @Setter
+@AllArgsConstructor
+@Builder
+public class ApiResponse<T> implements Serializable {
     private int code;
-    private String message;
-    private Object data; // Dữ liệu trả về, nếu có
+    private String message; // Thông điệp trả về, mặc định là "Success"
+    private T data; // Dữ liệu trả về, nếu có
 
-    // default constructor
+//     default constructor
     public ApiResponse() {
         this.code = HttpServletResponse.SC_OK; // 200
         this.message = "Success";
+        this.data = null;
     }
-
-    public ApiResponse(int code, String message, Object data) {
-        this.code = code;
-        this.message = message;
-        this.data = data;
-    }
-
 }

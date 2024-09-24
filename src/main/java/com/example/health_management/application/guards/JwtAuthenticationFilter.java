@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -17,11 +18,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.*;
-
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final KeyService keyService;
     private final JwtProvider jwtProvider;
@@ -107,6 +108,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
+
+//    @Override
+//    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+//        String[] patterns = {"/api/v1/core/auth/register"};
+//        AntPathMatcher pathMatcher = new AntPathMatcher();
+//        for (String pattern : patterns) {
+//            if (pathMatcher.match(pattern, request.getServletPath())) {
+//                return true;
+//            }
+//        }
+//        return false;    }
+
 
     private void writeResponse(ApiResponse apiResponse, HttpServletResponse response) throws IOException {
         response.setStatus(apiResponse.getCode());

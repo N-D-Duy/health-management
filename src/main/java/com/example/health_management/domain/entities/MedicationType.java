@@ -3,6 +3,8 @@ package com.example.health_management.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "medication_types")
 @Builder
@@ -10,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class MedicationType {
+public class MedicationType implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

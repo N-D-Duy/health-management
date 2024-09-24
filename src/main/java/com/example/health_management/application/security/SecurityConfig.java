@@ -3,7 +3,6 @@ package com.example.health_management.application.security;
 import com.example.health_management.application.guards.JwtAuthenticationFilter;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.guards.LocalAuthenticationFilter;
-import com.example.health_management.application.guards.RateLimitingFilter;
 import com.example.health_management.common.Constants;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
@@ -19,6 +18,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -37,9 +42,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider, keyRepository, accountRepository);
-        localAuthenticationFilter.setFilterProcessesUrl("/api/v1/auth/login");
+        localAuthenticationFilter.setFilterProcessesUrl("/auth/login");
 
         http
+                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
@@ -51,6 +57,17 @@ public class SecurityConfig {
                 .addFilterBefore(localAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(keyService, jwtProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
