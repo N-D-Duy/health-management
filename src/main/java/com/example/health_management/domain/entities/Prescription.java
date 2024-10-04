@@ -32,4 +32,7 @@ public class Prescription extends BaseEntity{
 
     @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL)
     private List<PrescriptionDetails> details = new ArrayList<>();
+
+    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL)
+    private List<MedicalConditions> medicalConditions = new ArrayList<>();
 }

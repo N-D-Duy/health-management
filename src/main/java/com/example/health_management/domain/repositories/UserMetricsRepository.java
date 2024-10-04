@@ -4,7 +4,4 @@ import com.example.health_management.domain.entities.UserMetrics;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserMetricsRepository extends JpaRepository<UserMetrics, Long> {
-    UserMetrics findByUsername(String username);
-
-    UserMetrics findByEmail(String email);
 }
