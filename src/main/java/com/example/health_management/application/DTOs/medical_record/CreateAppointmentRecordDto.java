@@ -11,7 +11,7 @@ import java.io.Serializable;
  */
 @Builder
 @Value
-public class CreateMedicalRecordDto implements Serializable {
+public class CreateAppointmentRecordDto implements Serializable {
     String note;
     Long prescriptionId;
     Long userId;

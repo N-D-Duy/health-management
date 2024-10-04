@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Builder
 @Getter
 @Value
-public class MedicalRecordResponseDto implements Serializable {
+public class AppointmentRecordResponseDto implements Serializable {
     int id;
     String note;
     @JsonIgnoreProperties({"user"})

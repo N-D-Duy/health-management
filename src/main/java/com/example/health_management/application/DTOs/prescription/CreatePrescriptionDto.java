@@ -18,7 +18,7 @@ import java.util.Set;
 public class CreatePrescriptionDto implements Serializable {
     Long userId;
     String diagnosis;
-    String treatment;
-    LocalDate createDate;
-    Set<Long> medicationIds;
+    Long doctorId;
+    String notes;
+    Set<Long> details;
 }

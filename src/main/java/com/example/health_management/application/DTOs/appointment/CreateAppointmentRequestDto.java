@@ -1,5 +1,7 @@
 package com.example.health_management.application.DTOs.appointment;
 
+import com.example.health_management.common.shared.enums.AppointmentStatus;
+import com.example.health_management.common.shared.enums.AppointmentType;
 import com.example.health_management.domain.entities.Appointment;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,5 +20,8 @@ import java.time.LocalDate;
 public class CreateAppointmentRequestDto implements Serializable {
     LocalDate date;
     Long healthProviderId;
-    Long appointmentTypeId;
+    Long doctorId;
+    String note;
+    AppointmentStatus status;
+    AppointmentType appointmentType;
 }
