@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PrescriptionRepository extends JpaRepository<Prescription, Integer> {
-    List<Prescription> findByUser_Id(@NonNull Integer id);
+public interface PrescriptionRepository extends JpaRepository<Prescription, Long> {
+    List<Prescription> findByUser_Id(@NonNull Long id);
 
-    Optional<Prescription> findByUser_IdAndId(@NonNull Integer id, @NonNull int id1);
+    Optional<Prescription> findByUser_IdAndId(@NonNull Long id, @NonNull Long id1);
 }

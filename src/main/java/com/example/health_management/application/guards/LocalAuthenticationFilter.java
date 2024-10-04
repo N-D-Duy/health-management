@@ -71,7 +71,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         * */
         String email = ((UserDetails) authResult.getPrincipal()).getUsername();
         logger.warning("email: " + email);
-        Integer userId = accountRepository.findByEmail(email).getUser().getId();
+        Long userId = accountRepository.findByEmail(email).getUser().getId();
         logger.warning("userId: " + userId);
         // Lấy privateKey từ email
         String privateKey = jwtProvider.getPrivateKeyByEmail(email);

@@ -13,11 +13,11 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class User {
+public class User extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "first_name", length = 50)
     private String firstName;
@@ -30,6 +30,9 @@ public class User {
 
     @Column(name = "gender", length = 10)
     private String gender;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Account account;

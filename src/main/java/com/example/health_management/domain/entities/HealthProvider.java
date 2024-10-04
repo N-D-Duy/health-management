@@ -3,6 +3,8 @@ package com.example.health_management.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "health_providers")
 @Builder
@@ -10,12 +12,21 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class HealthProvider {
+public class HealthProvider extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String healthProviderName;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = HealthProviderType.class)
-    @JoinColumn(referencedColumnName = "id", nullable = false)
-    private HealthProviderType healthProviderType;
+    private Long id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Address address;
+
+    @OneToMany(mappedBy = "healthProvider", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Doctor> doctors;
+
 }

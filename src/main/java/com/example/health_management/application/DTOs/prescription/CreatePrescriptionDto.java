@@ -16,9 +16,9 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 public class CreatePrescriptionDto implements Serializable {
-    Integer userId;
+    Long userId;
     String diagnosis;
     String treatment;
     LocalDate createDate;
-    Set<Integer> medicationIds;
+    Set<Long> medicationIds;
 }

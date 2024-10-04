@@ -14,17 +14,17 @@ import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface PrescriptionMapper {
-    @Mapping(target = "user", source = "user")
-    @Mapping(target = "medications", source = "medications")
-    @Mapping(target = "id", ignore = true)
-     Prescription toPrescription(CreatePrescriptionDto createPrescriptionDto, User user, Set<Medication> medications);
-
-    @Mapping(target = "user", source = "user")
-     PrescriptionResponseDto toPrescriptionResponseDto(Prescription prescription);
-
-    @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "user", source = "user")
-    @Mapping(target = "medications", source = "medications")
-    @Mapping(target = "id", ignore = true)
-     Prescription partialUpdate(CreatePrescriptionDto createPrescriptionDto, @MappingTarget Prescription prescription, User user, Set<Medication> medications);
+//    @Mapping(target = "user", source = "user")
+//    @Mapping(target = "medications", source = "medications")
+//    @Mapping(target = "id", ignore = true)
+//     Prescription toPrescription(CreatePrescriptionDto createPrescriptionDto, User user, Set<Medication> medications);
+//
+//    @Mapping(target = "user", source = "user")
+//     PrescriptionResponseDto toPrescriptionResponseDto(Prescription prescription);
+//
+//    @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
+//    @Mapping(target = "user", source = "user")
+//    @Mapping(target = "medications", source = "medications")
+//    @Mapping(target = "id", ignore = true)
+//     Prescription partialUpdate(CreatePrescriptionDto createPrescriptionDto, @MappingTarget Prescription prescription, User user, Set<Medication> medications);
 }

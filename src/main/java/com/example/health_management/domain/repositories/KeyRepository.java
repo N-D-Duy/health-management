@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import com.example.health_management.domain.entities.Key;
 
 @Repository
-public interface KeyRepository extends JpaRepository<Key, Integer> {
-    Key findKeyByUserId(Integer userId);
+public interface KeyRepository extends JpaRepository<Key, Long> {
+    Key findKeyByUserId(Long userId);
 
     @Modifying
     @Transactional
@@ -21,6 +21,6 @@ public interface KeyRepository extends JpaRepository<Key, Integer> {
     @Modifying
     @Transactional
     @Query("UPDATE Key k SET k.refreshToken = :refreshToken WHERE k.user.id = :userId")
-    void updateRefreshTokenByUserId(@Param("refreshToken") String refreshToken, @Param("userId") Integer userId);
+    void updateRefreshTokenByUserId(@Param("refreshToken") String refreshToken, @Param("userId") Long userId);
 }
 

@@ -14,20 +14,20 @@ public class KeyService {
 
     private final KeyRepository keyRepository;
 
-    public Key findKeyByUserId(Integer userId) {
+    public Key findKeyByUserId(Long userId) {
         return keyRepository.findKeyByUserId(userId);
     }
 
-    public void updateVersion(Integer userId, int version) {
+    public void updateVersion(Long userId, int version) {
         Key key = keyRepository.findKeyByUserId(userId);
-        if(version == Integer.MAX_VALUE){
+        if(version == Integer.MAX_VALUE) {
             version = 0;
         }
         key.setVersion(version);
         keyRepository.save(key);
     }
 
-    public void updateKey(Integer userId, String fcmToken) {
+    public void updateKey(Long userId, String fcmToken) {
         Key userKey = keyRepository.findKeyByUserId(userId);
         userKey.setNotificationKey(fcmToken);
         keyRepository.save(userKey);

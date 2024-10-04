@@ -12,16 +12,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Medication {
+public class Medication extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String name;
     private String image_url;
     private String description;
     private LocalDate mfgDate;
     private LocalDate expDate;
-    @ManyToOne(fetch = FetchType.EAGER,cascade = {CascadeType.MERGE, CascadeType.PERSIST},targetEntity = MedicationType.class)
-    @JoinColumn(referencedColumnName = "id",nullable = false)
-    private MedicationType medicationType;
 }

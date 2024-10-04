@@ -1,9 +1,6 @@
 package com.example.health_management.domain.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -17,5 +14,6 @@ public class Country {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "name")
     private String name;
 }

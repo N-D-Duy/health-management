@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import com.example.health_management.domain.entities.Account;
 
 @Repository
-public interface AccountRepository  extends JpaRepository<Account, Integer> {
+public interface AccountRepository  extends JpaRepository<Account, Long> {
     Account findByUsername(String username);
     
     Account findByEmail(String email);

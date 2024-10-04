@@ -17,6 +17,6 @@ import java.time.LocalDate;
 @Getter @Setter
 public class CreateAppointmentRequestDto implements Serializable {
     LocalDate date;
-    int healthProviderId;
-    int appointmentTypeId;
+    Long healthProviderId;
+    Long appointmentTypeId;
 }

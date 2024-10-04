@@ -90,17 +90,17 @@ public class JwtProvider {
 
 
     public String getPrivateKeyByEmail(String email){
-        Integer userId = accountRepository.findByEmail(email).getUser().getId();
+        Long userId = accountRepository.findByEmail(email).getUser().getId();
         return keyService.findKeyByUserId(userId).getPrivateKey();
     }
 
     public String getPublicKeyByEmail(String email){
-        Integer userId = accountRepository.findByEmail(email).getUser().getId();
+        Long userId = accountRepository.findByEmail(email).getUser().getId();
         return keyService.findKeyByUserId(userId).getPublicKey();
     }
 
     public int getVersionByEmail(String email){
-        Integer userId = accountRepository.findByEmail(email).getUser().getId();
+        Long userId = accountRepository.findByEmail(email).getUser().getId();
         return keyService.findKeyByUserId(userId).getVersion();
     }
 
@@ -188,7 +188,7 @@ public class JwtProvider {
         String email = claims.get("email", String.class);
         String role = claims.get("role", String.class);
         Double id = claims.get("id", Double.class);
-        int uid = id.intValue();
+        Long uid = id.longValue();
         if (!verifyToken(refreshToken, getPublicKeyByEmail(email))) {
             return null;
         }
@@ -218,12 +218,12 @@ public class JwtProvider {
         }
     }
 
-    public void updateVersion(Integer userId, int version) {
+    public void updateVersion(Long userId, int version) {
         keyService.updateVersion(userId, version);
     }
 
     public void updateFcmToken(String email, String fcmToken) {
-        Integer userId = accountRepository.findByEmail(email).getUser().getId();
+        Long userId = accountRepository.findByEmail(email).getUser().getId();
         keyService.updateKey(userId, fcmToken);
     }
 

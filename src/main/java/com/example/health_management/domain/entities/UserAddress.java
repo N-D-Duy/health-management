@@ -10,15 +10,15 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserAddress {
+public class UserAddress extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = User.class)
     @JoinColumn(referencedColumnName = "id",nullable = true)
     private User user;
     @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = Address.class)
     @JoinColumn(referencedColumnName = "id",nullable = false)
     private Address address;
-    private boolean isDefault;
+    private Boolean isDefault;
 }

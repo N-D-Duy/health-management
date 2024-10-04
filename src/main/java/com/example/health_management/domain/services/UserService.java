@@ -21,7 +21,7 @@ public class UserService {
         return CompletableFuture.completedFuture(userRepository.findAll());
     }
 
-    public CompletableFuture<User> getUserById(Integer id) {
+    public CompletableFuture<User> getUserById(Long id) {
         return CompletableFuture.supplyAsync(() -> userRepository.findById(id).orElse(null));
     }
 

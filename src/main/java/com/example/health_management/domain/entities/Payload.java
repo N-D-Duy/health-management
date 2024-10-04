@@ -10,8 +10,8 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class Payload implements Serializable {
-    private int id;
+    private Long id;
     private String role;
-    private int version;
+    private Integer version;
     private String email;
 }

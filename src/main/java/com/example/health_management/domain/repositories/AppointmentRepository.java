@@ -11,8 +11,8 @@ import java.util.Set;
 
 @Repository
 @Transactional
-public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
-    Set<Appointment> findByUser_Id(@NonNull Integer id);
+public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+    Set<Appointment> findByUser_Id(@NonNull Long id);
 
-    Optional<Appointment> findByIdAndUser_Id(@NonNull int id, @NonNull Integer id1);
+    Optional<Appointment> findByIdAndUser_Id(@NonNull Long id, @NonNull Long id1);
 }

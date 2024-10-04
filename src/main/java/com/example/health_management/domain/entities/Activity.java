@@ -11,11 +11,11 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Activity {
+public class Activity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String activityName;
     private String activityDescription;
-    private long caloriesBurned;
+    private Double caloriesBurned;
 }

@@ -1,8 +1,8 @@
 package com.example.health_management.application.DTOs.appointment;
 
-import com.example.health_management.application.DTOs.appointment_type.ApppointmentTypeResponseDto;
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderResponseDto;
 import com.example.health_management.application.DTOs.user.UserResponseDto;
+import com.example.health_management.common.shared.enums.AppointmentType;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,5 +22,5 @@ public class AppointmentResponseDto implements Serializable {
     LocalDate date;
     HealthProviderResponseDto healthProvider;
     UserResponseDto user;
-    ApppointmentTypeResponseDto appointmentType;
+    AppointmentType appointmentType;
 }

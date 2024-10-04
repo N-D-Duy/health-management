@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -13,19 +15,21 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Prescription {
+public class Prescription extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String diagnosis;
-    private String treatment;
-    private LocalDate create_date;
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = User.class)
     @JoinColumn(referencedColumnName = "id", nullable = false)
     private User user;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = Medication.class)
-    @JoinTable(name = "prescription_medications",
-            joinColumns = @JoinColumn(name = "prescription_id"),
-            inverseJoinColumns = @JoinColumn(name = "medication_id"))
-    private Set<Medication> medications;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = Doctor.class)
+    @JoinColumn(referencedColumnName = "id", nullable = false)
+    private Doctor doctor;
+
+    private String notes;
+
+    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL)
+    private List<PrescriptionDetails> details = new ArrayList<>();
 }

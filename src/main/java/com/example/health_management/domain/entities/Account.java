@@ -1,5 +1,6 @@
 package com.example.health_management.domain.entities;
 
+import com.example.health_management.common.shared.enums.AccountStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,11 +28,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @Entity
 @Table(name = "accounts")
-public class Account implements UserDetails {
+public class Account extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
@@ -49,11 +50,9 @@ public class Account implements UserDetails {
     @Column(name = "role", nullable = false, length = 20)
     private Role role;
 
-    @Column(name = "password_reset_token", length = 255)
-    private String passwordResetToken;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false, length = 20)
-    private String accountStatus = "PENDING";
+    private AccountStatus accountStatus = AccountStatus.INACTIVE;
 
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)

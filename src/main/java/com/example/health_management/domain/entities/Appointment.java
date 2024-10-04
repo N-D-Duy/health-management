@@ -1,5 +1,7 @@
 package com.example.health_management.domain.entities;
 
+import com.example.health_management.common.shared.enums.AppointmentStatus;
+import com.example.health_management.common.shared.enums.AppointmentType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,20 +14,33 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Appointment {
+public class Appointment extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
-    private LocalDate date;
-    //todo: set optional to true for now in case of remote health provider
+    private Long id;
+    private LocalDate scheduledAt;
+
+
     @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST, CascadeType.MERGE},targetEntity = HealthProvider.class,optional = true)
-    @JoinColumn(referencedColumnName = "id", nullable = true)
+    @JoinColumn(referencedColumnName = "id")
     private HealthProvider healthProvider;
+
     @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST, CascadeType.MERGE},targetEntity = User.class,optional = false)
     @JoinColumn(referencedColumnName = "id",nullable = false)
     private User user;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST, CascadeType.MERGE},targetEntity = AppointmentType.class, optional = false)
-    @JoinColumn(referencedColumnName = "id",nullable = false)
-    private AppointmentType appointmentType;
 
+    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST, CascadeType.MERGE},targetEntity = Doctor.class,optional = true)
+    @JoinColumn(referencedColumnName = "id")
+    private Doctor doctor;
+
+    @Column(name = "note")
+    private String note;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private AppointmentStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "appointment_type")
+    private AppointmentType appointmentType;
 }

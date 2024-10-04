@@ -6,9 +6,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class HealthManagementApplicationTests {
 
+
 	@Test
 	void contextLoads() {
 		System.out.println("Context loaded successfully");
 	}
+
 
 }
