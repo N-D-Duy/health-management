@@ -1,11 +1,6 @@
 package com.example.health_management.common.config;
 
-import com.example.health_management.domain.redis.MyCustomTtlFunction;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +14,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import com.example.health_management.domain.redis.MyCustomTtlFunction;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 @Configuration
 @EnableCaching
 public class RedisConfig {
@@ -28,14 +27,11 @@ public class RedisConfig {
     private int port;
     @Value("${spring.data.redis.password}")
     private String password;
-    @Value("${spring.data.redis.username}")
-    private String username;
+
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
-        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-                .useSsl().build();
-        redisConfig.setUsername(username);
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder().build();
         redisConfig.setPassword(password);
         redisConfig.setHostName(host);
         redisConfig.setPort(port);

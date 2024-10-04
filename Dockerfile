@@ -18,7 +18,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy the JAR file from the builder stage
-COPY --from=builder /app/target/push-notification-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/health-management-0.0.1-SNAPSHOT.jar app.jar
 
 # Use a non-root user for security (optional)
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup

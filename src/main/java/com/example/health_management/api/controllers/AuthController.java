@@ -1,29 +1,32 @@
 package com.example.health_management.api.controllers;
 
 
+import java.util.Map;
+import java.util.Objects;
+
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.health_management.application.DTOs.auth.AuthResponseDto;
-import com.example.health_management.application.DTOs.auth.TokensRequestDto;
 import com.example.health_management.application.DTOs.auth.RegisterDto;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.guards.MyUserDetails;
 import com.example.health_management.domain.services.AuthService;
-import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth", description = "Endpoints for user authentication")
 public class AuthController {
     private final AuthService authService;
     private final JwtProvider jwtProvider;
@@ -48,7 +51,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public void login(HttpServletResponse response) {
-
     }
 
     @PostMapping("/refresh-token")
