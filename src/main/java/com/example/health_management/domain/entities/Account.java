@@ -1,16 +1,9 @@
 package com.example.health_management.domain.entities;
 
 import com.example.health_management.common.shared.enums.AccountStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.JoinColumn;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @Entity
 @Table(name = "accounts")
+@EqualsAndHashCode(callSuper = true)
 public class Account extends BaseEntity implements UserDetails {
 
     @Id
@@ -47,15 +41,16 @@ public class Account extends BaseEntity implements UserDetails {
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, length = 20)
+    @Column(name = "role", nullable = false, length = 20, columnDefinition = "varchar(20) default 'USER'")
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_status", nullable = false, length = 20)
-    private AccountStatus accountStatus = AccountStatus.INACTIVE;
+    @Builder.Default
+    @Column(name = "account_status", nullable = false, length = 20, columnDefinition = "varchar(20) default 'INACTIVE'")
+    private AccountStatus status = AccountStatus.INACTIVE;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", unique = true)
     private User user;
 
 

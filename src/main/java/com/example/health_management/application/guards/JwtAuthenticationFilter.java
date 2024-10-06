@@ -39,8 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain chain
     ) throws IOException, ServletException {
 
-        final Logger logger = LoggerFactory.getLogger(this.getClass());
-
         String token = jwtProvider.extractToken(request);
         if(token == null) {
             chain.doFilter(request, response);

@@ -1,7 +1,7 @@
 package com.example.health_management.api.controllers;
 
-import com.example.health_management.application.DTOs.appointment.AppointmentResponseDto;
-import com.example.health_management.application.DTOs.appointment.CreateAppointmentRequestDto;
+import com.example.health_management.application.DTOs.appointment.request.CreateAppointmentRequest;
+import com.example.health_management.application.DTOs.appointment.response.AppointmentResponse;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.domain.services.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,30 +29,30 @@ public class AppointmentController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<AppointmentResponseDto>> createAppointment(@RequestBody CreateAppointmentRequestDto createAppointmentRequestDto) {
-        AppointmentResponseDto appointmentResponseDto = appointmentService.createAppointment(createAppointmentRequestDto);
-        ApiResponse<AppointmentResponseDto> apiResponse = ApiResponse.<AppointmentResponseDto>builder().code(HttpStatus.OK.value()).data(appointmentResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<AppointmentResponse>> createAppointment(@RequestBody CreateAppointmentRequest createAppointmentRequest) {
+        AppointmentResponse appointmentResponse = appointmentService.createAppointment(createAppointmentRequest);
+        ApiResponse<AppointmentResponse> apiResponse = ApiResponse.<AppointmentResponse>builder().code(HttpStatus.OK.value()).data(appointmentResponse).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AppointmentResponseDto>> getAppointmentById(@PathVariable Long id) {
-        AppointmentResponseDto appointmentResponseDto = appointmentService.getAppointmentById(id);
-        ApiResponse<AppointmentResponseDto> apiResponse = ApiResponse.<AppointmentResponseDto>builder().code(HttpStatus.OK.value()).data(appointmentResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<AppointmentResponse>> getAppointmentById(@PathVariable Long id) {
+        AppointmentResponse appointmentResponse = appointmentService.getAppointmentById(id);
+        ApiResponse<AppointmentResponse> apiResponse = ApiResponse.<AppointmentResponse>builder().code(HttpStatus.OK.value()).data(appointmentResponse).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
     // Get all appointments by user id
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<AppointmentResponseDto>>> getAllAppointments() {
-        List<AppointmentResponseDto> appointmentResponseDto = appointmentService.getAllAppointments();
-        ApiResponse<List<AppointmentResponseDto>> apiResponse = ApiResponse.<List<AppointmentResponseDto>>builder().code(HttpStatus.OK.value()).data(appointmentResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAllAppointments() {
+        List<AppointmentResponse> appointmentResponse = appointmentService.getAllAppointments();
+        ApiResponse<List<AppointmentResponse>> apiResponse = ApiResponse.<List<AppointmentResponse>>builder().code(HttpStatus.OK.value()).data(appointmentResponse).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<AppointmentResponseDto>> updateAppointment(@PathVariable Long id, @RequestBody CreateAppointmentRequestDto createAppointmentRequestDto) {
-        AppointmentResponseDto appointmentResponseDto = appointmentService.updateAppointment(id, createAppointmentRequestDto);
-        ApiResponse<AppointmentResponseDto> apiResponse = ApiResponse.<AppointmentResponseDto>builder().code(HttpStatus.OK.value()).data(appointmentResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<AppointmentResponse>> updateAppointment(@PathVariable Long id, @RequestBody CreateAppointmentRequest createAppointmentRequest) {
+        AppointmentResponse appointmentResponse = appointmentService.updateAppointment(id, createAppointmentRequest);
+        ApiResponse<AppointmentResponse> apiResponse = ApiResponse.<AppointmentResponse>builder().code(HttpStatus.OK.value()).data(appointmentResponse).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 

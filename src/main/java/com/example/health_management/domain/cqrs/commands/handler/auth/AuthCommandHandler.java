@@ -1,6 +1,6 @@
 package com.example.health_management.domain.cqrs.commands.handler.auth;
 
-import com.example.health_management.application.DTOs.auth.AuthResponseDto;
+import com.example.health_management.application.DTOs.auth.AuthResponse;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.domain.cqrs.commands.impl.auth.AuthCommand;
 import com.example.health_management.domain.entities.Account;
@@ -22,7 +22,7 @@ public class AuthCommandHandler {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
 
-    public AuthResponseDto handle(AuthCommand command) {
+    public AuthResponse handle(AuthCommand command) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 command.getEmail(),
                 command.getPassword()
@@ -37,7 +37,7 @@ public class AuthCommandHandler {
         final String accessToken = jwtProvider.generateAccessToken(payload, privateKey);
         final String refreshToken = jwtProvider.generateRefreshToken(payload, privateKey);
 
-        return AuthResponseDto.builder()
+        return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

@@ -1,16 +1,14 @@
 package com.example.health_management.api.controllers;
 
-import com.example.health_management.application.DTOs.prescription.CreatePrescriptionDto;
-import com.example.health_management.application.DTOs.prescription.PrescriptionResponseDto;
+import com.example.health_management.application.DTOs.prescription.CreatePrescriptionRequest;
+import com.example.health_management.application.DTOs.prescription.PrescriptionDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.domain.services.PrescriptionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,23 +27,23 @@ public class PrescriptionController {
     }
     @PreAuthorize("hasAnyRole({'ROLE_DOCTOR', 'ROLE_USER'})")
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<PrescriptionResponseDto>>> getAllPrescriptions(@RequestParam(required = false, value = "user_id") Long userId) {
-        List<PrescriptionResponseDto> prescriptionResponseDtoList = prescriptionService.getAllPrescriptions(userId);
-        ApiResponse<List<PrescriptionResponseDto>> apiResponse = ApiResponse.<List<PrescriptionResponseDto>>builder().code(HttpStatus.OK.value()).data(prescriptionResponseDtoList).message("Success").build();
+    public ResponseEntity<ApiResponse<List<PrescriptionDTO>>> getAllPrescriptions(@RequestParam(required = false, value = "user_id") Long userId) {
+        List<PrescriptionDTO> prescriptionDTOList = prescriptionService.getAllPrescriptions(userId);
+        ApiResponse<List<PrescriptionDTO>> apiResponse = ApiResponse.<List<PrescriptionDTO>>builder().code(HttpStatus.OK.value()).data(prescriptionDTOList).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
     @PreAuthorize("hasAnyRole({'ROLE_DOCTOR', 'ROLE_USER'})")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PrescriptionResponseDto>> getPrescriptionById(@RequestParam(required = false, value = "user_id") Long userId,@PathVariable Long id) {
-        PrescriptionResponseDto prescriptionResponseDto = prescriptionService.getPrescriptionById(id, userId);
-        ApiResponse<PrescriptionResponseDto> apiResponse = ApiResponse.<PrescriptionResponseDto>builder().code(HttpStatus.OK.value()).data(prescriptionResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<PrescriptionDTO>> getPrescriptionById(@RequestParam(required = false, value = "user_id") Long userId, @PathVariable Long id) {
+        PrescriptionDTO prescriptionDTO = prescriptionService.getPrescriptionById(id, userId);
+        ApiResponse<PrescriptionDTO> apiResponse = ApiResponse.<PrescriptionDTO>builder().code(HttpStatus.OK.value()).data(prescriptionDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 //    @PreAuthorize("hasRole('ROLE_DOCTOR')")
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<PrescriptionResponseDto>> createPrescription(@RequestBody CreatePrescriptionDto createPrescriptionDto) {
-        PrescriptionResponseDto prescriptionResponseDto = prescriptionService.createPrescription(createPrescriptionDto);
-        ApiResponse<PrescriptionResponseDto> apiResponse = ApiResponse.<PrescriptionResponseDto>builder().code(HttpStatus.OK.value()).data(prescriptionResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<PrescriptionDTO>> createPrescription(@RequestBody CreatePrescriptionRequest createPrescriptionRequest) {
+        PrescriptionDTO prescriptionDTO = prescriptionService.createPrescription(createPrescriptionRequest);
+        ApiResponse<PrescriptionDTO> apiResponse = ApiResponse.<PrescriptionDTO>builder().code(HttpStatus.OK.value()).data(prescriptionDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
@@ -57,9 +55,9 @@ public class PrescriptionController {
     }
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<PrescriptionResponseDto>> updatePrescription(@PathVariable Long id, @RequestBody CreatePrescriptionDto createPrescriptionDto) {
-        PrescriptionResponseDto prescriptionResponseDto = prescriptionService.updatePrescription(id, createPrescriptionDto);
-        ApiResponse<PrescriptionResponseDto> apiResponse = ApiResponse.<PrescriptionResponseDto>builder().code(HttpStatus.OK.value()).data(prescriptionResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<PrescriptionDTO>> updatePrescription(@PathVariable Long id, @RequestBody CreatePrescriptionRequest createPrescriptionRequest) {
+        PrescriptionDTO prescriptionDTO = prescriptionService.updatePrescription(id, createPrescriptionRequest);
+        ApiResponse<PrescriptionDTO> apiResponse = ApiResponse.<PrescriptionDTO>builder().code(HttpStatus.OK.value()).data(prescriptionDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 }

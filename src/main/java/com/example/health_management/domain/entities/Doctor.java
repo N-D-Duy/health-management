@@ -11,31 +11,28 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "doctors")
+@EqualsAndHashCode(callSuper = true)
 public class Doctor extends BaseEntity{
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "health_provider_id", unique = true)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "health_provider_id", referencedColumnName = "id", unique = true)
     private HealthProvider healthProvider;
 
-    @Column(name = "specialization")
     private String specialization;
 
-    @Column(name = "experience")
     private Double experience;
 
-    @Column(name = "qualification")
     private String qualification;
 
-    @Column(name = "rating")
     private Double rating;
 
-    @Column(name = "about")
+    @Column(columnDefinition = "TEXT")
     private String about;
 }

@@ -1,6 +1,6 @@
 package com.example.health_management.domain.cqrs.commands.handler.auth;
 
-import com.example.health_management.application.DTOs.auth.AuthResponseDto;
+import com.example.health_management.application.DTOs.auth.AuthResponse;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.common.shared.exceptions.ConflictException;
@@ -37,7 +37,7 @@ public class RegisterCommandHandler {
     private final PasswordEncoder passwordEncoder;
 
 
-    public AuthResponseDto handle(RegisterCommand command) {
+    public AuthResponse handle(RegisterCommand command) {
         // Check if email already exists
         // command is a DTO object that contains the account details
         final Logger logger = LoggerFactory.getLogger(RegisterCommandHandler.class);
@@ -98,7 +98,7 @@ public class RegisterCommandHandler {
         accountRepository.save(account);
         keyRepository.save(key);
 
-        return AuthResponseDto.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).build();
+        return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).build();
     }
 }
 

@@ -1,8 +1,8 @@
 package com.example.health_management.domain.services;
 
-import com.example.health_management.application.DTOs.auth.AuthRequestDto;
-import com.example.health_management.application.DTOs.auth.AuthResponseDto;
-import com.example.health_management.application.DTOs.auth.RegisterDto;
+import com.example.health_management.application.DTOs.auth.AuthRequest;
+import com.example.health_management.application.DTOs.auth.AuthResponse;
+import com.example.health_management.application.DTOs.auth.RegisterDTO;
 import com.example.health_management.domain.cqrs.commands.handler.auth.AuthCommandHandler;
 import com.example.health_management.domain.cqrs.commands.handler.auth.LogoutCommandHandler;
 import com.example.health_management.domain.cqrs.commands.handler.auth.RefreshTokenCommandHandler;
@@ -21,7 +21,7 @@ public class AuthService {
     private final RefreshTokenCommandHandler refreshTokenHandler;
     private final LogoutCommandHandler logoutCommandHandler;
 
-    public AuthResponseDto register(RegisterDto registerDto) {
+    public AuthResponse register(RegisterDTO registerDto) {
         return registerCommandHandler.handle((new RegisterCommand(
                 registerDto.getEmail(),
                 registerDto.getUsername(),
@@ -30,11 +30,11 @@ public class AuthService {
         )));
     }
 
-    public AuthResponseDto authenticate(AuthRequestDto authRequestDto) {
-        return authCommandHandler.handle(new AuthCommand(authRequestDto.getEmail(), authRequestDto.getPassword()));
+    public AuthResponse authenticate(AuthRequest authRequest) {
+        return authCommandHandler.handle(new AuthCommand(authRequest.getEmail(), authRequest.getPassword()));
     }
 
-    public AuthResponseDto refreshToken(String refreshToken) {
+    public AuthResponse refreshToken(String refreshToken) {
         return refreshTokenHandler.handle(new RefreshTokenCommand(refreshToken));
     }
 

@@ -1,12 +1,11 @@
 package com.example.health_management.domain.services;
 
-import com.example.health_management.application.DTOs.prescription.CreatePrescriptionDto;
-import com.example.health_management.application.DTOs.prescription.PrescriptionResponseDto;
+import com.example.health_management.application.DTOs.prescription.CreatePrescriptionRequest;
+import com.example.health_management.application.DTOs.prescription.PrescriptionDTO;
 import com.example.health_management.application.guards.JwtProvider;
-import com.example.health_management.application.mapper.prescription.PrescriptionMapper;
+import com.example.health_management.application.mapper.PrescriptionMapper;
 import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.domain.entities.Doctor;
-import com.example.health_management.domain.entities.Medication;
 import com.example.health_management.domain.entities.Prescription;
 import com.example.health_management.domain.entities.PrescriptionDetails;
 import com.example.health_management.domain.repositories.*;
@@ -16,7 +15,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
@@ -41,7 +39,7 @@ public class PrescriptionService {
         this.doctorRepository = doctorRepository;
     }
 
-    public List<PrescriptionResponseDto> getAllPrescriptions(@Nullable Long userId) {
+    public List<PrescriptionDTO> getAllPrescriptions(@Nullable Long userId) {
         try {
             Role role = jwtService.extractUserFromToken().getAccount().getRole();
             userId = ((userId != null && role.equals(Role.DOCTOR)) ? userId : jwtService.extractUserFromToken().getId());
@@ -54,7 +52,7 @@ public class PrescriptionService {
     }
 
 
-    public PrescriptionResponseDto getPrescriptionById(Long id, @Nullable Long userId) {
+    public PrescriptionDTO getPrescriptionById(Long id, @Nullable Long userId) {
         try {
             Role role = jwtService.extractUserFromToken().getAccount().getRole();
             userId = ((userId != null && role.equals(Role.DOCTOR)) ? userId : jwtService.extractUserFromToken().getId());
@@ -66,11 +64,11 @@ public class PrescriptionService {
         }
     }
 
-    public PrescriptionResponseDto createPrescription(CreatePrescriptionDto createPrescriptionDto) {
+    public PrescriptionDTO createPrescription(CreatePrescriptionRequest createPrescriptionRequest) {
         try {
-            List<PrescriptionDetails> details = createPrescriptionDto.getDetails().stream().map(prescriptionDetail -> prescriptionDetailsRepository.findById(prescriptionDetail).orElseThrow(() -> new RuntimeException("Medication not found !!!"))).collect(Collectors.toList());
-            Doctor doctor = doctorRepository.findById(createPrescriptionDto.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
-            Prescription prescription = prescriptionMapper.toPrescription(createPrescriptionDto, userRepository.findById(createPrescriptionDto.getUserId()).get(), doctor, details);
+            List<PrescriptionDetails> details = createPrescriptionRequest.getDetails().stream().map(prescriptionDetail -> prescriptionDetailsRepository.findById(prescriptionDetail).orElseThrow(() -> new RuntimeException("Medication not found !!!"))).collect(Collectors.toList());
+            Doctor doctor = doctorRepository.findById(createPrescriptionRequest.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
+            Prescription prescription = prescriptionMapper.toPrescription(createPrescriptionRequest, userRepository.findById(createPrescriptionRequest.getUserId()).get(), doctor, details);
             return prescriptionMapper.toPrescriptionResponseDto(prescriptionRepository.save(prescription));
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -89,12 +87,12 @@ public class PrescriptionService {
         }
     }
 
-    public PrescriptionResponseDto updatePrescription(Long id, CreatePrescriptionDto createPrescriptionDto) {
+    public PrescriptionDTO updatePrescription(Long id, CreatePrescriptionRequest createPrescriptionRequest) {
         try {
-            Prescription prescription = prescriptionRepository.findByUser_IdAndId(createPrescriptionDto.getUserId(), id).orElseThrow(() -> new RuntimeException("Prescription not found"));
-            List<PrescriptionDetails> details = createPrescriptionDto.getDetails().stream().map(prescriptionDetail -> prescriptionDetailsRepository.findById(prescriptionDetail).orElseThrow(() -> new RuntimeException("Medication not found !!!"))).collect(Collectors.toList());
-            Doctor doctor = doctorRepository.findById(createPrescriptionDto.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
-            prescription = prescriptionMapper.partialUpdate(createPrescriptionDto, prescription, userRepository.findById(createPrescriptionDto.getUserId()).get(), doctor, details);
+            Prescription prescription = prescriptionRepository.findByUser_IdAndId(createPrescriptionRequest.getUserId(), id).orElseThrow(() -> new RuntimeException("Prescription not found"));
+            List<PrescriptionDetails> details = createPrescriptionRequest.getDetails().stream().map(prescriptionDetail -> prescriptionDetailsRepository.findById(prescriptionDetail).orElseThrow(() -> new RuntimeException("Medication not found !!!"))).collect(Collectors.toList());
+            Doctor doctor = doctorRepository.findById(createPrescriptionRequest.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
+            prescription = prescriptionMapper.partialUpdate(createPrescriptionRequest, prescription, userRepository.findById(createPrescriptionRequest.getUserId()).get(), doctor, details);
             return prescriptionMapper.toPrescriptionResponseDto(prescriptionRepository.save(prescription));
         } catch (Exception e) {
             log.error(e.getMessage());

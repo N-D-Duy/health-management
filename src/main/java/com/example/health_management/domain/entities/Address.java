@@ -15,7 +15,6 @@ public class Address extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
-    ///todo: ask the meaning of unit number to rename this field if needed
     private String unitNumber;
     private String streetNumber;
     private String addressLine1;

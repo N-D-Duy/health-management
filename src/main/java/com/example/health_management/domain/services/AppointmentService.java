@@ -1,10 +1,9 @@
 package com.example.health_management.domain.services;
 
-import com.example.health_management.application.DTOs.appointment.AppointmentResponseDto;
-import com.example.health_management.application.DTOs.appointment.CreateAppointmentRequestDto;
+import com.example.health_management.application.DTOs.appointment.request.CreateAppointmentRequest;
+import com.example.health_management.application.DTOs.appointment.response.AppointmentResponse;
 import com.example.health_management.application.guards.JwtProvider;
-import com.example.health_management.application.mapper.appointment.AppointmentMapper;
-import com.example.health_management.common.shared.enums.AppointmentType;
+import com.example.health_management.application.mapper.AppointmentMapper;
 import com.example.health_management.domain.entities.Appointment;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.HealthProvider;
@@ -39,13 +38,13 @@ public class AppointmentService {
     }
 
 
-    public AppointmentResponseDto createAppointment(CreateAppointmentRequestDto createAppointmentRequestDto) {
+    public AppointmentResponse createAppointment(CreateAppointmentRequest createAppointmentRequest) {
         try {
-            HealthProvider healthProvider = healthProviderRepository.findById(createAppointmentRequestDto.getHealthProviderId())
+            HealthProvider healthProvider = healthProviderRepository.findById(createAppointmentRequest.getHealthProviderId())
                     .orElseThrow(() -> new RuntimeException("HealthProvider not found"));
-            Doctor doctor = doctorRepository.findById(createAppointmentRequestDto.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
+            Doctor doctor = doctorRepository.findById(createAppointmentRequest.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
             User user = jwtService.extractUserFromToken();
-            Appointment appointment = appointmentMapper.toEntity(createAppointmentRequestDto, healthProvider, user, doctor);
+            Appointment appointment = appointmentMapper.toEntity(createAppointmentRequest, healthProvider, user, doctor);
             return appointmentMapper.toAppointmentResponseDto(appointmentRepository.save(appointment));
         } catch (RuntimeException e) {
             log.error("Create appointment error: ", e);
@@ -53,7 +52,7 @@ public class AppointmentService {
         }
     }
 
-    public AppointmentResponseDto getAppointmentById(Long id) {
+    public AppointmentResponse getAppointmentById(Long id) {
         try {
             return appointmentMapper.toAppointmentResponseDto(appointmentRepository.findByIdAndUser_Id(id, jwtService.extractUserFromToken().getId())
                     .orElseThrow(() -> new RuntimeException("Appointment not found")));
@@ -63,7 +62,7 @@ public class AppointmentService {
         }
     }
 
-    public List<AppointmentResponseDto> getAllAppointments() {
+    public List<AppointmentResponse> getAllAppointments() {
         try {
             User user = jwtService.extractUserFromToken();
             return appointmentRepository.findByUser_Id(user.getId()).stream()
@@ -77,7 +76,7 @@ public class AppointmentService {
 
     public String deleteAppointment(Long id) {
         try {
-            Appointment appointment = appointmentRepository.findByIdAndUser_Id(id, jwtService.extractUserFromToken().getId())
+            appointmentRepository.findByIdAndUser_Id(id, jwtService.extractUserFromToken().getId())
                     .orElseThrow(() -> new RuntimeException("Appointment not found"));
             appointmentRepository.deleteById(id);
             return "Appointment has been deleted !!!";
@@ -87,15 +86,15 @@ public class AppointmentService {
         }
     }
 
-    public AppointmentResponseDto updateAppointment(Long id, CreateAppointmentRequestDto createAppointmentRequestDto) {
+    public AppointmentResponse updateAppointment(Long id, CreateAppointmentRequest createAppointmentRequest) {
         try {
             User user = jwtService.extractUserFromToken();
             Appointment appointment = appointmentRepository.findByIdAndUser_Id(id, jwtService.extractUserFromToken().getId())
                     .orElseThrow(() -> new RuntimeException("Appointment not found"));
-                        HealthProvider healthProvider = healthProviderRepository.findById(createAppointmentRequestDto.getHealthProviderId())
+                        HealthProvider healthProvider = healthProviderRepository.findById(createAppointmentRequest.getHealthProviderId())
                     .orElseThrow(() -> new RuntimeException("HealthProvider not found"));
-            Doctor doctor = doctorRepository.findById(createAppointmentRequestDto.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
-            appointmentMapper.partialUpdateFromAppointmentRequestDto(createAppointmentRequestDto, healthProvider,user,doctor, appointment);
+            Doctor doctor = doctorRepository.findById(createAppointmentRequest.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
+            appointmentMapper.partialUpdateFromAppointmentRequestDto(createAppointmentRequest, healthProvider,user,doctor, appointment);
             return appointmentMapper.toAppointmentResponseDto(appointmentRepository.save(appointment));
         } catch (RuntimeException e) {
             log.error("Update appointment error: ", e);

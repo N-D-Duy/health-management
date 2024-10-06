@@ -11,7 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.example.health_management.application.DTOs.auth.AuthResponseDto;
+import com.example.health_management.application.DTOs.auth.AuthResponse;
 import com.example.health_management.domain.entities.Payload;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
@@ -95,7 +95,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         // Gửi tokens về client
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(AuthResponseDto.builder()
+        response.getWriter().write(new ObjectMapper().writeValueAsString(AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build()));

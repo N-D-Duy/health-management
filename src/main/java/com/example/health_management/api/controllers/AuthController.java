@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.health_management.application.DTOs.auth.AuthResponseDto;
-import com.example.health_management.application.DTOs.auth.RegisterDto;
+import com.example.health_management.application.DTOs.auth.AuthResponse;
+import com.example.health_management.application.DTOs.auth.RegisterDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.guards.MyUserDetails;
@@ -33,11 +32,10 @@ public class AuthController {
     private final CacheManager cacheManager;
 
     @PostMapping("/register")
-    public @ResponseBody AuthResponseDto register(@RequestBody RegisterDto registerDto) {
+    public @ResponseBody AuthResponse register(@RequestBody RegisterDTO registerDto) {
         return authService.register(registerDto);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
     @Cacheable(value = "health-management", key = "'health'")
     @GetMapping("/health")
     public @ResponseBody ApiResponse health() {
@@ -54,7 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public @ResponseBody AuthResponseDto refreshToken(@RequestBody Map<String, String> body) {
+    public @ResponseBody AuthResponse refreshToken(@RequestBody Map<String, String> body) {
         String refreshToken = body.get("refresh_token");
         return authService.refreshToken(refreshToken);
     }

@@ -1,5 +1,6 @@
 package com.example.health_management.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,6 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 public class User extends BaseEntity{
 
     @Id
@@ -41,7 +43,9 @@ public class User extends BaseEntity{
     private Key key;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserAddress> userAddress;
+    private Set<UserAddress> addresses;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Doctor doctorProfile;
 }
 

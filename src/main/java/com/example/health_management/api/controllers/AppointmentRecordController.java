@@ -1,8 +1,8 @@
 package com.example.health_management.api.controllers;
 
 
-import com.example.health_management.application.DTOs.medical_record.CreateAppointmentRecordDto;
-import com.example.health_management.application.DTOs.medical_record.AppointmentRecordResponseDto;
+import com.example.health_management.application.DTOs.appointment_record.request.CreateAppointmentRecord;
+import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.domain.services.AppointmentRecordService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -30,32 +30,32 @@ public class AppointmentRecordController {
     }
     @PreAuthorize("hasAnyRole({'ROLE_USER', 'ROLE_DOCTOR'})")
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<AppointmentRecordResponseDto>>> getAllAppointmentRecords(@RequestParam(value = "userId", required = false) Long userId) {
-        List<AppointmentRecordResponseDto> AppointmentRecordResponseDto = AppointmentRecordService.getAllAppointmentRecords(userId);
-        ApiResponse<List<AppointmentRecordResponseDto>> apiResponse = ApiResponse.<List<AppointmentRecordResponseDto>>builder().code(HttpStatus.OK.value()).data(AppointmentRecordResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<List<AppointmentRecordDTO>>> getAllAppointmentRecords(@RequestParam(value = "userId", required = false) Long userId) {
+        List<AppointmentRecordDTO> AppointmentRecordDTO = AppointmentRecordService.getAllAppointmentRecords(userId);
+        ApiResponse<List<AppointmentRecordDTO>> apiResponse = ApiResponse.<List<AppointmentRecordDTO>>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 
     @PreAuthorize("hasAnyRole({'ROLE_USER', 'ROLE_DOCTOR'})")
     @GetMapping()
-    public ResponseEntity<ApiResponse<AppointmentRecordResponseDto>> getAppointmentRecordById(@RequestParam(value = "appointmentId") Long appointmentId) {
-        AppointmentRecordResponseDto AppointmentRecordResponseDto = AppointmentRecordService.getAppointmentRecordByAppointmentId(appointmentId);
-        ApiResponse<AppointmentRecordResponseDto> apiResponse = ApiResponse.<AppointmentRecordResponseDto>builder().code(HttpStatus.OK.value()).data(AppointmentRecordResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<AppointmentRecordDTO>> getAppointmentRecordById(@RequestParam(value = "appointmentId") Long appointmentId) {
+        AppointmentRecordDTO AppointmentRecordDTO = AppointmentRecordService.getAppointmentRecordByAppointmentId(appointmentId);
+        ApiResponse<AppointmentRecordDTO> apiResponse = ApiResponse.<AppointmentRecordDTO>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<AppointmentRecordResponseDto>> createAppointmentRecord(@RequestBody CreateAppointmentRecordDto appointmentRecordRequestDto) {
-        AppointmentRecordResponseDto AppointmentRecordResponseDto = AppointmentRecordService.createAppointmentRecord(appointmentRecordRequestDto);
-        ApiResponse<AppointmentRecordResponseDto> apiResponse = ApiResponse.<AppointmentRecordResponseDto>builder().code(HttpStatus.OK.value()).data(AppointmentRecordResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<AppointmentRecordDTO>> createAppointmentRecord(@RequestBody CreateAppointmentRecord appointmentRecordRequestDto) {
+        AppointmentRecordDTO AppointmentRecordDTO = AppointmentRecordService.createAppointmentRecord(appointmentRecordRequestDto);
+        ApiResponse<AppointmentRecordDTO> apiResponse = ApiResponse.<AppointmentRecordDTO>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
     @PutMapping("/update")
-    public ResponseEntity<ApiResponse<AppointmentRecordResponseDto>> updateAppointmentRecord(@RequestBody CreateAppointmentRecordDto appointmentRecordRequestDto) {
-        AppointmentRecordResponseDto AppointmentRecordResponseDto = AppointmentRecordService.updateAppointmentRecord(appointmentRecordRequestDto);
-        ApiResponse<AppointmentRecordResponseDto> apiResponse = ApiResponse.<AppointmentRecordResponseDto>builder().code(HttpStatus.OK.value()).data(AppointmentRecordResponseDto).message("Success").build();
+    public ResponseEntity<ApiResponse<AppointmentRecordDTO>> updateAppointmentRecord(@RequestBody CreateAppointmentRecord appointmentRecordRequestDto) {
+        AppointmentRecordDTO AppointmentRecordDTO = AppointmentRecordService.updateAppointmentRecord(appointmentRecordRequestDto);
+        ApiResponse<AppointmentRecordDTO> apiResponse = ApiResponse.<AppointmentRecordDTO>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
