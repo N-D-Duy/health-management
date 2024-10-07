@@ -1,5 +1,6 @@
 package com.example.health_management.application.exception.handler;
 import com.example.health_management.application.apiresponse.ExceptionResponse;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -25,7 +26,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ExceptionResponse> customThrowException(RuntimeException e) {
 
         ExceptionResponse exceptionGenericResponse = ExceptionResponse.builder().timestamp(new Date()).status(HttpStatus.INTERNAL_SERVER_ERROR).details(e.toString()).message(e.getMessage()).build();
-        return ResponseEntity.of(Optional.of(exceptionGenericResponse));
+        return ResponseEntity.internalServerError().body(exceptionGenericResponse);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(e.toString())
                 .message(e.getMessage())
                 .build();
-        return ResponseEntity.of(Optional.of(exceptionResponse));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionResponse);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
@@ -49,7 +50,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(e.toString())
                 .message(e.getMessage())
                 .build();
-        return ResponseEntity.of(Optional.of(exceptionResponse));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionResponse);
     }
 
     @ExceptionHandler(MalformedJwtException.class)
@@ -61,7 +62,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(e.toString())
                 .message(e.getMessage())
                 .build();
-        return ResponseEntity.of(Optional.of(exceptionResponse));
+        return ResponseEntity.badRequest().body(exceptionResponse);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -73,7 +74,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(e.toString())
                 .message(e.getMessage())
                 .build();
-        return ResponseEntity.of(Optional.of(exceptionResponse));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exceptionResponse);
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
@@ -85,7 +86,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(e.toString())
                 .message("Token expired")
                 .build();
-        return ResponseEntity.of(Optional.of(exceptionResponse));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionResponse);
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)
@@ -97,7 +98,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(e.toString())
                 .message("Unsupported JWT token")
                 .build();
-        return ResponseEntity.of(Optional.of(exceptionResponse));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionResponse);
     }
 
     @ExceptionHandler(SignatureException.class)
@@ -109,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(e.toString())
                 .message("Invalid JWT signature")
                 .build();
-        return ResponseEntity.of(Optional.of(exceptionResponse));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionResponse);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -121,6 +122,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(e.toString())
                 .message("JWT claims string is empty")
                 .build();
-        return ResponseEntity.of(Optional.of(exceptionResponse));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionResponse);
     }
+
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(ConflictException e) {
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .timestamp(new Date())
+                .status(HttpStatus.CONFLICT)
+                .details(e.toString())
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exceptionResponse);
+    }
+
 }
+

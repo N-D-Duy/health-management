@@ -11,10 +11,12 @@ import com.example.health_management.domain.cqrs.commands.impl.auth.AuthCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RefreshTokenCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     private final AuthCommandHandler authCommandHandler;
     private final RegisterCommandHandler registerCommandHandler;
@@ -22,12 +24,17 @@ public class AuthService {
     private final LogoutCommandHandler logoutCommandHandler;
 
     public AuthResponse register(RegisterDTO registerDto) {
-        return registerCommandHandler.handle((new RegisterCommand(
-                registerDto.getEmail(),
-                registerDto.getUsername(),
-                registerDto.getPassword(),
-                registerDto.getRole()
-        )));
+        try {
+            return registerCommandHandler.handle((new RegisterCommand(
+                    registerDto.getEmail(),
+                    registerDto.getUsername(),
+                    registerDto.getPassword(),
+                    registerDto.getRole()
+            )));
+        } catch (Exception e) {
+            log.error(e.toString());
+            throw e;
+        }
     }
 
     public AuthResponse authenticate(AuthRequest authRequest) {
