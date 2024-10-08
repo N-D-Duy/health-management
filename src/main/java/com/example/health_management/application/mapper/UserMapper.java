@@ -12,44 +12,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = {AccountMapper.class, AddressMapper.class})
+@Mapper(componentModel = "spring", uses = {AccountMapper.class, AddressMapper.class, DoctorMapper.class})
 public interface UserMapper {
     UserDTO toUserDTO(User user);
-
-    @Mapping(target = "id", source = "doctorProfile.id")
-    @Mapping(target = "specialization", source = "doctorProfile.specialization")
-    @Mapping(target = "experience", source = "doctorProfile.experience")
-    @Mapping(target = "qualification", source = "doctorProfile.qualification")
-    @Mapping(target = "rating", source = "doctorProfile.rating")
-    @Mapping(target = "about", source = "doctorProfile.about")
-    DoctorDTO toDoctorDTO(User user);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "key", ignore = true)
     User toEntity(UserDTO userDTO);
 
-
-    Doctor toDoctorEntity(DoctorDTO doctorDTO);
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "key", ignore = true)
-    @Mapping(target = "doctorProfile", ignore = true)
-    @Mapping(target = "addresses", ignore = true)
-    @Mapping(target = "account", ignore = true)
-    @Mapping(source = "updateUserRequest.firstName", target = "firstName")
-    @Mapping(source = "updateUserRequest.lastName", target = "lastName")
-    @Mapping(source = "updateUserRequest.dateOfBirth", target = "dateOfBirth")
-    @Mapping(source = "updateUserRequest.gender", target = "gender")
-    @Mapping(source = "updateUserRequest.avatarUrl", target = "avatarUrl")
     @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
     User updateUserFromDTO(UpdateUserRequest updateUserRequest, @MappingTarget User user);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(source = "updateDoctorRequest.specialization", target = "specialization")
-    @Mapping(source = "updateDoctorRequest.experience", target = "experience")
-    @Mapping(source = "updateDoctorRequest.qualification", target = "qualification")
-    @Mapping(source = "updateDoctorRequest.rating", target = "rating")
-    @Mapping(source = "updateDoctorRequest.about", target = "about")
-    @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
-    Doctor updateDoctorFromDTO(UpdateDoctorRequest updateDoctorRequest, @MappingTarget Doctor doctor);
 }

@@ -8,7 +8,10 @@ import com.example.health_management.domain.entities.Appointment;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.HealthProvider;
 import com.example.health_management.domain.entities.User;
-import com.example.health_management.domain.repositories.*;
+import com.example.health_management.domain.repositories.AppointmentRepository;
+import com.example.health_management.domain.repositories.DoctorRepository;
+import com.example.health_management.domain.repositories.HealthProviderRepository;
+import com.example.health_management.domain.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +33,7 @@ public class AppointmentService {
 
 
     @Autowired
-    public AppointmentService(AppointmentRepository appointmentRepository, AppointmentMapper appointmentMapper, HealthProviderRepository healthProviderRepository, CountryRepository countryRepository, JwtProvider jwtService) {
+    public AppointmentService(AppointmentRepository appointmentRepository, AppointmentMapper appointmentMapper, HealthProviderRepository healthProviderRepository, JwtProvider jwtService) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
         this.healthProviderRepository = healthProviderRepository;

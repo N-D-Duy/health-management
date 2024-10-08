@@ -1,74 +1,53 @@
 package com.example.health_management.domain.services;
 
-import com.example.health_management.application.DTOs.user.request.UpdateDoctorRequest;
+import com.example.health_management.application.DTOs.account.AccountDTO;
+import com.example.health_management.application.DTOs.account.UpdateAccountRequest;
+import com.example.health_management.application.DTOs.address.request.UpdateAddressRequest;
+import com.example.health_management.application.DTOs.address.response.AddressDTO;
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
 import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
+import com.example.health_management.application.guards.JwtProvider;
+import com.example.health_management.application.mapper.AccountMapper;
+import com.example.health_management.application.mapper.AddressMapper;
+import com.example.health_management.application.mapper.DoctorMapper;
 import com.example.health_management.application.mapper.UserMapper;
+import com.example.health_management.domain.entities.Account;
+import com.example.health_management.domain.entities.Address;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.User;
+import com.example.health_management.domain.repositories.AccountRepository;
+import com.example.health_management.domain.repositories.AddressRepository;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.UserRepository;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
+    private final AccountRepository accountRepository;
     private final UserMapper userMapper;
-
-    public UserService(UserRepository userRepository, UserMapper userMapper, DoctorRepository doctorRepository) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.doctorRepository = doctorRepository;
-    }
+    private final AddressMapper addressMapper;
+    private final AddressRepository addressRepository;
+    private final AccountMapper accountMapper;
+    private final DoctorMapper doctorMapper;
+    private final JwtProvider jwtProvider;
 
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
 
-    public Map<String, List<?>> getAllUsers() {
-        List<User> allUsers = userRepository.findAllActive();
-
-        List<UserDTO> regularUsers = new ArrayList<>();
-        List<DoctorDTO> doctors = new ArrayList<>();
-
-        for (User user : allUsers) {
-            if (user.getDoctorProfile() != null) {
-                doctors.add(userMapper.toDoctorDTO(user));
-            } else {
-                regularUsers.add(userMapper.toUserDTO(user));
-            }
-        }
-
-        return Map.of(
-                "regularUsers", regularUsers,
-                "doctors", doctors
-        );
-    }
-
-    public List<DoctorDTO> getDoctors() {
-        List<User> allUsers = userRepository.findAllActive();
-        return allUsers.stream()
-                .filter(user -> user.getDoctorProfile() != null)
-                .map(userMapper::toDoctorDTO)
-                .toList();
-    }
-
-    public List<UserDTO> getUsers() {
-        List<User> allUsers = userRepository.findAllActive();
-        return allUsers.stream()
-                .filter(user -> user.getDoctorProfile() == null)
-                .map(userMapper::toUserDTO)
-                .toList();
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
     }
 
     public UserDTO getUserById(Long id) {
@@ -76,47 +55,65 @@ public class UserService {
         return userMapper.toUserDTO(user);
     }
 
-    public DoctorDTO getDoctorById(Long id) {
-        User user = userRepository.findByIdActive(id);
-        return userMapper.toDoctorDTO(user);
-    }
-
-    public DoctorDTO createDoctor(DoctorDTO doctorDTO, Long userId) {
-        try{
-            Doctor doctor = userMapper.toDoctorEntity(doctorDTO);
-
-            //update doctor profile in user table
-            User user = userRepository.findByIdActive(userId);
-            user.setDoctorProfile(doctor);
-
-            doctor.setUser(user);
-            doctorRepository.save(doctor);
-
-            return userMapper.toDoctorDTO(user);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating doctor");
-        }
-    }
-
     public UserDTO updateUser(UpdateUserRequest request, Long userId) {
         try {
-            User user = userMapper.updateUserFromDTO(request, userRepository.findByIdActive(userId));
+            User user = userRepository.findByIdActive(userId);
+
+            if (request.getAccount() != null) {
+                UpdateAccountRequest updateAccountRequest = request.getAccount();
+                Account account = accountMapper.updateFromDTO(updateAccountRequest, user.getAccount());
+                user.setAccount(account);
+            }
+
+            if (request.getAddresses() != null && !request.getAddresses().isEmpty()) {
+                Set<Address> existingAddresses = user.getAddresses();
+
+                // Create a map of existing addresses by ID for easy lookup
+                Map<Long, Address> existingAddressMap = existingAddresses.stream()
+                        .collect(Collectors.toMap(Address::getId, address -> address));
+
+                for (UpdateAddressRequest addressRequest : request.getAddresses()) {
+                    Address address;
+
+                    if (addressRequest.getId() != null) {
+                        // Update existing address
+                        address = existingAddressMap.get(addressRequest.getId());
+                        if (address != null) {
+                            addressMapper.updateAddress(addressRequest, address);
+                            existingAddresses.add(address);
+                        } else {
+                            // Handle case where ID is provided but address doesn't exist
+                            throw new RuntimeException("Address with ID " + addressRequest.getId() + " not found");
+                        }
+                    } else {
+                        // Create new address
+                        Address newAddress = addressMapper.toEntity(addressMapper.toDTOFromRequest(addressRequest));
+                        newAddress.setUser(user);
+                        existingAddresses.add(newAddress);
+                    }
+                }
+                // Update user's addresses
+                user.setAddresses(existingAddresses);
+            }
+
+            if (request.getDoctorProfile() != null) {
+                if(user.getDoctorProfile()!=null){
+                    //update doctor
+                    DoctorDTO doctorDTO = request.getDoctorProfile();
+                    Doctor doctor=doctorMapper.updateDoctor(doctorDTO, user.getDoctorProfile());
+                    user.setDoctorProfile(doctor);
+                } else{
+                    //tao moi doctor
+                    Doctor doctor = doctorMapper.toEntity(request.getDoctorProfile());
+                    doctor.setUser(user);
+                    user.setDoctorProfile(doctor);
+                }
+            }
+
             userRepository.save(user);
             return userMapper.toUserDTO(user);
         } catch (Exception e) {
-            throw new RuntimeException("Error updating user");
-        }
-    }
-
-    public DoctorDTO updateDoctor(UpdateDoctorRequest request, Long userId) {
-        try {
-            User existingUser = userRepository.findByIdActive(userId);
-            Doctor existingDoctor = existingUser.getDoctorProfile();
-            Doctor updatedDoctor = userMapper.updateDoctorFromDTO(request, existingDoctor);
-            doctorRepository.save(updatedDoctor);
-            return userMapper.toDoctorDTO(existingUser);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating doctor");
+            throw new RuntimeException("Error updating user: " + e.getMessage(), e);
         }
     }
 }

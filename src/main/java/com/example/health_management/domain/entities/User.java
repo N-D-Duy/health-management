@@ -43,7 +43,7 @@ public class User extends BaseEntity{
     private Key key;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserAddress> addresses;
+    private Set<Address> addresses;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Doctor doctorProfile;

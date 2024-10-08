@@ -1,4 +1,4 @@
-package com.example.health_management.application.DTOs.address.response;
+package com.example.health_management.application.DTOs.address.request;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,9 +8,9 @@ import java.io.Serializable;
 /**
  * DTO for {@link com.example.health_management.domain.entities.Address}
  */
-@Data
 @Builder
-public class AddressDTO implements Serializable {
+@Data
+public class UpdateAddressRequest implements Serializable {
     private Long id;
     private String unitNumber;
     private String streetNumber;

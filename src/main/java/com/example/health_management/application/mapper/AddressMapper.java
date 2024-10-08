@@ -1,18 +1,19 @@
 package com.example.health_management.application.mapper;
 
-import com.example.health_management.application.DTOs.address.request.AddressDTO;
+import com.example.health_management.application.DTOs.address.request.UpdateAddressRequest;
+import com.example.health_management.application.DTOs.address.response.AddressDTO;
 import com.example.health_management.domain.entities.Address;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface AddressMapper {
-    @Mapping(target = "id", ignore = true)
-    Address toEntityFromAddressRequestDto(AddressDTO addressDto, Long countryId);
+    AddressDTO toDTO(Address address);
 
-    AddressDTO toAddressResponseDto(Address address);
-    Address toEntityFromAddressResponseDto(AddressDTO addressDto);
+    AddressDTO toDTOFromRequest(UpdateAddressRequest updateAddressRequest);
+
+    Address toEntity(AddressDTO addressDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id",ignore = true)
-    Address partialUpdateFromAddressRequestDto(AddressDTO addressDTO, @MappingTarget Address address);
+    Address updateAddress(UpdateAddressRequest updateAddressRequest, @MappingTarget Address address);
 }

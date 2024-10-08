@@ -22,8 +22,11 @@ public class Address extends BaseEntity {
     private String city;
     private String region;
     private String postalCode;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = Country.class)
-    @JoinColumn(referencedColumnName = "id",nullable = false)
-    private Country country;
+    private String country;
+    private byte isDefault;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
 }

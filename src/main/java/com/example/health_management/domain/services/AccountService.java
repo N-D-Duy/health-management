@@ -18,20 +18,23 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public void updateAccount(Long id, UpdateAccountRequest updateAccountRequest) {
-        try {
-            Long currentUserId = jwtProvider.extractUserFromToken().getId();
-            Role currentUserRole = jwtProvider.extractUserFromToken().getAccount().getRole();
 
-            if(!currentUserId.equals(id) && !currentUserRole.equals(Role.ADMIN)) {
-                throw new Exception("Unauthorized");
-            }
-            Account account = accountRepository.findById(id).orElseThrow(() -> new Exception("Account not found"));
-            updateAccountRequest.setPassword(passwordEncoder.encode(updateAccountRequest.getPassword()));
-            accountMapper.updateFromDTO(updateAccountRequest, account);
-            accountRepository.save(account);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    /*
+    * update already existing account
+    * */
+//    public void updateAccount(Long id, UpdateAccountRequest updateAccountRequest) {
+//        try {
+//            Long currentUserId = jwtProvider.extractUserFromToken().getId();
+//
+//            if(!currentUserId.equals(id)) {
+//                throw new Exception("Unauthorized");
+//            }
+//            Account account = accountRepository.findById(id).orElseThrow(() -> new Exception("Account not found"));
+//            updateAccountRequest.setPassword(passwordEncoder.encode(updateAccountRequest.getPassword()));
+//            accountMapper.updateFromDTO(updateAccountRequest, account);
+//            accountRepository.save(account);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

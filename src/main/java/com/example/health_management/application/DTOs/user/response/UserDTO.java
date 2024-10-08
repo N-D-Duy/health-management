@@ -4,7 +4,7 @@ import com.example.health_management.application.DTOs.account.AccountDTO;
 import com.example.health_management.application.DTOs.address.response.AddressDTO;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * DTO for {@link com.example.health_management.domain.entities.User}
@@ -18,5 +18,6 @@ public class UserDTO {
     private String gender;
     private String avatarUrl;
     private AccountDTO account;
-    private List<AddressDTO> addresses;
+    private Set<AddressDTO> addresses;
+    private DoctorDTO doctorProfile;
 }

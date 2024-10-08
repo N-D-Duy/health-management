@@ -4,8 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class DoctorDTO extends UserDTO {
+public class DoctorDTO{
     private Long id;
     private String specialization;
     private Double experience;
