@@ -17,7 +17,7 @@ public class MedicalConditions extends BaseEntity{
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = Prescription.class)
-    @JoinColumn(referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "prescription_id", referencedColumnName = "id")
     private Prescription prescription;
 
     @Column(name = "condition_name")
@@ -29,6 +29,4 @@ public class MedicalConditions extends BaseEntity{
 
     @Column(name = "notes")
     private String notes;
-
-
 }

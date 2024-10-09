@@ -1,7 +1,11 @@
 package com.example.health_management.domain.entities;
 
+import com.example.health_management.common.shared.enums.AppointmentStatus;
+import com.example.health_management.common.shared.enums.AppointmentType;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "appointment_records")
@@ -20,9 +24,23 @@ public class AppointmentRecord extends BaseEntity{
     private Prescription prescription;
 
     @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = User.class)
-    @JoinColumn(referencedColumnName = "id",nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id",nullable = false)
     private User user;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = Appointment.class, orphanRemoval = true)
-    private Appointment appointment;
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = User.class)
+    @JoinColumn(name = "doctor_id", referencedColumnName = "id",nullable = false)
+    private Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = HealthProvider.class)
+    @JoinColumn(name = "health_provider_id", referencedColumnName = "id",nullable = false)
+    private HealthProvider healthProvider;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "appointment_type")
+    private AppointmentType appointmentType;
+
+    private LocalDate scheduledAt;
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
 }

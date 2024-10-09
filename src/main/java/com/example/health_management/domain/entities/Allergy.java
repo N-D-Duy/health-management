@@ -16,16 +16,14 @@ public class Allergy extends BaseEntity{
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "allergy_name")
+    @Column(name = "allergy_type")
     private AllergyType allergyType;
 
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = User.class)
-    @JoinColumn(referencedColumnName = "id",nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id",nullable = false)
     private User user;
 
-    @Column(name = "severity")
     private String severity;
 
-    @Column(name = "note")
     private String note;
 }

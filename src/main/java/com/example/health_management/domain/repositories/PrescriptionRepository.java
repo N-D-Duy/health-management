@@ -11,7 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface PrescriptionRepository extends SoftDeleteRepository<Prescription, Long> {
-    List<Prescription> findByUser_Id(@NonNull Long id);
 
-    Optional<Prescription> findByUser_IdAndId(@NonNull Long id, @NonNull Long id1);
 }

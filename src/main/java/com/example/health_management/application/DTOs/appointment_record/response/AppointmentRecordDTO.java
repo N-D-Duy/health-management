@@ -1,21 +1,29 @@
 package com.example.health_management.application.DTOs.appointment_record.response;
 
-import com.example.health_management.application.DTOs.appointment.response.AppointmentResponse;
+import com.example.health_management.application.DTOs.heath_provider.HealthProviderSummary;
 import com.example.health_management.application.DTOs.prescription.PrescriptionDTO;
-import com.example.health_management.application.DTOs.user.response.UserDTO;
+import com.example.health_management.application.DTOs.user.response.DoctorSummaryDTO;
+import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
+import com.example.health_management.common.shared.enums.AppointmentStatus;
+import com.example.health_management.common.shared.enums.AppointmentType;
 import com.example.health_management.domain.entities.AppointmentRecord;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * DTO for {@link AppointmentRecord}
  */
 @Data
 public class AppointmentRecordDTO implements Serializable {
-    private int id;
+    private Long id;
     private String note;
     private PrescriptionDTO prescription;
-    private UserDTO user;
-    private AppointmentResponse appointment;
+    private UserSummaryDTO user;
+    private DoctorSummaryDTO doctor;
+    private HealthProviderSummary healthProvider;
+    private AppointmentType appointmentType;
+    private LocalDate scheduledAt;
+    private AppointmentStatus status;
 }

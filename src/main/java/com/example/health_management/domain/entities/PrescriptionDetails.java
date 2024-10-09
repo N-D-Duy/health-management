@@ -13,17 +13,17 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class PrescriptionDetails {
+public class PrescriptionDetails extends BaseEntity {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "prescription_id")
+    @JoinColumn(name = "prescription_id", referencedColumnName = "id")
     private Prescription prescription;
 
     @ManyToOne
-    @JoinColumn(name = "medication_id")
+    @JoinColumn(name = "medication_id", referencedColumnName = "id")
     private Medication medication;
 
     private String dosage;

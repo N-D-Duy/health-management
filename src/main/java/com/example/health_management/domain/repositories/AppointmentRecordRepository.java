@@ -10,11 +10,11 @@ import java.util.Optional;
 
 @Repository
 public interface AppointmentRecordRepository extends SoftDeleteRepository<AppointmentRecord, Long> {
-    List<AppointmentRecord> findByUser_Id(@NonNull Long id);
-
-    Optional<AppointmentRecord> findByAppointment_Id(@NonNull Long id);
-
-    Optional<AppointmentRecord> findByIdAndUser_Id(@NonNull Long id, @NonNull Long id1);
-
-    Optional<AppointmentRecord> findByAppointment_IdAndUser_Id(@NonNull Long id, @NonNull Long id1);
+//    List<AppointmentRecord> findByUser_Id(@NonNull Long id);
+//
+//    Optional<AppointmentRecord> findByAppointment_Id(@NonNull Long id);
+//
+//    Optional<AppointmentRecord> findByIdAndUser_Id(@NonNull Long id, @NonNull Long id1);
+//
+//    Optional<AppointmentRecord> findByAppointment_IdAndUser_Id(@NonNull Long id, @NonNull Long id1);
 }

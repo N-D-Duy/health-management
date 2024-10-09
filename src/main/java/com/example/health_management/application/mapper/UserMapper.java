@@ -4,6 +4,7 @@ import com.example.health_management.application.DTOs.user.request.UpdateDoctorR
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
 import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
+import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.Key;
 import com.example.health_management.domain.entities.User;
@@ -24,4 +25,6 @@ public interface UserMapper {
     @Mapping(target = "key", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
     User updateUserFromDTO(UpdateUserRequest updateUserRequest, @MappingTarget User user);
+
+    UserSummaryDTO toUserSummaryDTO(User user);
 }

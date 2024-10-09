@@ -50,7 +50,7 @@ public class Account extends BaseEntity implements UserDetails {
     private AccountStatus status = AccountStatus.INACTIVE;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", unique = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
 

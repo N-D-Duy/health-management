@@ -1,6 +1,7 @@
 package com.example.health_management.application.DTOs.heath_provider;
 
 import com.example.health_management.application.DTOs.address.response.AddressDTO;
+import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,5 +14,6 @@ import java.util.List;
 public class HealthProviderDTO implements Serializable {
     private int id;
     private String name;
-    private List<AddressDTO> addresses;
+    private AddressDTO address;
+    private String description;
 }

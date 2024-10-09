@@ -23,7 +23,7 @@ public class Key {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "id", unique = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
     @Column(name = "public_key", nullable = false, length = 4096)

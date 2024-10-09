@@ -7,6 +7,7 @@ import com.example.health_management.application.DTOs.address.response.AddressDT
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
 import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
+import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.mapper.AccountMapper;
 import com.example.health_management.application.mapper.AddressMapper;
@@ -115,5 +116,10 @@ public class UserService {
         } catch (Exception e) {
             throw new RuntimeException("Error updating user: " + e.getMessage(), e);
         }
+    }
+
+    public UserSummaryDTO getUserSummary(Long userId) {
+        User user = userRepository.findByIdActive(userId);
+        return userMapper.toUserSummaryDTO(user);
     }
 }
