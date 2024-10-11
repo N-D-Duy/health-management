@@ -6,10 +6,11 @@ import com.example.health_management.common.shared.enums.AppointmentType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
-public class UpdateAppointmentRequestDTO {
+public class UpdateAppointmentRequestDTO implements Serializable {
     private Long id;
     private String note;
     private Long userId;

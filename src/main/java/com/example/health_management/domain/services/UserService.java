@@ -60,61 +60,69 @@ public class UserService {
         try {
             User user = userRepository.findByIdActive(userId);
 
+            // Update Account
             if (request.getAccount() != null) {
                 UpdateAccountRequest updateAccountRequest = request.getAccount();
                 Account account = accountMapper.updateFromDTO(updateAccountRequest, user.getAccount());
                 user.setAccount(account);
             }
 
+            // Update Addresses
             if (request.getAddresses() != null && !request.getAddresses().isEmpty()) {
-                Set<Address> existingAddresses = user.getAddresses();
-
-                // Create a map of existing addresses by ID for easy lookup
-                Map<Long, Address> existingAddressMap = existingAddresses.stream()
-                        .collect(Collectors.toMap(Address::getId, address -> address));
-
-                for (AddressDTO addressDTO : request.getAddresses()) {
-                    Address address;
-
-                    if (addressDTO.getId() != null) {
-                        // Update existing address
-                        address = existingAddressMap.get(addressDTO.getId());
-                        if (address != null) {
-                            addressMapper.updateAddress(addressDTO, address);
-                            existingAddresses.add(address);
-                        } else {
-                            // Handle case where ID is provided but address doesn't exist
-                            throw new RuntimeException("Address with ID " + addressDTO.getId() + " not found");
-                        }
-                    } else {
-                        // Create new address
-                        Address newAddress = addressMapper.toEntity(addressDTO);
-                        newAddress.setUser(user);
-                        existingAddresses.add(newAddress);
-                    }
-                }
-                // Update user's addresses
-                user.setAddresses(existingAddresses);
+                updateAddresses(user, request.getAddresses());
             }
 
+            // Update Doctor Profile
             if (request.getDoctorProfile() != null) {
-                if(user.getDoctorProfile()!=null){
-                    //update doctor
-                    DoctorDTO doctorDTO = request.getDoctorProfile();
-                    Doctor doctor=doctorMapper.updateDoctor(doctorDTO, user.getDoctorProfile());
-                    user.setDoctorProfile(doctor);
-                } else{
-                    //tao moi doctor
-                    Doctor doctor = doctorMapper.toEntity(request.getDoctorProfile());
-                    doctor.setUser(user);
-                    user.setDoctorProfile(doctor);
-                }
+                updateDoctorProfile(user, request.getDoctorProfile());
             }
+
+            //update other fields
+            userMapper.update(request, user);
 
             userRepository.save(user);
             return userMapper.toUserDTO(user);
         } catch (Exception e) {
             throw new RuntimeException("Error updating user: " + e.getMessage(), e);
+        }
+    }
+
+    private void updateAddresses(User user, Set<AddressDTO> addressDTOs) {
+        Set<Address> existingAddresses = user.getAddresses();
+        Map<Long, Address> existingAddressMap = existingAddresses.stream()
+                .collect(Collectors.toMap(Address::getId, address -> address));
+
+        Set<Address> updatedAddresses = new HashSet<>();
+
+        for (AddressDTO addressDTO : addressDTOs) {
+            if (addressDTO.getId() != null) {
+                Address existingAddress = existingAddressMap.get(addressDTO.getId());
+                if (existingAddress == null) {
+                    throw new RuntimeException("Address with ID " + addressDTO.getId() + " not found");
+                }
+                addressMapper.updateAddress(addressDTO, existingAddress);
+                updatedAddresses.add(existingAddress);
+            } else {
+                Address newAddress = addressMapper.toEntity(addressDTO);
+                newAddress.setUser(user);
+                updatedAddresses.add(newAddress);
+            }
+        }
+
+        user.setAddresses(updatedAddresses);
+    }
+
+    private void updateDoctorProfile(User user, DoctorDTO doctorDTO) {
+        Doctor doctorProfile = user.getDoctorProfile();
+
+        if (doctorProfile != null) {
+            // Update existing doctor profile
+            doctorMapper.updateDoctor(doctorDTO, doctorProfile);
+        } else {
+            // Create new doctor profile
+            doctorProfile = doctorMapper.toEntity(doctorDTO);
+            doctorProfile.setUser(user);
+            user.setDoctorProfile(doctorProfile);
         }
     }
 

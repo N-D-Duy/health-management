@@ -22,7 +22,7 @@ public class Doctor extends BaseEntity{
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "health_provider_id", referencedColumnName = "id", unique = true)
+    @JoinColumn(name = "health_provider_id", referencedColumnName = "id")
     private HealthProvider healthProvider;
 
     private String specialization;

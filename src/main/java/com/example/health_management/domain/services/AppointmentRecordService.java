@@ -76,11 +76,6 @@ public class AppointmentRecordService {
             AppointmentRecord appointmentRecord = appointmentRecordRepository.findById(request.getId())
                     .orElseThrow(() -> new RuntimeException("AppointmentRecord not found"));
 
-            // Update basic fields
-            appointmentRecord.setNote(request.getNote());
-            appointmentRecord.setScheduledAt(request.getScheduledAt());
-            appointmentRecord.setAppointmentType(request.getAppointmentType());
-            appointmentRecord.setStatus(request.getStatus());
 
             // Update Prescription if present
             if (request.getPrescription() != null) {
@@ -123,6 +118,23 @@ public class AppointmentRecordService {
                 prescription.setDetails(detailsSet);
                 prescription.setMedicalConditions(medicalConditionSet);
                 appointmentRecord.setPrescription(prescription);
+            }
+
+            appointmentRecordMapper.update(appointmentRecord, request);
+
+            if(request.getDoctorId()!=null) {
+                appointmentRecord.setDoctor(doctorRepository.findById(request.getDoctorId())
+                        .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + request.getDoctorId())));
+            }
+
+            if(request.getUserId()!=null) {
+                appointmentRecord.setUser(userRepository.findById(request.getUserId())
+                        .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + request.getUserId())));
+            }
+
+            if(request.getHealthProviderId()!=null) {
+                appointmentRecord.setHealthProvider(healthProviderRepository.findById(request.getHealthProviderId())
+                        .orElseThrow(() -> new EntityNotFoundException("Health Provider not found with ID: " + request.getHealthProviderId())));
             }
 
             appointmentRecordRepository.save(appointmentRecord);

@@ -23,8 +23,13 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "key", ignore = true)
+    @Mapping(target = "doctorProfile", ignore = true)
+    @Mapping(target = "addresses", ignore = true)
+    @Mapping(target = "appointmentRecords", ignore = true)
+    @Mapping(target = "allergies", ignore = true)
+    @Mapping(target = "account", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
-    User updateUserFromDTO(UpdateUserRequest updateUserRequest, @MappingTarget User user);
+    User update(UpdateUserRequest updateUserRequest, @MappingTarget User user);
 
     UserSummaryDTO toUserSummaryDTO(User user);
 }

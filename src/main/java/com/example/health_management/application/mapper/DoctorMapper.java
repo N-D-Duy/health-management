@@ -1,10 +1,12 @@
 package com.example.health_management.application.mapper;
 
 import com.example.health_management.application.DTOs.user.response.DoctorDTO;
+import com.example.health_management.application.DTOs.user.response.DoctorSummaryDTO;
 import com.example.health_management.domain.entities.Doctor;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface DoctorMapper {
@@ -21,5 +23,11 @@ public interface DoctorMapper {
     @Mapping(target = "experience", source = "doctorDTO.experience")
     @Mapping(target = "specialization", source = "doctorDTO.specialization")
     @Mapping(target = "about", source = "doctorDTO.about")
-    Doctor updateDoctor(DoctorDTO doctorDTO, Doctor doctor);
+    void updateDoctor(DoctorDTO doctorDTO, @MappingTarget Doctor doctor);
+
+    @Mapping(target = "id", source = "doctor.id")
+    @Mapping(target = "firstName", source = "doctor.user.firstName")
+    @Mapping(target = "lastName", source = "doctor.user.lastName")
+    @Mapping(target = "avatarUrl", source = "doctor.user.avatarUrl")
+    DoctorSummaryDTO toSummary(Doctor doctor);
 }

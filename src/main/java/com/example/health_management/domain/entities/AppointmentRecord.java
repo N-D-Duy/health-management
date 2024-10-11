@@ -28,7 +28,7 @@ public class AppointmentRecord extends BaseEntity{
     @JoinColumn(name = "user_id", referencedColumnName = "id",nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = Doctor.class)
     @JoinColumn(name = "doctor_id", referencedColumnName = "id",nullable = false)
     private Doctor doctor;
 
