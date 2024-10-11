@@ -3,6 +3,7 @@ package com.example.health_management.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,4 +29,19 @@ public class HealthProvider extends BaseEntity{
 
     @OneToMany(mappedBy = "healthProvider", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Doctor> doctors;
+
+    public void addDoctor(Doctor doctor) {
+        if (doctors == null) {
+            doctors = new ArrayList<>();
+        }
+        doctors.add(doctor);
+        doctor.setHealthProvider(this);
+    }
+
+    public void removeDoctor(Doctor doctor) {
+        if (doctors != null) {
+            doctors.remove(doctor);
+            doctor.setHealthProvider(null);
+        }
+    }
 }

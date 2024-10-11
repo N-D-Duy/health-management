@@ -21,7 +21,7 @@ public class Doctor extends BaseEntity{
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "health_provider_id", referencedColumnName = "id")
     private HealthProvider healthProvider;
 

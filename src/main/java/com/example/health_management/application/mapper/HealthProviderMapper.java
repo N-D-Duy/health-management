@@ -1,7 +1,6 @@
 package com.example.health_management.application.mapper;
 
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderDTO;
-import com.example.health_management.application.DTOs.heath_provider.HealthProviderRequest;
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderSummary;
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderWithDoctorsDTO;
 import com.example.health_management.domain.entities.HealthProvider;
@@ -14,8 +13,6 @@ import org.mapstruct.MappingTarget;
 public interface HealthProviderMapper {
     HealthProvider toEntity(HealthProviderDTO healthProviderDTO);
 
-    @Mapping(target = "id", ignore = true)
-    HealthProvider toEntity(HealthProviderRequest healthProviderRequest);
 
     HealthProviderDTO toDTO(HealthProvider healthProvider);
     HealthProviderSummary toSummary(HealthProvider healthProvider);
@@ -24,6 +21,6 @@ public interface HealthProviderMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "doctors", ignore = true)
-    HealthProvider update(HealthProviderRequest healthProviderRequest, @MappingTarget HealthProvider healthProvider);
+    HealthProvider update(HealthProviderDTO healthProviderDTO, @MappingTarget HealthProvider healthProvider);
 
 }

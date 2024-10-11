@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 @Data
 public class HealthProviderDTO implements Serializable {
-    private int id;
+    private Long id;
     private String name;
     private AddressDTO address;
     private String description;
