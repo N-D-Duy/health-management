@@ -1,9 +1,7 @@
 package com.example.health_management.domain.services;
 
-import com.example.health_management.application.DTOs.account.AccountDTO;
 import com.example.health_management.application.DTOs.account.UpdateAccountRequest;
-import com.example.health_management.application.DTOs.address.request.UpdateAddressRequest;
-import com.example.health_management.application.DTOs.address.response.AddressDTO;
+import com.example.health_management.application.DTOs.address.AddressDTO;
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
 import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
@@ -21,6 +19,7 @@ import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.AddressRepository;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -56,6 +55,7 @@ public class UserService {
         return userMapper.toUserDTO(user);
     }
 
+    @Transactional
     public UserDTO updateUser(UpdateUserRequest request, Long userId) {
         try {
             User user = userRepository.findByIdActive(userId);
@@ -73,22 +73,22 @@ public class UserService {
                 Map<Long, Address> existingAddressMap = existingAddresses.stream()
                         .collect(Collectors.toMap(Address::getId, address -> address));
 
-                for (UpdateAddressRequest addressRequest : request.getAddresses()) {
+                for (AddressDTO addressDTO : request.getAddresses()) {
                     Address address;
 
-                    if (addressRequest.getId() != null) {
+                    if (addressDTO.getId() != null) {
                         // Update existing address
-                        address = existingAddressMap.get(addressRequest.getId());
+                        address = existingAddressMap.get(addressDTO.getId());
                         if (address != null) {
-                            addressMapper.updateAddress(addressRequest, address);
+                            addressMapper.updateAddress(addressDTO, address);
                             existingAddresses.add(address);
                         } else {
                             // Handle case where ID is provided but address doesn't exist
-                            throw new RuntimeException("Address with ID " + addressRequest.getId() + " not found");
+                            throw new RuntimeException("Address with ID " + addressDTO.getId() + " not found");
                         }
                     } else {
                         // Create new address
-                        Address newAddress = addressMapper.toEntity(addressMapper.toDTOFromRequest(addressRequest));
+                        Address newAddress = addressMapper.toEntity(addressDTO);
                         newAddress.setUser(user);
                         existingAddresses.add(newAddress);
                     }

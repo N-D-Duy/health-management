@@ -21,7 +21,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @Entity
 @Table(name = "accounts")
-@EqualsAndHashCode(callSuper = true)
 public class Account extends BaseEntity implements UserDetails {
 
     @Id

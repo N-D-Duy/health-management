@@ -1,7 +1,10 @@
 package com.example.health_management.application.DTOs.user.response;
 
-import com.example.health_management.application.DTOs.heath_provider.HealthProviderSummary;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class DoctorSummaryDTO extends UserSummaryDTO {
     private String specialization;
     private Double experience;

@@ -1,4 +1,4 @@
-package com.example.health_management.application.DTOs.address.response;
+package com.example.health_management.application.DTOs.address;
 
 import lombok.Builder;
 import lombok.Data;

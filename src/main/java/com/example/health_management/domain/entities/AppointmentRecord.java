@@ -2,6 +2,7 @@ package com.example.health_management.domain.entities;
 
 import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.enums.AppointmentType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

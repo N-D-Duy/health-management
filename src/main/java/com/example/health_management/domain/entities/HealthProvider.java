@@ -28,5 +28,4 @@ public class HealthProvider extends BaseEntity{
 
     @OneToMany(mappedBy = "healthProvider", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Doctor> doctors;
-
 }

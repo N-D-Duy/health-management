@@ -1,7 +1,7 @@
 package com.example.health_management.application.DTOs.user.response;
 
 import com.example.health_management.application.DTOs.account.AccountDTO;
-import com.example.health_management.application.DTOs.address.response.AddressDTO;
+import com.example.health_management.application.DTOs.address.AddressDTO;
 import lombok.Data;
 
 import java.util.Set;

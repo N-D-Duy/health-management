@@ -1,6 +1,7 @@
 package com.example.health_management.domain.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,6 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "doctors")
-@EqualsAndHashCode(callSuper = true)
 public class Doctor extends BaseEntity{
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)

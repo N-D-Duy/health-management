@@ -1,6 +1,6 @@
 package com.example.health_management.application.DTOs.heath_provider;
 
-import com.example.health_management.application.DTOs.address.response.AddressDTO;
+import com.example.health_management.application.DTOs.address.AddressDTO;
 import lombok.Data;
 
 @Data

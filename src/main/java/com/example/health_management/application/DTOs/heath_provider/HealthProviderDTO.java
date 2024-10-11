@@ -1,11 +1,9 @@
 package com.example.health_management.application.DTOs.heath_provider;
 
-import com.example.health_management.application.DTOs.address.response.AddressDTO;
-import com.example.health_management.application.DTOs.user.response.DoctorDTO;
+import com.example.health_management.application.DTOs.address.AddressDTO;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * DTO for {@link com.example.health_management.domain.entities.HealthProvider}

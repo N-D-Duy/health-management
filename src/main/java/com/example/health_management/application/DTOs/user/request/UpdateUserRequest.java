@@ -1,9 +1,8 @@
 package com.example.health_management.application.DTOs.user.request;
 
 import com.example.health_management.application.DTOs.account.UpdateAccountRequest;
-import com.example.health_management.application.DTOs.address.request.UpdateAddressRequest;
+import com.example.health_management.application.DTOs.address.AddressDTO;
 import com.example.health_management.application.DTOs.user.response.DoctorDTO;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -18,6 +17,6 @@ public class UpdateUserRequest implements Serializable {
     private String gender;
     private String avatarUrl;
     private UpdateAccountRequest account;
-    private Set<UpdateAddressRequest> addresses;
+    private Set<AddressDTO> addresses;
     private DoctorDTO doctorProfile;
 }
