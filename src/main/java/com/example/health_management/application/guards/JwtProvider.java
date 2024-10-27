@@ -188,6 +188,7 @@ public class JwtProvider {
         String email = claims.get("email", String.class);
         String role = claims.get("role", String.class);
         Double id = claims.get("id", Double.class);
+        Double version = claims.get("version", Double.class);
         Long uid = id.longValue();
         if (!verifyToken(refreshToken, getPublicKeyByEmail(email))) {
             return null;
@@ -198,6 +199,7 @@ public class JwtProvider {
                 .email(email)
                 .id(uid)
                 .role(role)
+                .version(version.intValue())
                 .build();
         return Map.of(
                 "accessToken", generateAccessToken(payload, privateKeyPEM),

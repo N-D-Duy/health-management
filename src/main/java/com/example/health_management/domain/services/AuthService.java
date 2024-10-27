@@ -10,6 +10,8 @@ import com.example.health_management.domain.cqrs.commands.handler.auth.RegisterC
 import com.example.health_management.domain.cqrs.commands.impl.auth.AuthCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RefreshTokenCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
+import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AuthService {
     private final AuthCommandHandler authCommandHandler;
     private final RegisterCommandHandler registerCommandHandler;
@@ -37,7 +40,7 @@ public class AuthService {
         }
     }
 
-    public AuthResponse authenticate(AuthRequest authRequest) {
+    public AuthResponse authenticate(@NonNull AuthRequest authRequest) {
         return authCommandHandler.handle(new AuthCommand(authRequest.getEmail(), authRequest.getPassword()));
     }
 

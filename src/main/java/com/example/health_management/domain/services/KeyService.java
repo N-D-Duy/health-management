@@ -1,6 +1,7 @@
 package com.example.health_management.domain.services;
 
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.example.health_management.domain.entities.Key;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class KeyService {
 
     private final KeyRepository keyRepository;

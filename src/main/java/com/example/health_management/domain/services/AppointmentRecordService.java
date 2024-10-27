@@ -3,39 +3,37 @@ package com.example.health_management.domain.services;
 import com.example.health_management.application.DTOs.appointment_record.request.AppointmentRecordRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.request.UpdateAppointmentRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
-import com.example.health_management.application.DTOs.medical_condition.MedicalConditionDTO;
-import com.example.health_management.application.DTOs.prescription_details.PrescriptionDetailsDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
-import com.example.health_management.application.mapper.MedicalConditionMapper;
-import com.example.health_management.application.mapper.PrescriptionDetailsMapper;
-import com.example.health_management.domain.entities.*;
-import com.example.health_management.domain.repositories.*;
+import com.example.health_management.domain.entities.AppointmentRecord;
+import com.example.health_management.domain.entities.Doctor;
+import com.example.health_management.domain.entities.HealthProvider;
+import com.example.health_management.domain.entities.User;
+import com.example.health_management.domain.repositories.AppointmentRecordRepository;
+import com.example.health_management.domain.repositories.DoctorRepository;
+import com.example.health_management.domain.repositories.HealthProviderRepository;
+import com.example.health_management.domain.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AppointmentRecordService {
     private final AppointmentRecordRepository appointmentRecordRepository;
-    private final PrescriptionDetailsRepository prescriptionDetailsRepository;
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
-    private final AppointmentRecordMapper appointmentRecordMapper;
-    private final PrescriptionDetailsMapper prescriptionDetailsMapper;
     private final HealthProviderRepository healthProviderRepository;
-    private final MedicalConditionRepository medicalConditionRepository;
-    private final MedicalConditionMapper medicalConditionMapper;
+    private final AppointmentRecordMapper appointmentRecordMapper;
+    private final PrescriptionService prescriptionService;
 
 
-    @Transactional
     public AppointmentRecordDTO create(AppointmentRecordRequestDTO request){
         try {
             // Find entities first
@@ -70,72 +68,20 @@ public class AppointmentRecordService {
         }
     }
 
-    @Transactional
     public AppointmentRecordDTO update(UpdateAppointmentRequestDTO request) {
-        try{
-            AppointmentRecord appointmentRecord = appointmentRecordRepository.findById(request.getId())
+        try {
+            AppointmentRecord appointmentRecord = appointmentRecordRepository
+                    .findById(request.getId())
                     .orElseThrow(() -> new RuntimeException("AppointmentRecord not found"));
 
-
-            // Update Prescription if present
-            if (request.getPrescription() != null) {
-                Prescription prescription = appointmentRecord.getPrescription();
-                if (prescription == null) {
-                    prescription = new Prescription();
-                    prescription.setAppointmentRecord(appointmentRecord);
-                }
-
-                // Update PrescriptionDetails
-                Set<PrescriptionDetails> detailsSet = prescription.getDetails();
-                for (PrescriptionDetailsDTO detailsDTO : request.getPrescription().getDetails()) {
-                    if (detailsDTO.getId() != null) {
-                        // Update existing details
-                        PrescriptionDetails details = prescriptionDetailsRepository.findById(detailsDTO.getId())
-                                .orElseThrow(() -> new RuntimeException("PrescriptionDetails not found"));
-                        prescriptionDetailsMapper.update(details, detailsDTO);
-                    } else {
-                        // Create new details
-                        PrescriptionDetails newDetails = prescriptionDetailsMapper.toEntity(detailsDTO);
-                        newDetails.setPrescription(prescription);
-                        detailsSet.add(newDetails);
-                    }
-                }
-
-                // Update MedicalConditions
-                Set<MedicalConditions> medicalConditionSet = prescription.getMedicalConditions();
-                for (MedicalConditionDTO conditionDTO : request.getPrescription().getMedicalConditions()) {
-                    if (conditionDTO.getId() != null) {
-                        MedicalConditions condition = medicalConditionRepository.findById(conditionDTO.getId())
-                                .orElseThrow(() -> new RuntimeException("MedicalCondition not found"));
-                        medicalConditionMapper.update(conditionDTO, condition);
-                    } else {
-                        MedicalConditions newCondition = medicalConditionMapper.toEntity(conditionDTO);
-                        newCondition.setPrescription(prescription);
-                        medicalConditionSet.add(newCondition);
-                    }
-                }
-
-                prescription.setDetails(detailsSet);
-                prescription.setMedicalConditions(medicalConditionSet);
-                appointmentRecord.setPrescription(prescription);
-            }
-
+            // Update AppointmentRecord fields
             appointmentRecordMapper.update(appointmentRecord, request);
 
-            if(request.getDoctorId()!=null) {
-                appointmentRecord.setDoctor(doctorRepository.findById(request.getDoctorId())
-                        .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + request.getDoctorId())));
-            }
+            // Update Prescription
+            prescriptionService.updatePrescription(appointmentRecord, request);
 
-            if(request.getUserId()!=null) {
-                appointmentRecord.setUser(userRepository.findById(request.getUserId())
-                        .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + request.getUserId())));
-            }
-
-            if(request.getHealthProviderId()!=null) {
-                appointmentRecord.setHealthProvider(healthProviderRepository.findById(request.getHealthProviderId())
-                        .orElseThrow(() -> new EntityNotFoundException("Health Provider not found with ID: " + request.getHealthProviderId())));
-            }
+            // Update relationships
+            updateRelationships(appointmentRecord, request);
 
             appointmentRecordRepository.save(appointmentRecord);
             return appointmentRecordMapper.toDTO(appointmentRecord);
@@ -144,6 +90,22 @@ public class AppointmentRecordService {
         }
     }
 
+    private void updateRelationships(@NonNull AppointmentRecord appointmentRecord, @NonNull UpdateAppointmentRequestDTO request) {
+        if(request.getDoctorId() != null) {
+            appointmentRecord.setDoctor(doctorRepository.findById(request.getDoctorId())
+                    .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + request.getDoctorId())));
+        }
+
+        if(request.getUserId() != null) {
+            appointmentRecord.setUser(userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + request.getUserId())));
+        }
+
+        if(request.getHealthProviderId() != null) {
+            appointmentRecord.setHealthProvider(healthProviderRepository.findById(request.getHealthProviderId())
+                    .orElseThrow(() -> new EntityNotFoundException("Health Provider not found with ID: " + request.getHealthProviderId())));
+        }
+    }
 
     public String deleteAppointmentRecord(Long appointmentRecordId) {
         try {

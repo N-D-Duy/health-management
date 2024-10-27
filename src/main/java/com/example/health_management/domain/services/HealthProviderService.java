@@ -3,7 +3,6 @@ package com.example.health_management.domain.services;
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderDTO;
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderWithDoctorsDTO;
 import com.example.health_management.application.mapper.HealthProviderMapper;
-import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.HealthProvider;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.HealthProviderRepository;
@@ -19,12 +18,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class HealthProviderService {
     private final HealthProviderRepository healthProviderRepository;
     private final DoctorRepository doctorRepository;
     private final HealthProviderMapper healthProviderMapper;
 
-    @Transactional
     public HealthProviderDTO create(HealthProviderDTO request) {
         try{
             HealthProvider healthProvider = healthProviderMapper.toEntity(request);
@@ -35,7 +34,6 @@ public class HealthProviderService {
         }
     }
 
-    @Transactional
     public HealthProviderWithDoctorsDTO update(HealthProviderDTO request) {
         try {
             HealthProvider healthProvider = healthProviderRepository.findById(request.getId())
@@ -57,7 +55,6 @@ public class HealthProviderService {
         }
     }
 
-    @Transactional
     public HealthProviderWithDoctorsDTO doctorJoinHealthProvider(Long doctorId, Long healthProviderId) {
         try {
             // Verify both entities exist
@@ -77,7 +74,6 @@ public class HealthProviderService {
         }
     }
 
-    @Transactional
     public HealthProviderWithDoctorsDTO doctorLeaveHealthProvider(Long doctorId, Long healthProviderId) {
         try {
             // Verify relationship exists

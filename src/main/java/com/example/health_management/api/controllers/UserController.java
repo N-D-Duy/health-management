@@ -39,8 +39,8 @@ public class UserController {
         return userService.getUserSummary(id);
     }
 
-    @PostMapping("/update-user/{id}")
-    public @ResponseBody UserDTO updateUser(@RequestBody UpdateUserRequest userDTO, @PathVariable("id") Long id) {
-        return userService.updateUser(userDTO, id);
+    @PostMapping("/update-user")
+    public @ResponseBody UserDTO updateUser(@RequestBody UpdateUserRequest userDTO) {
+        return userService.updateUser(userDTO);
     }
 }

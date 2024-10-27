@@ -4,13 +4,14 @@ import com.example.health_management.application.DTOs.account.AccountDTO;
 import com.example.health_management.application.DTOs.address.AddressDTO;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * DTO for {@link com.example.health_management.domain.entities.User}
  */
 @Data
-public class UserDTO {
+public class UserDTO implements Serializable {
     private Long id;
     private String firstName;
     private String lastName;

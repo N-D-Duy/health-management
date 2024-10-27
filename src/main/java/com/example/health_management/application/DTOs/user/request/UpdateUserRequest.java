@@ -11,6 +11,7 @@ import java.util.Set;
 
 @Data
 public class UpdateUserRequest implements Serializable {
+    private Long id;
     private String firstName;
     private String lastName;
     private LocalDate dateOfBirth;
