@@ -49,8 +49,9 @@ public class HealthArticleController {
         return ResponseEntity.ok(response);
     }
 
+    @CheckUserMatch
     @DeleteMapping("/delete")
-    public @ResponseBody ResponseEntity<ApiResponse<String>> deleteHealthArticle(@Param("id") Long id) {
+    public @ResponseBody ResponseEntity<ApiResponse<String>> deleteHealthArticle(@Param("id") Long id, @Param("userId") Long userId) {
         healthArticleService.deleteHealthArticle(id);
         ApiResponse<String> response = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data("Success").message("Success").build();
         return ResponseEntity.ok(response);

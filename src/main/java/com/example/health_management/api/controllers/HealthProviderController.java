@@ -7,6 +7,7 @@ import com.example.health_management.domain.services.HealthProviderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class HealthProviderController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<HealthProviderDTO>> createHealthProvider(@RequestBody HealthProviderDTO healthProviderDTO) {
         HealthProviderDTO healthProvider = healthProviderService.create(healthProviderDTO);
@@ -32,6 +34,7 @@ public class HealthProviderController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update")
     public ResponseEntity<ApiResponse<HealthProviderWithDoctorsDTO>> updateHealthProvider(@RequestBody HealthProviderDTO healthProviderDTO) {
         HealthProviderWithDoctorsDTO healthProvider = healthProviderService.update(healthProviderDTO);
@@ -39,6 +42,7 @@ public class HealthProviderController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{providerId}/doctors/{doctorId}")
     public ResponseEntity<ApiResponse<HealthProviderWithDoctorsDTO>> addDoctor(@PathVariable Long providerId,
                                                                                @PathVariable Long doctorId) {
@@ -51,6 +55,7 @@ public class HealthProviderController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{providerId}/doctors/{doctorId}")
     public ResponseEntity<ApiResponse<HealthProviderWithDoctorsDTO>> doctorLeaveHealthProvider(@PathVariable Long providerId,
                                                                                                @PathVariable Long doctorId) {
