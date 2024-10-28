@@ -12,11 +12,11 @@ import lombok.Setter;
 @Setter
 public class MyUserDetails implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
-    private final Integer id;
+    private final Long id;
     private final Integer version;
     private final String email;
 
-    public MyUserDetails(Integer id, String email, Collection<? extends GrantedAuthority> authorities, Integer version) {
+    public MyUserDetails(Long id, String email, Collection<? extends GrantedAuthority> authorities, Integer version) {
         this.id = id;
         this.email = email;
         this.authorities = authorities;

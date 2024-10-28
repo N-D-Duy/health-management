@@ -61,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             Double id = claims.get("id", Double.class);
-            Integer userId = id.intValue();
+            Long userId = id.longValue();
             Double version = claims.get("version", Double.class);
             Integer keyVersion = version.intValue();
             String roleName = claims.get("role", String.class);

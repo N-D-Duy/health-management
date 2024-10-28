@@ -3,11 +3,15 @@ package com.example.health_management.api.controllers;
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
 import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
+import com.example.health_management.application.apiresponse.ApiResponse;
+import com.example.health_management.common.utils.handle_privilege.CheckUserMatch;
+import com.example.health_management.domain.services.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.example.health_management.domain.services.UserService;
 
 import java.util.List;
 
@@ -17,6 +21,7 @@ import java.util.List;
 @Tag(name = "User", description = "Endpoints for user management")
 public class UserController {
     private final UserService userService;
+    private final CacheManager cacheManager;
 
     @GetMapping("/all")
     public @ResponseBody List<UserDTO> getUsers() {
@@ -28,9 +33,10 @@ public class UserController {
         return "OK";
     }
 
-    @GetMapping("/delete/{id}")
-    public @ResponseBody String deleteUser(@PathVariable("id") Long id) {
-        userService.deleteById(id);
+    @CheckUserMatch(paramName = "userId")
+    @GetMapping("/delete")
+    public @ResponseBody String deleteUser(@Param("userId") Long userId) {
+        userService.deleteById(userId);
         return "Deleted";
     }
 
@@ -39,8 +45,16 @@ public class UserController {
         return userService.getUserSummary(id);
     }
 
+    @CheckUserMatch(paramName = "userId")
     @PostMapping("/update-user")
-    public @ResponseBody UserDTO updateUser(@RequestBody UpdateUserRequest userDTO) {
-        return userService.updateUser(userDTO);
+    public @ResponseBody UserDTO updateUser(@RequestBody UpdateUserRequest userDTO, @Param("userId") Long userId) {
+        return userService.updateUser(userDTO, userId);
+    }
+
+    @GetMapping("/email")
+    public @ResponseBody ResponseEntity<ApiResponse<UserSummaryDTO>> getUserByEmail(@Param("email") String email) {
+        UserSummaryDTO user = userService.getUserByEmail(email);
+        ApiResponse<UserSummaryDTO> response = ApiResponse.<UserSummaryDTO>builder().code(200).data(user).message("Success").build();
+        return ResponseEntity.ok(response);
     }
 }

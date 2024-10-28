@@ -5,9 +5,8 @@ import com.example.health_management.common.shared.enums.ArticleStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 
-@Table(name = "health_guides")
+@Table(name = "health_articles")
 @Entity
 @Builder
 @NoArgsConstructor
@@ -33,6 +32,6 @@ public class HealthArticle extends BaseEntity{
     private ArticleStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,targetEntity = User.class)
-    @JoinColumn(referencedColumnName = "id",nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id",nullable = false)
     private User user;
 }

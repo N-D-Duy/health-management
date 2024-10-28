@@ -51,14 +51,18 @@ public class UserService {
         return userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
     }
 
+    public UserSummaryDTO getUserByEmail(String email) {
+        User user = userRepository.findActiveByEmail(email);
+        return userMapper.toUserSummaryDTO(user);
+    }
+
     public UserDTO getUserById(Long id) {
         User user = userRepository.findByIdActive(id);
         return userMapper.toUserDTO(user);
     }
 
-    public UserDTO updateUser(UpdateUserRequest request) {
+    public UserDTO updateUser(UpdateUserRequest request, Long userId) {
         try {
-            Long userId = request.getId();
             User user = userRepository.findByIdActive(userId);
 
             // Update Account
