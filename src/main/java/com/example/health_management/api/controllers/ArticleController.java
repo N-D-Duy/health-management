@@ -57,6 +57,13 @@ public class ArticleController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/get-by-id")
+    public @ResponseBody ResponseEntity<ApiResponse<ArticleDTO>> getHealthArticleById(@Param("id") Long id) {
+        ArticleDTO healthArticle = articleService.getArticle(id);
+        ApiResponse<ArticleDTO> response = ApiResponse.<ArticleDTO>builder().code(HttpStatus.OK.value()).data(healthArticle).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
     @CheckUserMatch
     @DeleteMapping("/delete")
     public @ResponseBody ResponseEntity<ApiResponse<String>> deleteHealthArticle(@Param("id") Long id, @Param("userId") Long userId) {

@@ -9,8 +9,15 @@ import com.example.health_management.domain.repositories.ArticleRepository;
 import com.example.health_management.domain.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -48,5 +55,32 @@ public class ArticleCommentService {
 
         comment = articleCommentMapper.update(dto, comment);
         return articleCommentRepository.save(comment);
+    }
+
+    //build comment tree
+    protected List<ArticleCommentDTO> buildCommentTree(List<ArticleCommentDTO> comments) {
+        Map<Long, ArticleCommentDTO> commentMap = new HashMap<>();
+        List<ArticleCommentDTO> rootComments = new ArrayList<>();
+
+
+        comments.forEach(comment -> {
+            comment.setReplies(new ArrayList<>());
+            commentMap.put(comment.getId(), comment);
+        });
+
+        comments.forEach(comment -> {
+            if (comment.getParentId() == null) {
+                // if it is a root comment, add it to the rootComments list
+                rootComments.add(comment);
+            } else {
+                // if not, add it as a reply to its parent comment
+                ArticleCommentDTO parentComment = commentMap.get(comment.getParentId());
+                if (parentComment != null) {
+                    parentComment.getReplies().add(comment);
+                }
+            }
+        });
+
+        return rootComments;
     }
 }

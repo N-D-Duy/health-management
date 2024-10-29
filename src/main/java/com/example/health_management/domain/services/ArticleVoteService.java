@@ -1,6 +1,5 @@
 package com.example.health_management.domain.services;
 
-import com.example.health_management.application.mapper.ArticleVoteMapper;
 import com.example.health_management.common.shared.enums.VoteType;
 import com.example.health_management.domain.entities.Article;
 import com.example.health_management.domain.entities.ArticleVote;
@@ -21,6 +20,7 @@ public class ArticleVoteService {
     private final ArticleVoteRepository articleVoteRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
+
 
     public void vote(Long articleId, Long userId, VoteType voteType) {
         Article article = articleRepository.findById(articleId)
