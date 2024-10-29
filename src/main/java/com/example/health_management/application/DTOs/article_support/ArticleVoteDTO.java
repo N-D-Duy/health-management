@@ -10,6 +10,6 @@ public class ArticleVoteDTO implements Serializable {
     private Long id;
     private Long articleId;
     private Long userId;
-    private Long username;
+    private String username;
     private VoteType type;
 }
