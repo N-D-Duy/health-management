@@ -21,7 +21,7 @@ public class ArticleCommentService {
     private final UserRepository userRepository;
     private final ArticleCommentMapper articleCommentMapper;
 
-    public ArticleComment addComment(Long articleId, Long userId, ArticleCommentDTO dto) {
+    public ArticleCommentDTO addComment(Long articleId, Long userId, ArticleCommentDTO dto) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new EntityNotFoundException("Article not found with ID: " + articleId));
 
@@ -39,7 +39,7 @@ public class ArticleCommentService {
         article.setCommentCount(article.getCommentCount() + 1);
         articleRepository.save(article);
 
-        return articleCommentRepository.save(comment);
+        return articleCommentMapper.toDTO(articleCommentRepository.save(comment));
     }
 
     public ArticleComment updateComment(Long commentId, ArticleCommentDTO dto) {

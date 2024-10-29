@@ -1,6 +1,5 @@
 package com.example.health_management.application.DTOs.article_support;
 
-import com.example.health_management.domain.entities.ArticleComment;
 import lombok.Data;
 
 import java.io.Serializable;

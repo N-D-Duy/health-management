@@ -3,9 +3,11 @@ package com.example.health_management.api.controllers;
 import com.example.health_management.application.DTOs.article.ArticleDTO;
 import com.example.health_management.application.DTOs.article.CreateArticleRequest;
 import com.example.health_management.application.DTOs.article.UpdateArticleRequest;
+import com.example.health_management.application.DTOs.article_support.ArticleCommentDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.common.shared.enums.VoteType;
 import com.example.health_management.common.utils.handle_privilege.CheckUserMatch;
+import com.example.health_management.domain.services.ArticleCommentService;
 import com.example.health_management.domain.services.ArticleService;
 import com.example.health_management.domain.services.ArticleVoteService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.List;
 public class ArticleController {
     private final ArticleService articleService;
     private final ArticleVoteService articleVoteService;
+    private final ArticleCommentService articleCommentService;
 
     @CheckUserMatch
     @PostMapping("/create")
@@ -62,11 +65,20 @@ public class ArticleController {
         return ResponseEntity.ok(response);
     }
 
-//    @CheckUserMatch(paramName = "userId")
+//    @CheckUserMatch
     @PostMapping("/vote")
     public @ResponseBody ResponseEntity<ApiResponse<String>> voteHealthArticle(@Param("articleId") Long articleId, @Param("userId") Long userId, @Param("voteType") VoteType voteType) {
         articleVoteService.vote(articleId, userId, voteType);
         ApiResponse<String> response = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data("Success").message("Success").build();
         return ResponseEntity.ok(response);
     }
+
+//    @CheckUserMatch(paramName = "userId")
+    @PostMapping("/comment")
+    public @ResponseBody ResponseEntity<ApiResponse<ArticleCommentDTO>> commentHealthArticle(@Param("articleId") Long articleId, @Param("userId") Long userId, @RequestBody ArticleCommentDTO commentDTO) {
+        ArticleCommentDTO articleCommentDTO = articleCommentService.addComment(articleId, userId, commentDTO);
+        ApiResponse<ArticleCommentDTO> response = ApiResponse.<ArticleCommentDTO>builder().code(HttpStatus.OK.value()).data(articleCommentDTO).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
 }
