@@ -109,4 +109,8 @@ public class UserService {
         User user = userRepository.findByIdActive(userId);
         return userMapper.toUserSummaryDTO(user);
     }
+
+    public List<DoctorDTO> getTopRatedDoctors() {
+        return doctorRepository.topRatedDoctors().stream().map(doctorMapper::toDoctorDTO).toList();
+    }
 }

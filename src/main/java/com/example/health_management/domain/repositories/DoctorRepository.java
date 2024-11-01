@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface DoctorRepository extends SoftDeleteRepository<Doctor, Long> {
     @Modifying
     @Query("UPDATE Doctor d SET d.healthProvider.id = :providerId WHERE d.id = :doctorId")
@@ -17,4 +19,12 @@ public interface DoctorRepository extends SoftDeleteRepository<Doctor, Long> {
 
     @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END FROM Doctor d WHERE d.id = :doctorId AND d.healthProvider.id = :providerId")
     boolean isDoctorInHealthProvider(@Param("doctorId") Long doctorId, @Param("providerId") Long providerId);
+
+    @Query(value = """
+        SELECT * 
+        FROM doctors 
+        ORDER BY rating DESC 
+        LIMIT 10
+        """, nativeQuery = true)
+    List<Doctor> topRatedDoctors();
 }

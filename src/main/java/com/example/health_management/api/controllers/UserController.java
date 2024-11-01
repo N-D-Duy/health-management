@@ -1,6 +1,7 @@
 package com.example.health_management.api.controllers;
 
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
+import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
 import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
@@ -55,6 +56,13 @@ public class UserController {
     public @ResponseBody ResponseEntity<ApiResponse<UserSummaryDTO>> getUserByEmail(@Param("email") String email) {
         UserSummaryDTO user = userService.getUserByEmail(email);
         ApiResponse<UserSummaryDTO> response = ApiResponse.<UserSummaryDTO>builder().code(200).data(user).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/top-rated")
+    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorDTO>>> getTopRatedDoctors() {
+        List<DoctorDTO> doctors = userService.getTopRatedDoctors();
+        ApiResponse<List<DoctorDTO>> response = ApiResponse.<List<DoctorDTO>>builder().code(200).data(doctors).message("Success").build();
         return ResponseEntity.ok(response);
     }
 }
