@@ -51,6 +51,18 @@ public class UserService {
         return userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
     }
 
+    public List<UserDTO> getAllDoctors() {
+        List<UserDTO> users = userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
+        users = users.stream().filter(user -> user.getAccount().getRole().equals("DOCTOR")).toList();
+        return users;
+    }
+
+    public List<UserDTO> getAllPatients() {
+        List<UserDTO> users = userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
+        users = users.stream().filter(user -> user.getAccount().getRole().equals("USER")).toList();
+        return users;
+    }
+
     public UserSummaryDTO getUserByEmail(String email) {
         User user = userRepository.findActiveByEmail(email);
         return userMapper.toUserSummaryDTO(user);

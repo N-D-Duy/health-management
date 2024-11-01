@@ -29,6 +29,16 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/doctors")
+    public @ResponseBody List<UserDTO> getDoctors() {
+        return userService.getAllDoctors();
+    }
+
+    @GetMapping("/patients")
+    public @ResponseBody List<UserDTO> getPatients() {
+        return userService.getAllPatients();
+    }
+
     @GetMapping("/health")
     public @ResponseBody String getHealth() {
         return "OK";
