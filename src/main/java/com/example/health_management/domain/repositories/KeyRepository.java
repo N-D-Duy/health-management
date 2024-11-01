@@ -23,7 +23,7 @@ public interface KeyRepository extends JpaRepository<Key, Long> {
     @Query("UPDATE Key k SET k.refreshToken = :refreshToken WHERE k.user.id = :userId")
     void updateRefreshTokenByUserId(@Param("refreshToken") String refreshToken, @Param("userId") Long userId);
 
-    @Query("SELECT EXISTS(SELECT 1 FROM Key k WHERE k.refreshToken IS NOT NULL AND k.user.id = :uid)")
-    Boolean existsByRefreshToken(String uid);
+    @Query("SELECT EXISTS(SELECT 1 FROM Key k WHERE k.refreshToken = :refreshToken)")
+    Boolean existsByRefreshToken(String refreshToken);
 }
 

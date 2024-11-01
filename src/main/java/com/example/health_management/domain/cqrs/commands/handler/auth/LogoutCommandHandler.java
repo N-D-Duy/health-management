@@ -1,6 +1,7 @@
 package com.example.health_management.domain.cqrs.commands.handler.auth;
 
 import com.example.health_management.application.guards.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -10,9 +11,9 @@ public class LogoutCommandHandler {
     private final JwtProvider jwtProvider;
 
 
-    public void handle() {
+    public String handle() {
         try{
-            jwtProvider.endSession();
+            return jwtProvider.endSession();
         } catch (Exception e) {
             throw new RuntimeException("Error while logging out (update key failed)");
         }

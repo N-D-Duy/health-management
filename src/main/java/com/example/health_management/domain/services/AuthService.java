@@ -10,6 +10,7 @@ import com.example.health_management.domain.cqrs.commands.handler.auth.RegisterC
 import com.example.health_management.domain.cqrs.commands.impl.auth.AuthCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RefreshTokenCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +49,8 @@ public class AuthService {
         return refreshTokenHandler.handle(new RefreshTokenCommand(refreshToken));
     }
 
-    public void logout() {
-        logoutCommandHandler.handle();
+    public String logout() {
+        return logoutCommandHandler.handle();
     }
 
 }

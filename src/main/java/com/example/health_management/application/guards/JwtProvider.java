@@ -135,6 +135,7 @@ public class JwtProvider {
         return header.substring(7);
     }
 
+
     public Claims extractClaimsFromToken(String token) {
         try{
             Claims claims = Jwts.parser()
@@ -231,10 +232,16 @@ public class JwtProvider {
         keyService.updateKey(userId, fcmToken);
     }
 
-    public void endSession(){
-        MyUserDetails user = extractUserDetailsFromToken();
-        keyRepository.signOut(user.getId().toString());
-        SecurityContextHolder.clearContext();
+    public String endSession() {
+        try{
+            MyUserDetails user = extractUserDetailsFromToken();
+            keyRepository.signOut(user.getId().toString());
+            SecurityContextHolder.clearContext();
+            return "Logged out";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
 }
 
