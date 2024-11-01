@@ -48,8 +48,8 @@ public class AuthService {
         return refreshTokenHandler.handle(new RefreshTokenCommand(refreshToken));
     }
 
-    public void logout(String uid) {
-        logoutCommandHandler.handle(uid);
+    public void logout() {
+        logoutCommandHandler.handle();
     }
 
 }

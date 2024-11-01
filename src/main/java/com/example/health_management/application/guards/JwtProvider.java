@@ -5,6 +5,7 @@ import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.entities.Payload;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
+import com.example.health_management.domain.repositories.KeyRepository;
 import com.example.health_management.domain.repositories.UserRepository;
 import com.example.health_management.domain.services.KeyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +38,7 @@ public class JwtProvider {
     private final AccountRepository accountRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserRepository userRepository;
+    private final KeyRepository keyRepository;
 
     public Map<String, String> generateKeyPair() {
         try {
@@ -229,15 +231,10 @@ public class JwtProvider {
         keyService.updateKey(userId, fcmToken);
     }
 
-    public User extractUserFromToken() {
-        try {
-            MyUserDetails myUserDetails = extractUserDetailsFromToken();
-            User user = userRepository.findByAccount_Email(myUserDetails.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
-            return user;
-        } catch (RuntimeException e) {
-            log.error("User extract error: ", e);
-            throw new RuntimeException("User extract error: ", e);
-        }
+    public void endSession(){
+        MyUserDetails user = extractUserDetailsFromToken();
+        keyRepository.signOut(user.getId().toString());
+        SecurityContextHolder.clearContext();
     }
 }
 

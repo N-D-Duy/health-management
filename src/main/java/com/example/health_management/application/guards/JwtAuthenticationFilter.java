@@ -60,6 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+
             Double id = claims.get("id", Double.class);
             Long userId = id.longValue();
             Double version = claims.get("version", Double.class);
@@ -69,6 +70,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             Role role = Role.valueOf(roleName); // Convert roleName string to Role enum
 
+            //check if token is existing in the database (in the case of logout)
+            if (!keyService.isTokenExist(userId.toString())) {
+                ApiResponse responseWrapper = new ApiResponse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token", null);
+                writeResponse(responseWrapper, response);
+                return;
+            }
             // Get authorities from Role
             List<SimpleGrantedAuthority> authorities = role.getAuthorities(); // Get all authorities including ROLE_ and permissions
 

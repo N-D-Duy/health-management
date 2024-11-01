@@ -34,4 +34,8 @@ public class KeyService {
         userKey.setNotificationKey(fcmToken);
         keyRepository.save(userKey);
     }
+
+    public Boolean isTokenExist(String uid) {
+        return keyRepository.existsByRefreshToken(uid);
+    }
 }

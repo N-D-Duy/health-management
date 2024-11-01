@@ -14,7 +14,7 @@ public interface KeyRepository extends JpaRepository<Key, Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Key k SET k.refreshToken = NULL, k.notificationKey = NULL WHERE k.user.id = :uid")
+    @Query("UPDATE Key k SET k.refreshToken = NULL, k.notificationKey = '' WHERE k.user.id = :uid")
     void signOut(String uid);
 
 
@@ -22,5 +22,8 @@ public interface KeyRepository extends JpaRepository<Key, Long> {
     @Transactional
     @Query("UPDATE Key k SET k.refreshToken = :refreshToken WHERE k.user.id = :userId")
     void updateRefreshTokenByUserId(@Param("refreshToken") String refreshToken, @Param("userId") Long userId);
+
+    @Query("SELECT EXISTS(SELECT 1 FROM Key k WHERE k.refreshToken IS NOT NULL AND k.user.id = :uid)")
+    Boolean existsByRefreshToken(String uid);
 }
 
