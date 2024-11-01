@@ -25,18 +25,24 @@ public class UserController {
     private final CacheManager cacheManager;
 
     @GetMapping("/all")
-    public @ResponseBody List<UserDTO> getUsers() {
-        return userService.getAllUsers();
+    public @ResponseBody ResponseEntity<ApiResponse<List<UserDTO>>> getUsers() {
+        List<UserDTO> users = userService.getAllUsers();
+        ApiResponse<List<UserDTO>> response = ApiResponse.<List<UserDTO>>builder().code(200).data(users).message("Success").build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/doctors")
-    public @ResponseBody List<UserDTO> getDoctors() {
-        return userService.getAllDoctors();
+    public @ResponseBody ResponseEntity<ApiResponse<List<UserDTO>>> getDoctors() {
+        List<UserDTO> doctors = userService.getAllDoctors();
+        ApiResponse<List<UserDTO>> response = ApiResponse.<List<UserDTO>>builder().code(200).data(doctors).message("Success").build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/patients")
-    public @ResponseBody List<UserDTO> getPatients() {
-        return userService.getAllPatients();
+    public @ResponseBody ResponseEntity<ApiResponse<List<UserDTO>>> getPatients() {
+        List<UserDTO> patients = userService.getAllPatients();
+        ApiResponse<List<UserDTO>> response = ApiResponse.<List<UserDTO>>builder().code(200).data(patients).message("Success").build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/health")
@@ -52,14 +58,18 @@ public class UserController {
     }
 
     @GetMapping("/summary/{id}")
-    public @ResponseBody UserSummaryDTO getUser(@PathVariable("id") Long id) {
-        return userService.getUserSummary(id);
+    public @ResponseBody ResponseEntity<ApiResponse<UserSummaryDTO>> getUser(@PathVariable("id") Long id) {
+        UserSummaryDTO user = userService.getUserSummary(id);
+        ApiResponse<UserSummaryDTO> response = ApiResponse.<UserSummaryDTO>builder().code(200).data(user).message("Success").build();
+        return ResponseEntity.ok(response);
     }
 
     @CheckUserMatch(paramName = "userId")
     @PostMapping("/update-user")
-    public @ResponseBody UserDTO updateUser(@RequestBody UpdateUserRequest userDTO, @Param("userId") Long userId) {
-        return userService.updateUser(userDTO, userId);
+    public @ResponseBody ResponseEntity<ApiResponse<UserDTO>> updateUser(@RequestBody UpdateUserRequest userDTO, @Param("userId") Long userId) {
+        UserDTO user = userService.updateUser(userDTO, userId);
+        ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder().code(200).data(user).message("Success").build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/email")
