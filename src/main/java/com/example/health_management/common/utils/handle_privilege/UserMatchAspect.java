@@ -3,15 +3,18 @@ package com.example.health_management.common.utils.handle_privilege;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.guards.MyUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.slf4j.Logger;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class UserMatchAspect {
     private final JwtProvider jwtProvider;
 
@@ -26,6 +29,9 @@ public class UserMatchAspect {
 
         // Lấy current user
         MyUserDetails currentUser = jwtProvider.extractUserDetailsFromToken();
+        if(currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return;
+        }
 
         // Check match
         if (!currentUser.getId().equals(userId)) {

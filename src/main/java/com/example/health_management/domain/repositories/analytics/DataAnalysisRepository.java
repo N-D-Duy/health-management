@@ -8,18 +8,18 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface DataAnalysisRepository extends JpaRepository<User, Long> {
     @Query(value = """
     SELECT 
         COUNT(*) AS totalUser,
-        SUM(CASE WHEN dp.id IS NULL THEN 1 ELSE 0 END) AS totalPatient,
-        SUM(CASE WHEN dp.id IS NOT NULL THEN 1 ELSE 0 END) AS totalDoctor
+        SUM(CASE WHEN a.role = 'USER' THEN 1 ELSE 0 END) AS totalPatient,
+        SUM(CASE WHEN a.role = 'DOCTOR' THEN 1 ELSE 0 END) AS totalDoctor
     FROM 
         users u
-    LEFT JOIN doctors dp ON u.id = dp.user_id
+    LEFT JOIN 
+        accounts a ON u.id = a.user_id
     WHERE 
         u.created_at BETWEEN :startDate AND :endDate
     """, nativeQuery = true)

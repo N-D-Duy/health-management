@@ -233,7 +233,7 @@ public class JwtProvider {
     }
 
     public String endSession() {
-        try{
+        try {
             MyUserDetails user = extractUserDetailsFromToken();
             keyRepository.signOut(user.getId().toString());
             SecurityContextHolder.clearContext();

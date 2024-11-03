@@ -38,7 +38,7 @@ public class ArticleController {
     @CheckUserMatch
     @PostMapping("/update")
     public @ResponseBody ResponseEntity<ApiResponse<ArticleDTO>> updateHealthArticle(@RequestBody UpdateArticleRequest articleDTO, @Param("userId") Long userId) {
-        ArticleDTO healthArticle = articleService.updateArticle(articleDTO, userId);
+        ArticleDTO healthArticle = articleService.updateArticle(articleDTO, articleDTO.getId());
         ApiResponse<ArticleDTO> response = ApiResponse.<ArticleDTO>builder().code(HttpStatus.OK.value()).data(healthArticle).message("Success").build();
         return ResponseEntity.ok(response);
     }

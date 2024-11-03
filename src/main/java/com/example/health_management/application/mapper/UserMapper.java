@@ -31,5 +31,7 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
     User update(UpdateUserRequest updateUserRequest, @MappingTarget User user);
 
+    @Mapping(target = "email", source = "user.account.email")
+    @Mapping(target="role", source="user.account.role")
     UserSummaryDTO toUserSummaryDTO(User user);
 }

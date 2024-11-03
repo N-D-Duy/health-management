@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateArticleRequest {
+    private Long id;
     private String title;
     private String content;
     private ArticleCategory category;

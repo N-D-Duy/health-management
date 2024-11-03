@@ -28,6 +28,7 @@ public interface ArticleMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "media", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "votes", ignore = true)
     @Mapping(target = "comments", ignore = true)

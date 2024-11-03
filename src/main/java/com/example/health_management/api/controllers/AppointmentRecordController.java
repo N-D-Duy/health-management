@@ -25,7 +25,6 @@ public class AppointmentRecordController {
 
     private final AppointmentRecordService AppointmentRecordService;
 
-    @PreAuthorize("hasAnyRole({'ROLE_USER', 'ROLE_DOCTOR'})")
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<AppointmentRecordDTO>>> getAllAppointmentRecords() {
         List<AppointmentRecordDTO> AppointmentRecordDTO = AppointmentRecordService.findAll();
