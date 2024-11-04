@@ -1,4 +1,4 @@
-package com.example.health_management.common.utils.handle_privilege;
+package com.example.health_management.common.utils.handle_privilege.self_privilege;
 
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.guards.MyUserDetails;
@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.slf4j.Logger;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,7 @@ public class UserMatchAspect {
             throw new AccessDeniedException("You don't have permission to perform this action");
         }
 
-        // Lấy current user
+        // Check if admin, then allow
         MyUserDetails currentUser = jwtProvider.extractUserDetailsFromToken();
         if(currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return;

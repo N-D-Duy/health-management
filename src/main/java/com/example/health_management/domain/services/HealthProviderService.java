@@ -3,6 +3,7 @@ package com.example.health_management.domain.services;
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderDTO;
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderWithDoctorsDTO;
 import com.example.health_management.application.mapper.HealthProviderMapper;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.HealthProvider;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.HealthProviderRepository;
@@ -30,19 +31,19 @@ public class HealthProviderService {
             healthProvider = healthProviderRepository.save(healthProvider);
             return healthProviderMapper.toDTO(healthProvider);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 
     public HealthProviderWithDoctorsDTO update(HealthProviderDTO request) {
         try {
             HealthProvider healthProvider = healthProviderRepository.findById(request.getId())
-                    .orElseThrow(() -> new RuntimeException("Health Provider not found"));
+                    .orElseThrow(() -> new ConflictException("Health Provider not found"));
             healthProvider = healthProviderMapper.update(request, healthProvider);
             healthProvider = healthProviderRepository.save(healthProvider);
             return healthProviderMapper.toDTOWithDoctors(healthProvider);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 
@@ -51,7 +52,7 @@ public class HealthProviderService {
             List<HealthProvider> healthProviders = healthProviderRepository.findAllActive();
             return healthProviders.stream().map(healthProviderMapper::toDTOWithDoctors).toList();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 

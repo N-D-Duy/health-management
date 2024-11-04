@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.common.shared.enums.LoggingType;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.services.LoggingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,7 +44,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         try {
             requestBody = new ObjectMapper().readValue(request.getInputStream(), Map.class);
         } catch (IOException e) {
-            throw new RuntimeException("Error parsing request body", e);
+            throw new ConflictException("Error parsing request body"+e.getMessage());
         }
 
         String email = requestBody.get("email");

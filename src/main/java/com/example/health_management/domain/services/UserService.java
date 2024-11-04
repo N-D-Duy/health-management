@@ -12,6 +12,7 @@ import com.example.health_management.application.mapper.AddressMapper;
 import com.example.health_management.application.mapper.DoctorMapper;
 import com.example.health_management.application.mapper.UserMapper;
 import com.example.health_management.common.shared.enums.LoggingType;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
@@ -52,7 +53,7 @@ public class UserService {
             userRepository.deleteById(id);
             loggingService.saveLog(LoggingDTO.builder().message("User with id" + id + "deleted").type(LoggingType.USER_DELETED).build());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 
@@ -82,7 +83,7 @@ public class UserService {
         return userMapper.toUserDTO(user);
     }
 
-    public UserDTO updateUser(UpdateUserRequest request, Long userId) {
+    public UserDTO updateUser(UpdateUserRequest request, Long userId, Boolean isDoctorUpdate) {
         try {
             User user = userRepository.findByIdActive(userId);
 
@@ -97,8 +98,7 @@ public class UserService {
                 addressService.updateAddresses(user, request.getAddresses());
             }
 
-            // Update Doctor Profile
-            if (request.getDoctorProfile() != null) {
+            if(isDoctorUpdate && request.getDoctorProfile() != null) {
                 updateDoctorProfile(user, request.getDoctorProfile());
             }
 
@@ -109,7 +109,7 @@ public class UserService {
             loggingService.saveLog(LoggingDTO.builder().message("User with id" + userId + "updated").type(LoggingType.USER_UPDATED).build());
             return userMapper.toUserDTO(user);
         } catch (Exception e) {
-            throw new RuntimeException("Error updating user: " + e.getMessage(), e);
+            throw new ConflictException("Error updating user: " + e.getMessage());
         }
     }
 
@@ -128,7 +128,7 @@ public class UserService {
             }
             loggingService.saveLog(LoggingDTO.builder().message("Doctor profile updated for user with id" + user.getId()).type(LoggingType.DOCTOR_PROFILE_UPDATED).build());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 

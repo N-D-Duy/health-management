@@ -6,7 +6,7 @@ import com.example.health_management.application.DTOs.article.UpdateArticleReque
 import com.example.health_management.application.DTOs.article_support.ArticleCommentDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.common.shared.enums.VoteType;
-import com.example.health_management.common.utils.handle_privilege.CheckUserMatch;
+import com.example.health_management.common.utils.handle_privilege.self_privilege.CheckUserMatch;
 import com.example.health_management.domain.services.ArticleCommentService;
 import com.example.health_management.domain.services.ArticleService;
 import com.example.health_management.domain.services.ArticleVoteService;

@@ -1,21 +1,26 @@
 package com.example.health_management.common.shared.enums;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+@Getter
 @RequiredArgsConstructor
 public enum Permission {
+    ALL_READ("all:read"),
+    ALL_UPDATE("all:update"),
+    ALL_CREATE("all:create"),
+    ALL_DELETE("all:delete"),
 
-    ADMIN_READ("admin:read"),
-    ADMIN_UPDATE("admin:update"),
-    ADMIN_CREATE("admin:create"),
-    ADMIN_DELETE("admin:delete"),
-    DOCTOR_READ("management:read"),
-    DOCTOR_UPDATE("management:update"),
-    DOCTOR_CREATE("management:create"),
-    DOCTOR_DELETE("management:delete")
-    ;
+    // Manager permissions for doctor management
+    DOCTOR_READ("doctor:read"),
+    DOCTOR_UPDATE("doctor:update"),
+    DOCTOR_CREATE("doctor:create"),
+    DOCTOR_DELETE("doctor:delete"),
 
-    @Getter
+    // Basic read permission
+    BASIC_READ("basic:read");
     private final String permission;
 }
+

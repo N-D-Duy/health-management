@@ -1,4 +1,4 @@
-package com.example.health_management.common.utils.handle_privilege;
+package com.example.health_management.common.utils.handle_privilege.self_privilege;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 

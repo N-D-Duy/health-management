@@ -63,7 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             Role role = Role.valueOf(roleName);
             
-            // Get authorities from Role
+            // Get authorities from Role, set them to context to be used in pre-authorize
             List<SimpleGrantedAuthority> authorities = role.getAuthorities();
 
             MyUserDetails customUserDetails = new MyUserDetails(userId, email, authorities, keyVersion);

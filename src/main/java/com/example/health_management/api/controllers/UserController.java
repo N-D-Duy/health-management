@@ -5,7 +5,10 @@ import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
 import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
-import com.example.health_management.common.utils.handle_privilege.CheckUserMatch;
+import com.example.health_management.common.shared.enums.DoctorAction;
+import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.common.utils.handle_privilege.doctor_access.DoctorAccess;
+import com.example.health_management.common.utils.handle_privilege.self_privilege.CheckUserMatch;
 import com.example.health_management.domain.services.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -50,12 +53,28 @@ public class UserController {
         return "OK";
     }
 
-    @CheckUserMatch(paramName = "userId")
-    @GetMapping("/delete")
-    public @ResponseBody String deleteUser(@Param("userId") Long userId) {
-        userService.deleteById(userId);
-        return "Deleted";
+    @CheckUserMatch()
+    @GetMapping("/delete-user")
+    public @ResponseBody ResponseEntity<ApiResponse<String>> deleteUser(@Param("userId") Long userId) {
+        try{
+            userService.deleteById(userId);
+            return ResponseEntity.ok(ApiResponse.<String>builder().code(200).data("Deleted").message("Success").build());
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.<String>builder().code(400).data("Failed").message("Failed").build());
+        }
     }
+
+    @DoctorAccess(action = DoctorAction.DELETE)
+    @GetMapping("/delete-doctor")
+    public @ResponseBody ResponseEntity<ApiResponse<String>> deleteDoctor(@Param("doctorId") Long doctorId) {
+        try {
+            userService.deleteById(doctorId);
+            return ResponseEntity.ok(ApiResponse.<String>builder().code(200).data("Deleted").message("Success").build());
+        } catch (Exception e) {
+            throw new ConflictException(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/summary/{id}")
     public @ResponseBody ResponseEntity<ApiResponse<UserSummaryDTO>> getUser(@PathVariable("id") Long id) {
@@ -64,10 +83,18 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @CheckUserMatch(paramName = "userId")
+    @CheckUserMatch()
     @PostMapping("/update-user")
     public @ResponseBody ResponseEntity<ApiResponse<UserDTO>> updateUser(@RequestBody UpdateUserRequest userDTO, @Param("userId") Long userId) {
-        UserDTO user = userService.updateUser(userDTO, userId);
+        UserDTO user = userService.updateUser(userDTO, userId, false);
+        ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder().code(200).data(user).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
+    @DoctorAccess(action = DoctorAction.UPDATE)
+    @PostMapping("/update-doctor")
+    public @ResponseBody ResponseEntity<ApiResponse<UserDTO>> updateDoctor(@RequestBody UpdateUserRequest userDTO, @Param("doctorId") Long doctorId) {
+        UserDTO user = userService.updateUser(userDTO, doctorId, true);
         ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder().code(200).data(user).message("Success").build();
         return ResponseEntity.ok(response);
     }

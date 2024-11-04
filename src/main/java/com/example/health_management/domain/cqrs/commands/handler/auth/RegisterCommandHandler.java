@@ -56,6 +56,8 @@ public class RegisterCommandHandler {
 
             if(command.getRole() == null) {
                 command.setRole(Role.USER);
+            } else if(command.getRole() == Role.ADMIN) {
+                throw new ConflictException("error.adminNotAllowed");
             }
             // Hash password
             command.setPassword(passwordEncoder.encode(command.getPassword()));
@@ -85,10 +87,9 @@ public class RegisterCommandHandler {
             key.setVersion(1);
             key.setNotificationKey("");
 
-            // Associate account with user
             user.setAccount(account);
-            key.setUser(user);  // Set the user for key
-            user.setKey(key);   // Associate key with user
+            key.setUser(user);
+            user.setKey(key);
 
             // Save entities
             accountRepository.save(account);
@@ -96,7 +97,7 @@ public class RegisterCommandHandler {
             loggingService.saveLog(LoggingDTO.builder().message("User with email " + account.getEmail() + " registered").type(LoggingType.USER_CREATED).build());
             return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).build();
         } catch (ConflictException e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 }

@@ -7,6 +7,7 @@ import com.example.health_management.application.DTOs.article_support.ArticleCom
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.ArticleMapper;
 import com.example.health_management.common.shared.enums.LoggingType;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Article;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.ArticleRepository;
@@ -35,7 +36,7 @@ public class ArticleService {
 
     public ArticleDTO createArticle(CreateArticleRequest request, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+                .orElseThrow(() -> new ConflictException(".getMessage()User not found with ID: " + userId));
         Article article = articleMapper.createFromRequest(request);
         article.setUser(user);
         Article savedArticle = articleRepository.save(article);
@@ -49,13 +50,13 @@ public class ArticleService {
     public ArticleDTO updateArticle(UpdateArticleRequest request, Long articleId) {
         try {
             Article article = articleRepository.findById(articleId)
-                    .orElseThrow(() -> new RuntimeException("Health article not found with ID: " + articleId));
+                    .orElseThrow(() -> new ConflictException(".getMessage()Health article not found with ID: " + articleId));
 
             Article updatedArticle = articleMapper.updateFromRequest(request, article);
             loggingService.saveLog(LoggingDTO.builder().message("Article with " + articleId + " updated").type(LoggingType.ARTICLE_UPDATED).build());
             return articleMapper.toDTO(articleRepository.save(updatedArticle));
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+        } catch (ConflictException e) {
+            throw new ConflictException(e.getMessage());
         }
     }
 
@@ -101,7 +102,7 @@ public class ArticleService {
             articleRepository.deleteById(id);
             loggingService.saveLog(LoggingDTO.builder().message("Article with id" + id + "deleted").type(LoggingType.ARTICLE_DELETED).build());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 

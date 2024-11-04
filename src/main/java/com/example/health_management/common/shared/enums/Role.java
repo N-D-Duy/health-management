@@ -11,25 +11,25 @@ import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
-public enum Role{
+public enum Role {
     ADMIN(
             Set.of(
-                    Permission.ADMIN_READ,
-                    Permission.ADMIN_CREATE,
-                    Permission.ADMIN_UPDATE,
-                    Permission.ADMIN_DELETE
+                    Permission.ALL_READ,
+                    Permission.ALL_UPDATE,
+                    Permission.ALL_CREATE,
+                    Permission.ALL_DELETE
             )
     ),
-    USER(Collections.emptySet()),
-    DOCTOR(
+    MANAGER(
             Set.of(
                     Permission.DOCTOR_READ,
-                    Permission.DOCTOR_CREATE,
                     Permission.DOCTOR_UPDATE,
+                    Permission.DOCTOR_CREATE,
                     Permission.DOCTOR_DELETE
             )
-    );
-
+    ),
+    DOCTOR(Set.of(Permission.BASIC_READ)),
+    USER(Set.of(Permission.BASIC_READ));
     private final Set<Permission> permissions;
 
     public List<SimpleGrantedAuthority> getAuthorities() {

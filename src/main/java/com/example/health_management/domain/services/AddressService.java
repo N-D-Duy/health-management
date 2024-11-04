@@ -2,6 +2,7 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.address.AddressDTO;
 import com.example.health_management.application.mapper.AddressMapper;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Address;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AddressRepository;
@@ -33,7 +34,7 @@ public class AddressService {
             if (addressDTO.getId() != null) {
                 Address existingAddress = existingAddressMap.get(addressDTO.getId());
                 if (existingAddress == null) {
-                    throw new RuntimeException("Address with ID " + addressDTO.getId() + " not found");
+                    throw new ConflictException("Address with ID " + addressDTO.getId() + " not found");
                 }
                 addressMapper.updateAddress(addressDTO, existingAddress);
                 updatedAddresses.add(existingAddress);

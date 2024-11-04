@@ -2,6 +2,7 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.medical_condition.MedicalConditionDTO;
 import com.example.health_management.application.mapper.MedicalConditionMapper;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.MedicalConditions;
 import com.example.health_management.domain.entities.Prescription;
 import com.example.health_management.domain.repositories.MedicalConditionRepository;
@@ -28,7 +29,7 @@ public class MedicalConditionService {
                 // Update existing condition
                 MedicalConditions condition = medicalConditionRepository
                         .findById(conditionDTO.getId())
-                        .orElseThrow(() -> new RuntimeException("MedicalCondition not found"));
+                        .orElseThrow(() -> new ConflictException("MedicalCondition not found"));
                 medicalConditionMapper.update(conditionDTO, condition);
                 medicalConditionSet.add(condition);
             } else {

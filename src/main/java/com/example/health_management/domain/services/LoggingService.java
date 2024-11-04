@@ -3,6 +3,7 @@ package com.example.health_management.domain.services;
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.LoggingMapper;
 import com.example.health_management.common.shared.enums.LoggingType;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Logging;
 import com.example.health_management.domain.repositories.LoggingRepository;
 import jakarta.transaction.Transactional;
@@ -28,7 +29,7 @@ public class LoggingService {
             log.info("Logging: " + logging.getMessage());
             loggingRepository.save(logging);
         } catch (Exception e) {
-            throw new RuntimeException("Error saving log");
+            throw new ConflictException("Error saving log");
         }
     }
 
@@ -37,7 +38,7 @@ public class LoggingService {
 
             return loggingRepository.findAll();
         } catch (Exception e) {
-            throw new RuntimeException("Error getting logs");
+            throw new ConflictException("Error getting logs");
         }
     }
 
@@ -45,7 +46,7 @@ public class LoggingService {
         try{
         return loggingRepository.findByType(type);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 }

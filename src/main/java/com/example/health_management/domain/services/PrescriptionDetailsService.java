@@ -2,6 +2,7 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.prescription_details.PrescriptionDetailsDTO;
 import com.example.health_management.application.mapper.PrescriptionDetailsMapper;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Prescription;
 import com.example.health_management.domain.entities.PrescriptionDetails;
 import com.example.health_management.domain.repositories.PrescriptionDetailsRepository;
@@ -28,7 +29,7 @@ public class PrescriptionDetailsService {
                 // Update existing details
                 PrescriptionDetails details = prescriptionDetailsRepository
                         .findById(detailsDTO.getId())
-                        .orElseThrow(() -> new RuntimeException("PrescriptionDetails not found"));
+                        .orElseThrow(() -> new ConflictException("PrescriptionDetails not found"));
                 prescriptionDetailsMapper.update(details, detailsDTO);
                 detailsSet.add(details);
             } else {

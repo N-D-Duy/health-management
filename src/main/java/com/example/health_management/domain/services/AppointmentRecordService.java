@@ -6,6 +6,7 @@ import com.example.health_management.application.DTOs.appointment_record.respons
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
 import com.example.health_management.common.shared.enums.LoggingType;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.AppointmentRecord;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.HealthProvider;
@@ -68,7 +69,7 @@ public class AppointmentRecordService {
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Error creating appointment record: " + e.getMessage(), e);
+            throw new ConflictException("Error creating appointment record: " + e.getMessage());
         }
     }
 
@@ -76,7 +77,7 @@ public class AppointmentRecordService {
         try {
             AppointmentRecord appointmentRecord = appointmentRecordRepository
                     .findById(request.getId())
-                    .orElseThrow(() -> new RuntimeException("AppointmentRecord not found"));
+                    .orElseThrow(() -> new ConflictException("AppointmentRecord not found"));
 
             // Update AppointmentRecord fields
             appointmentRecordMapper.update(appointmentRecord, request);
@@ -91,7 +92,7 @@ public class AppointmentRecordService {
             loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id" + appointmentRecord.getId() + "updated").type(LoggingType.APPOINTMENT_UPDATED).build());
             return appointmentRecordMapper.toDTO(appointmentRecord);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 
@@ -119,7 +120,7 @@ public class AppointmentRecordService {
             return "Appointment Record deleted successfully";
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 
@@ -128,7 +129,7 @@ public class AppointmentRecordService {
             List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findAllActive();
             return appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 }

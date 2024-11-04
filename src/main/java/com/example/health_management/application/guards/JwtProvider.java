@@ -2,6 +2,7 @@ package com.example.health_management.application.guards;
 
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.common.shared.enums.LoggingType;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.common.utils.TokenExpiration;
 import com.example.health_management.domain.entities.Payload;
 import com.example.health_management.domain.repositories.AccountRepository;
@@ -57,7 +58,7 @@ public class JwtProvider {
             return keys;
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error generating RSA keys", e);
+            throw new ConflictException("Error generating RSA keys"+ e.getMessage());
         }
     }
 
@@ -143,7 +144,7 @@ public class JwtProvider {
                             String email = claims1.get("email", String.class);
                             String publicKeyPEM = getPublicKeyByEmail(email);
                             if (publicKeyPEM == null) {
-                                throw new RuntimeException("Public key not found for user: " + email);
+                                throw new ConflictException("Public key not found for user: " + email);
                             }
                             try {
                                 byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
@@ -151,7 +152,7 @@ public class JwtProvider {
                                 KeyFactory keyFactory = KeyFactory.getInstance("RSA");
                                 return keyFactory.generatePublic(spec);
                             } catch (Exception e) {
-                                throw new RuntimeException("Error generating public key", e);
+                                throw new ConflictException("Error generating public key" + e);
                             }
                         }
                     })
@@ -235,7 +236,7 @@ public class JwtProvider {
             loggingService.saveLog(LoggingDTO.builder().message("User: "+user.getEmail()+" logged out").type(LoggingType.USER_LOGOUT).build());
             return "Logged out";
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConflictException(e.getMessage());
         }
     }
 
