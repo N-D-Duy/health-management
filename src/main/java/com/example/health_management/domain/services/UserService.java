@@ -50,7 +50,10 @@ public class UserService {
 
     public void deleteById(Long id) {
         try {
-            userRepository.deleteById(id);
+            if(accountRepository.findByIdActive(id) == null) {
+                throw new ConflictException("User not found");
+            }
+            accountRepository.deleteById(id);
             loggingService.saveLog(LoggingDTO.builder().message("User with id" + id + "deleted").type(LoggingType.USER_DELETED).build());
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());

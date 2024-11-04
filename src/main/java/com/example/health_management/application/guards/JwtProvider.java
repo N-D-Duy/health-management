@@ -134,7 +134,6 @@ public class JwtProvider {
         return header.substring(7);
     }
 
-
     public Claims extractClaimsFromToken(String token) {
         try{
             Claims claims = Jwts.parser()
