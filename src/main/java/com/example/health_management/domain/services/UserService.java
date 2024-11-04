@@ -1,6 +1,7 @@
 package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.account.UpdateAccountRequest;
+import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
 import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
@@ -10,6 +11,7 @@ import com.example.health_management.application.mapper.AccountMapper;
 import com.example.health_management.application.mapper.AddressMapper;
 import com.example.health_management.application.mapper.DoctorMapper;
 import com.example.health_management.application.mapper.UserMapper;
+import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
@@ -20,6 +22,7 @@ import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +31,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -41,10 +45,15 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final AddressService addressService;
     private final AccountService accountService;
-
+    private final LoggingService loggingService;
 
     public void deleteById(Long id) {
-        userRepository.deleteById(id);
+        try {
+            userRepository.deleteById(id);
+            loggingService.saveLog(LoggingDTO.builder().message("User with id" + id + "deleted").type(LoggingType.USER_DELETED).build());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<UserDTO> getAllUsers() {
@@ -97,6 +106,7 @@ public class UserService {
             userMapper.update(request, user);
 
             userRepository.save(user);
+            loggingService.saveLog(LoggingDTO.builder().message("User with id" + userId + "updated").type(LoggingType.USER_UPDATED).build());
             return userMapper.toUserDTO(user);
         } catch (Exception e) {
             throw new RuntimeException("Error updating user: " + e.getMessage(), e);
@@ -104,16 +114,21 @@ public class UserService {
     }
 
     private void updateDoctorProfile(@NonNull User user, @NonNull DoctorDTO doctorDTO) {
-        Doctor doctorProfile = user.getDoctorProfile();
+        try {
+            Doctor doctorProfile = user.getDoctorProfile();
 
-        if (doctorProfile != null) {
-            // Update existing doctor profile
-            doctorMapper.updateDoctor(doctorDTO, doctorProfile);
-        } else {
-            // Create new doctor profile
-            doctorProfile = doctorMapper.toEntity(doctorDTO);
-            doctorProfile.setUser(user);
-            user.setDoctorProfile(doctorProfile);
+            if (doctorProfile != null) {
+                // Update existing doctor profile
+                doctorMapper.updateDoctor(doctorDTO, doctorProfile);
+            } else {
+                // Create new doctor profile
+                doctorProfile = doctorMapper.toEntity(doctorDTO);
+                doctorProfile.setUser(user);
+                user.setDoctorProfile(doctorProfile);
+            }
+            loggingService.saveLog(LoggingDTO.builder().message("Doctor profile updated for user with id" + user.getId()).type(LoggingType.DOCTOR_PROFILE_UPDATED).build());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

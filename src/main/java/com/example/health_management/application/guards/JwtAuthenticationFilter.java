@@ -2,7 +2,6 @@ package com.example.health_management.application.guards;
 
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.common.shared.enums.Role;
-import com.example.health_management.domain.services.KeyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
@@ -10,27 +9,22 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final KeyService keyService;
     private final JwtProvider jwtProvider;
 
-    public JwtAuthenticationFilter(KeyService keyService, JwtProvider jwtProvider) {
-        this.keyService = keyService;
-        this.jwtProvider = jwtProvider;
-    }
 
     @Override
     protected void doFilterInternal(
@@ -67,10 +61,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String roleName = claims.get("role", String.class);
             String email = claims.get("email", String.class);
 
-            Role role = Role.valueOf(roleName); // Convert roleName string to Role enum
+            Role role = Role.valueOf(roleName);
             
             // Get authorities from Role
-            List<SimpleGrantedAuthority> authorities = role.getAuthorities(); // Get all authorities including ROLE_ and permissions
+            List<SimpleGrantedAuthority> authorities = role.getAuthorities();
 
             MyUserDetails customUserDetails = new MyUserDetails(userId, email, authorities, keyVersion);
 

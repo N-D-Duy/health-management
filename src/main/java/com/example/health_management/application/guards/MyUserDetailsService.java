@@ -3,6 +3,7 @@ package com.example.health_management.application.guards;
 import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.repositories.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.User;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MyUserDetailsService implements UserDetailsService {
-    private final Logger logger = LoggerFactory.getLogger(MyUserDetailsService.class);
     private final AccountRepository accountRepository;
 
     @Override
@@ -22,10 +23,8 @@ public class MyUserDetailsService implements UserDetailsService {
         final Account account = accountRepository.findByEmail(email);
 
         if (account == null) {
-            logger.warn("User not found with email: {}", email);
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
-        logger.info(account.getUsername());
 
         return User.withUsername(account.getEmail())
                 .password(account.getPassword())

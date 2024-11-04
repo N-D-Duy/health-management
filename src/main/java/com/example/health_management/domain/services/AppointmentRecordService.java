@@ -3,7 +3,9 @@ package com.example.health_management.domain.services;
 import com.example.health_management.application.DTOs.appointment_record.request.AppointmentRecordRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.request.UpdateAppointmentRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
+import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
+import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.domain.entities.AppointmentRecord;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.HealthProvider;
@@ -32,6 +34,7 @@ public class AppointmentRecordService {
     private final HealthProviderRepository healthProviderRepository;
     private final AppointmentRecordMapper appointmentRecordMapper;
     private final PrescriptionService prescriptionService;
+    private final LoggingService loggingService;
 
 
     public AppointmentRecordDTO create(AppointmentRecordRequestDTO request){
@@ -60,6 +63,7 @@ public class AppointmentRecordService {
 
             // Save and return
             AppointmentRecord savedRecord = appointmentRecordRepository.save(appointmentRecord);
+            loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id" + savedRecord.getId() + "created").type(LoggingType.APPOINTMENT_CREATED).build());
             return appointmentRecordMapper.toDTO(savedRecord);
         } catch (EntityNotFoundException e) {
             throw e;
@@ -84,6 +88,7 @@ public class AppointmentRecordService {
             updateRelationships(appointmentRecord, request);
 
             appointmentRecordRepository.save(appointmentRecord);
+            loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id" + appointmentRecord.getId() + "updated").type(LoggingType.APPOINTMENT_UPDATED).build());
             return appointmentRecordMapper.toDTO(appointmentRecord);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -110,6 +115,7 @@ public class AppointmentRecordService {
     public String deleteAppointmentRecord(Long appointmentRecordId) {
         try {
             appointmentRecordRepository.deleteById(appointmentRecordId); //soft delete
+            loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id" + appointmentRecordId + "deleted").type(LoggingType.APPOINTMENT_DELETED).build());
             return "Appointment Record deleted successfully";
         } catch (Exception e) {
             log.error(e.getMessage());

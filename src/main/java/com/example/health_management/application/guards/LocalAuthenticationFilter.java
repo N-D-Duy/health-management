@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.example.health_management.application.DTOs.logging.LoggingDTO;
+import com.example.health_management.common.shared.enums.LoggingType;
+import com.example.health_management.domain.services.LoggingService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,12 +28,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Slf4j
 public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final KeyRepository keyRepository;
     private final AccountRepository accountRepository;
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final LoggingService loggingService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -44,19 +49,17 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         String email = requestBody.get("email");
         String password = requestBody.get("password");
         String fcmToken = requestBody.get("notification_key");
-        // Logging for debugging
-        System.out.println("Attempting authentication for user: " + email);
+
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);
         try {
             Authentication authentication = authenticationManager.authenticate(authRequest);
-            System.out.println("Authentication result: Success");
+
             //update notification key
             jwtProvider.updateFcmToken(email, fcmToken);
+            loggingService.saveLog(LoggingDTO.builder().message("User with " + email + " login success").type(LoggingType.USER_LOGIN).build());
             return authentication;
         } catch (AuthenticationException e) {
-            // Log the failure
-            System.out.println("Authentication result: Failure - " + e.getMessage());
             throw e; // rethrow the exception to let Spring handle it
         }
     }
@@ -70,9 +73,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         * finally generate the tokens from private key
         * */
         String email = ((UserDetails) authResult.getPrincipal()).getUsername();
-        logger.warning("email: " + email);
         Long userId = accountRepository.findByEmail(email).getUser().getId();
-        logger.warning("userId: " + userId);
         // Lấy privateKey từ email
         String privateKey = jwtProvider.getPrivateKeyByEmail(email);
         int version = jwtProvider.getVersionByEmail(email);

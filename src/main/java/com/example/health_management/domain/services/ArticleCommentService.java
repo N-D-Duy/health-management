@@ -1,7 +1,9 @@
 package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.article_support.ArticleCommentDTO;
+import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.ArticleCommentMapper;
+import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.domain.entities.Article;
 import com.example.health_management.domain.entities.ArticleComment;
 import com.example.health_management.domain.repositories.ArticleCommentRepository;
@@ -9,8 +11,6 @@ import com.example.health_management.domain.repositories.ArticleRepository;
 import com.example.health_management.domain.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +27,7 @@ public class ArticleCommentService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final ArticleCommentMapper articleCommentMapper;
+    private final LoggingService loggingService;
 
     public ArticleCommentDTO addComment(Long articleId, Long userId, ArticleCommentDTO dto) {
         Article article = articleRepository.findById(articleId)
@@ -45,6 +46,7 @@ public class ArticleCommentService {
 
         article.setCommentCount(article.getCommentCount() + 1);
         articleRepository.save(article);
+        loggingService.saveLog(LoggingDTO.builder().message("Comment added to article with ID: " + articleId + " By user ID: " + userId).type(LoggingType.ARTICLE_COMMENT_CREATED).build());
 
         return articleCommentMapper.toDTO(articleCommentRepository.save(comment));
     }

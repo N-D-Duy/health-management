@@ -1,23 +1,22 @@
 package com.example.health_management.application.guards;
 
+import com.example.health_management.application.DTOs.logging.LoggingDTO;
+import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.utils.TokenExpiration;
-import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.entities.Payload;
-import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
-import com.example.health_management.domain.repositories.UserRepository;
 import com.example.health_management.domain.services.KeyService;
+import com.example.health_management.domain.services.LoggingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.*;
@@ -36,9 +35,8 @@ public class JwtProvider {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final KeyService keyService;
     private final AccountRepository accountRepository;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final UserRepository userRepository;
     private final KeyRepository keyRepository;
+    private final LoggingService loggingService;
 
     public Map<String, String> generateKeyPair() {
         try {
@@ -169,9 +167,6 @@ public class JwtProvider {
             } else {
                 return null;
             }
-        } catch (ExpiredJwtException e) {
-            logger.warn("Token expired");
-            return null;
         } catch (Exception e) {
             return null;
         }
@@ -237,6 +232,7 @@ public class JwtProvider {
             MyUserDetails user = extractUserDetailsFromToken();
             keyRepository.signOut(user.getId().toString());
             SecurityContextHolder.clearContext();
+            loggingService.saveLog(LoggingDTO.builder().message("User: "+user.getEmail()+" logged out").type(LoggingType.USER_LOGOUT).build());
             return "Logged out";
         } catch (Exception e) {
             throw new RuntimeException(e);

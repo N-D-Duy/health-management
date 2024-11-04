@@ -7,6 +7,7 @@ import com.example.health_management.common.Constants;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
 import com.example.health_management.domain.services.KeyService;
+import com.example.health_management.domain.services.LoggingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,13 +36,14 @@ public class SecurityConfig {
     private final KeyService keyService;
     private final KeyRepository keyRepository;
     private final AccountRepository accountRepository;
+    private final LoggingService loggingService;
 
     private final String[] WHITE_LIST = Constants.WHITE_LIST;
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider, keyRepository, accountRepository);
+        final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider, keyRepository, accountRepository, loggingService);
         localAuthenticationFilter.setFilterProcessesUrl("/auth/login");
 
         http
@@ -55,7 +57,7 @@ public class SecurityConfig {
                                 .authenticated()
                 )
                 .addFilterBefore(localAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtAuthenticationFilter(keyService, jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

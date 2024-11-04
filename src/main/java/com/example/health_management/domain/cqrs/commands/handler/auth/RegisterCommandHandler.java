@@ -1,7 +1,9 @@
 package com.example.health_management.domain.cqrs.commands.handler.auth;
 
 import com.example.health_management.application.DTOs.auth.AuthResponse;
+import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.guards.JwtProvider;
+import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
@@ -12,6 +14,8 @@ import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
 import com.example.health_management.domain.repositories.UserRepository;
+import com.example.health_management.domain.services.LoggingService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,69 +40,64 @@ public class RegisterCommandHandler {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final LoggingService loggingService;
 
+    @Transactional
     public AuthResponse handle(RegisterCommand command) {
-        // Check if email already exists
-        // command is a DTO object that contains the account details
-        final Logger logger = LoggerFactory.getLogger(RegisterCommandHandler.class);
+        try {
+            Account existingAccount = accountRepository.findByEmail(command.getEmail());
+            if (existingAccount != null) {
+                throw new ConflictException("error.emailAlreadyExists");
+            }
 
-        logger.warn("checking email: {}", command.getEmail());
-        Account existingAccount = accountRepository.findByEmail(command.getEmail());
-        if (existingAccount != null) {
-            throw new ConflictException("error.emailAlreadyExists");
+            // Create User entity
+            User user = new User();
+            userRepository.save(user);
+
+            if(command.getRole() == null) {
+                command.setRole(Role.USER);
+            }
+            // Hash password
+            command.setPassword(passwordEncoder.encode(command.getPassword()));
+            // Create Account entity
+            Account account = new Account();
+            account.setEmail(command.getEmail());
+            account.setUsername(command.getUsername());
+            account.setRole(command.getRole());
+            account.setPassword(command.getPassword());
+            account.setUser(user);
+
+            // Create Key entity
+            Key key = new Key();
+            Payload payload = new Payload();
+            payload.setVersion(1);
+            payload.setId(user.getId());
+            payload.setEmail(account.getEmail());
+            payload.setRole(account.getRole().toString());
+
+
+            Map<String, String> keyPair = jwtProvider.generateKeyPair();
+            key.setPublicKey(keyPair.get("publicKey"));
+            key.setPrivateKey(keyPair.get("privateKey"));
+            final String accessToken = jwtProvider.generateAccessToken(payload, keyPair.get("privateKey"));
+            final String refreshToken = jwtProvider.generateRefreshToken(payload, keyPair.get("privateKey"));
+            key.setRefreshToken(refreshToken);
+            key.setVersion(1);
+            key.setNotificationKey("");
+
+            // Associate account with user
+            user.setAccount(account);
+            key.setUser(user);  // Set the user for key
+            user.setKey(key);   // Associate key with user
+
+            // Save entities
+            accountRepository.save(account);
+            keyRepository.save(key);
+            loggingService.saveLog(LoggingDTO.builder().message("User with email " + account.getEmail() + " registered").type(LoggingType.USER_CREATED).build());
+            return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).build();
+        } catch (ConflictException e) {
+            throw new RuntimeException(e);
         }
-
-        // Create User entity
-        User user = new User();
-        userRepository.save(user);
-
-        if(command.getRole() == null) {
-            command.setRole(Role.USER);
-        }
-
-        logger.warn("creating account");
-        // Hash password
-        command.setPassword(passwordEncoder.encode(command.getPassword()));
-        // Create Account entity
-        Account account = new Account();
-        account.setEmail(command.getEmail());
-        account.setUsername(command.getUsername());
-        account.setRole(command.getRole());
-        account.setPassword(command.getPassword());
-        account.setUser(user);
-
-        // Create Key entity
-        Key key = new Key();
-        Payload payload = new Payload();
-        payload.setVersion(1);
-        payload.setId(user.getId());
-        payload.setEmail(account.getEmail());
-        payload.setRole(account.getRole().toString());
-
-        logger.warn("creating key pair");
-        Map<String, String> keyPair = jwtProvider.generateKeyPair();
-        key.setPublicKey(keyPair.get("publicKey"));
-        key.setPrivateKey(keyPair.get("privateKey"));
-        final String accessToken = jwtProvider.generateAccessToken(payload, keyPair.get("privateKey"));
-        final String refreshToken = jwtProvider.generateRefreshToken(payload, keyPair.get("privateKey"));
-        key.setRefreshToken(refreshToken);
-        key.setVersion(1);
-        key.setNotificationKey("");
-
-        logger.warn("key: {}", key);
-        logger.warn("account: {}", account);
-        logger.warn("user: {}", user);
-        logger.warn("final set");
-        // Associate account with user
-        user.setAccount(account);
-        key.setUser(user);  // Set the user for key
-        user.setKey(key);   // Associate key with user
-
-        // Save entities
-        accountRepository.save(account);
-        keyRepository.save(key);
-
-        return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).build();
     }
 }
 
