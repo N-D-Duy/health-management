@@ -15,7 +15,6 @@ public class UserMetrics extends BaseEntity{
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
-
     private Long userId;
 
     @Column(name = "weight")

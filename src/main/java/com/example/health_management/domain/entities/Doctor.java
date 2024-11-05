@@ -1,6 +1,7 @@
 package com.example.health_management.domain.entities;
 
 
+import com.example.health_management.common.shared.enums.DoctorSpecialization;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,7 +26,8 @@ public class Doctor extends BaseEntity{
     @JoinColumn(name = "health_provider_id", referencedColumnName = "id")
     private HealthProvider healthProvider;
 
-    private String specialization;
+    @Enumerated(EnumType.STRING)
+    private DoctorSpecialization specialization;
 
     private Double experience;
 
