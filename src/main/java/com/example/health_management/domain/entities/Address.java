@@ -30,5 +30,4 @@ public class Address extends BaseEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonBackReference
     private User user;
-
 }

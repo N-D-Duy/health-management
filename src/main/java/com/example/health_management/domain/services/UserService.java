@@ -76,9 +76,14 @@ public class UserService {
         return users;
     }
 
-    public UserSummaryDTO getUserByEmail(String email) {
+    public UserSummaryDTO getUserSummaryByEmail(String email) {
         User user = userRepository.findActiveByEmail(email);
         return userMapper.toUserSummaryDTO(user);
+    }
+
+    public UserDTO getUserByEmail(String email) {
+        User user = userRepository.findActiveByEmail(email);
+        return userMapper.toUserDTO(user);
     }
 
     public UserDTO getUserById(Long id) {

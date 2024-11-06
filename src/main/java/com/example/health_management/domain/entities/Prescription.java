@@ -30,7 +30,7 @@ public class Prescription extends BaseEntity{
     @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MedicalConditions> medicalConditions = new HashSet<>();
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_record_id", referencedColumnName = "id", unique = true)
     private AppointmentRecord appointmentRecord;
 }

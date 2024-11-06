@@ -2,7 +2,6 @@ package com.example.health_management.domain.entities;
 
 
 import com.example.health_management.common.shared.enums.DoctorSpecialization;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

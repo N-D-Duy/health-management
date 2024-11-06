@@ -21,7 +21,7 @@ public class AppointmentRecord extends BaseEntity{
     private Long id;
     private String note;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = Prescription.class,orphanRemoval = true)
+    @OneToOne(mappedBy = "appointmentRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     private Prescription prescription;
 
     @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,targetEntity = User.class)

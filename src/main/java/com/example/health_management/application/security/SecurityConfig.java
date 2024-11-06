@@ -8,6 +8,7 @@ import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
 import com.example.health_management.domain.services.KeyService;
 import com.example.health_management.domain.services.LoggingService;
+import com.example.health_management.domain.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +34,6 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
-    private final KeyService keyService;
     private final KeyRepository keyRepository;
     private final AccountRepository accountRepository;
     private final LoggingService loggingService;
@@ -42,8 +42,8 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider, keyRepository, accountRepository, loggingService);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserService userService) throws Exception {
+        final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider, keyRepository, accountRepository, loggingService, userService);
         localAuthenticationFilter.setFilterProcessesUrl("/auth/login");
 
         http

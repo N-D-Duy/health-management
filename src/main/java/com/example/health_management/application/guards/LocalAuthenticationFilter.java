@@ -5,9 +5,12 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
+import com.example.health_management.application.DTOs.user.response.UserDTO;
 import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.services.LoggingService;
+import com.example.health_management.domain.services.UserService;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,6 +39,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
     private final KeyRepository keyRepository;
     private final AccountRepository accountRepository;
     private final LoggingService loggingService;
+    private final UserService userService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -74,7 +78,8 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         * finally generate the tokens from private key
         * */
         String email = ((UserDetails) authResult.getPrincipal()).getUsername();
-        Long userId = accountRepository.findByEmail(email).getUser().getId();
+        UserDTO userDTO = userService.getUserByEmail(email);
+        Long userId = userDTO.getId();
         // Lấy privateKey từ email
         String privateKey = jwtProvider.getPrivateKeyByEmail(email);
         int version = jwtProvider.getVersionByEmail(email);
@@ -92,6 +97,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         String accessToken = jwtProvider.generateAccessToken(payload, privateKey);
         String refreshToken = jwtProvider.generateRefreshToken(payload, privateKey);
 
+
         keyRepository.updateRefreshTokenByUserId(refreshToken, userId);
 
         // Gửi tokens về client
@@ -100,6 +106,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         response.getWriter().write(new ObjectMapper().writeValueAsString(AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .user(userDTO)
                 .build()));
 
         response.setStatus(HttpServletResponse.SC_OK);

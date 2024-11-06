@@ -101,7 +101,7 @@ public class UserController {
 
     @GetMapping("/email")
     public @ResponseBody ResponseEntity<ApiResponse<UserSummaryDTO>> getUserByEmail(@Param("email") String email) {
-        UserSummaryDTO user = userService.getUserByEmail(email);
+        UserSummaryDTO user = userService.getUserSummaryByEmail(email);
         ApiResponse<UserSummaryDTO> response = ApiResponse.<UserSummaryDTO>builder().code(200).data(user).message("Success").build();
         return ResponseEntity.ok(response);
     }

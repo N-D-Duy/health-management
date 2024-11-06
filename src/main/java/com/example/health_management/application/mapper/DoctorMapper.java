@@ -29,5 +29,12 @@ public interface DoctorMapper {
     @Mapping(target = "firstName", source = "doctor.user.firstName")
     @Mapping(target = "lastName", source = "doctor.user.lastName")
     @Mapping(target = "avatarUrl", source = "doctor.user.avatarUrl")
+    @Mapping(target = "email", source = "doctor.user.account.email")
+    @Mapping(target = "role", source = "doctor.user.account.role")
+    @Mapping(target = "specialization", source = "doctor.specialization")
+    @Mapping(target = "experience", source = "doctor.experience")
+    @Mapping(target = "qualification", source = "doctor.qualification")
+    @Mapping(target = "rating", source = "doctor.rating")
+    @Mapping(target = "about", source = "doctor.about")
     DoctorSummaryDTO toSummary(Doctor doctor);
 }
