@@ -16,6 +16,8 @@ public interface HealthProviderMapper {
 
     HealthProviderDTO toDTO(HealthProvider healthProvider);
     HealthProviderSummary toSummary(HealthProvider healthProvider);
+
+
     HealthProviderWithDoctorsDTO toDTOWithDoctors(HealthProvider healthProvider);
 
     @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)

@@ -112,4 +112,11 @@ public class UserController {
         ApiResponse<List<DoctorDTO>> response = ApiResponse.<List<DoctorDTO>>builder().code(200).data(doctors).message("Success").build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/specialization")
+    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorDTO>>> getDoctorsBySpecialization(@Param("specialization") String specialization) {
+        List<DoctorDTO> doctors = userService.getDoctorsBySpecialization(specialization);
+        ApiResponse<List<DoctorDTO>> response = ApiResponse.<List<DoctorDTO>>builder().code(200).data(doctors).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
 }

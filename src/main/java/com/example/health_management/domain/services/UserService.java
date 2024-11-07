@@ -56,6 +56,7 @@ public class UserService {
             accountRepository.deleteById(id);
             loggingService.saveLog(LoggingDTO.builder().message("User with id" + id + "deleted").type(LoggingType.USER_DELETED).build());
         } catch (Exception e) {
+            loggingService.saveLog(LoggingDTO.builder().message("Error deleting user with id" + id).type(LoggingType.USER_DELETED).build());
             throw new ConflictException(e.getMessage());
         }
     }
@@ -147,5 +148,9 @@ public class UserService {
 
     public List<DoctorDTO> getTopRatedDoctors() {
         return doctorRepository.topRatedDoctors().stream().map(doctorMapper::toDoctorDTO).toList();
+    }
+
+    public List<DoctorDTO> getDoctorsBySpecialization(String specialization) {
+        return doctorRepository.findBySpecialization(specialization).stream().map(doctorMapper::toDoctorDTO).toList();
     }
 }

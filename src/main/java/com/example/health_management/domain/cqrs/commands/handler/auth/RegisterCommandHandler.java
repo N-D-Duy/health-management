@@ -97,6 +97,7 @@ public class RegisterCommandHandler {
             loggingService.saveLog(LoggingDTO.builder().message("User with email " + account.getEmail() + " registered").type(LoggingType.USER_CREATED).build());
             return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).build();
         } catch (ConflictException e) {
+            loggingService.saveLog(LoggingDTO.builder().message("Error registering user with email " + command.getEmail()).type(LoggingType.USER_CREATED).build());
             throw new ConflictException(e.getMessage());
         }
     }

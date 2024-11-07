@@ -235,6 +235,7 @@ public class JwtProvider {
             loggingService.saveLog(LoggingDTO.builder().message("User: "+user.getEmail()+" logged out").type(LoggingType.USER_LOGOUT).build());
             return "Logged out";
         } catch (Exception e) {
+            loggingService.saveLog(LoggingDTO.builder().message("Error logging out").type(LoggingType.USER_LOGOUT).build());
             throw new ConflictException(e.getMessage());
         }
     }

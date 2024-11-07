@@ -59,13 +59,13 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);
         try {
             Authentication authentication = authenticationManager.authenticate(authRequest);
-
             //update notification key
             jwtProvider.updateFcmToken(email, fcmToken);
             loggingService.saveLog(LoggingDTO.builder().message("User with " + email + " login success").type(LoggingType.USER_LOGIN).build());
             return authentication;
         } catch (AuthenticationException e) {
-            throw e; // rethrow the exception to let Spring handle it
+            loggingService.saveLog(LoggingDTO.builder().message("User with " + email + " login failed").type(LoggingType.USER_LOGIN).build());
+            throw new ConflictException(e.getMessage());
         }
     }
 
@@ -79,6 +79,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         * */
         String email = ((UserDetails) authResult.getPrincipal()).getUsername();
         UserDTO userDTO = userService.getUserByEmail(email);
+        log.info("UserDTO: " + userDTO);
         Long userId = userDTO.getId();
         // Lấy privateKey từ email
         String privateKey = jwtProvider.getPrivateKeyByEmail(email);
@@ -96,7 +97,6 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         // Tạo tokens
         String accessToken = jwtProvider.generateAccessToken(payload, privateKey);
         String refreshToken = jwtProvider.generateRefreshToken(payload, privateKey);
-
 
         keyRepository.updateRefreshTokenByUserId(refreshToken, userId);
 
