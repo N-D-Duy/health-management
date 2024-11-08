@@ -1,6 +1,5 @@
 package com.example.health_management.application.DTOs.heath_provider;
 
-import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.DoctorSummaryDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

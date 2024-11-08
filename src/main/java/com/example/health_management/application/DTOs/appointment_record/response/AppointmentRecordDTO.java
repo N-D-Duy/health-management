@@ -11,6 +11,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * DTO for {@link AppointmentRecord}
@@ -24,6 +25,6 @@ public class AppointmentRecordDTO implements Serializable {
     private DoctorSummaryDTO doctor;
     private HealthProviderSummary healthProvider;
     private AppointmentType appointmentType;
-    private LocalDate scheduledAt;
+    private LocalDateTime scheduledAt;
     private AppointmentStatus status;
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class AppointmentRecordRequestDTO implements Serializable {
@@ -16,7 +17,6 @@ public class AppointmentRecordRequestDTO implements Serializable {
     private Long doctorId;
     private Long healthProviderId;
     private AppointmentType appointmentType;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate scheduledAt;
+    private LocalDateTime scheduledAt;
     private AppointmentStatus status;
 }

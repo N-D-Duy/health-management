@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "appointment_records")
@@ -40,7 +41,7 @@ public class AppointmentRecord extends BaseEntity{
     @Column(name = "appointment_type")
     private AppointmentType appointmentType;
 
-    private LocalDate scheduledAt;
+    private LocalDateTime scheduledAt;
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
