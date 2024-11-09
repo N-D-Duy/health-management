@@ -1,21 +1,18 @@
 package com.example.health_management.domain.services;
 
-import com.example.health_management.application.DTOs.doctor.DoctorDTO;
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
-import com.example.health_management.application.mapper.DoctorMapper;
 import com.example.health_management.application.mapper.DoctorScheduleMapper;
 import com.example.health_management.common.shared.enums.LoggingType;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.DoctorSchedule;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.DoctorScheduleRepository;
-import com.example.health_management.domain.repositories.HealthProviderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,7 +24,7 @@ public class DoctorScheduleService {
     private final DoctorScheduleMapper doctorScheduleMapper;
     private final LoggingService loggingService;
 
-    public DoctorScheduleDTO createDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {
+    public void createDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {
         Doctor doctor = doctorRepository.findByIdActive(doctorScheduleDTO.getDoctorId());
         if (doctor == null) {
             throw new IllegalArgumentException("Doctor not found");
@@ -42,7 +39,7 @@ public class DoctorScheduleService {
                 .message("Schedule created for doctor: " + doctorScheduleDTO.getDoctorId())
                 .build());
 
-        return doctorScheduleMapper.toDTO(doctorScheduleRepository.save(doctorSchedule));
+        doctorScheduleRepository.save(doctorSchedule);
     }
 
     public List<DoctorScheduleDTO> getDoctorSchedules(Long doctorId) {
@@ -50,11 +47,36 @@ public class DoctorScheduleService {
         return doctorSchedules.stream().map(doctorScheduleMapper::toDTO).toList();
     }
 
-    public DoctorScheduleDTO updateDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {
+    public void updateDoctorSchedule(DoctorSchedule doctorSchedule, Boolean increase) {
         loggingService.saveLog(LoggingDTO.builder()
                 .type(LoggingType.DOCTOR_SCHEDULE_UPDATED)
-                .message("Schedule updated for doctor: " + doctorScheduleDTO.getDoctorId())
+                .message("Schedule updated for doctor: " + doctorSchedule.getDoctor().getId())
                 .build());
-        return doctorScheduleMapper.toDTO(doctorScheduleRepository.save(doctorScheduleMapper.toEntity(doctorScheduleDTO)));
+        if(increase){
+            doctorScheduleRepository.updatePatientsCount(doctorSchedule.getId(), 1);
+        } else {
+            if(doctorSchedule.getCurrentPatientCount() == 1){
+                //remove the schedule
+                doctorScheduleRepository.delete(doctorSchedule);
+            }
+            doctorScheduleRepository.updatePatientsCount(doctorSchedule.getId(), -1);
+        }
+    }
+
+    public void updateOrCreateDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO, Boolean increase) {
+        DoctorSchedule doctorSchedule = doctorScheduleRepository.findByTimes(doctorScheduleDTO.getDoctorId(), doctorScheduleDTO.getStartTime(), doctorScheduleDTO.getEndTime());
+
+        if(doctorSchedule == null){
+            createDoctorSchedule(doctorScheduleDTO);
+        } else {
+            if(increase){
+                if(!doctorSchedule.isAvailable()){
+                    throw new ConflictException("Doctor is already busy");
+                }
+                updateDoctorSchedule(doctorSchedule, true);
+            } else {
+                updateDoctorSchedule(doctorSchedule, false);
+            }
+        }
     }
 }

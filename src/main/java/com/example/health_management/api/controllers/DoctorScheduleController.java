@@ -24,17 +24,17 @@ public class DoctorScheduleController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/create")
-    public @ResponseBody ResponseEntity<ApiResponse<DoctorScheduleDTO>> createDoctorSchedule(@RequestBody DoctorScheduleDTO doctorScheduleDTO) {
-        DoctorScheduleDTO doctorSchedule = doctorScheduleService.createDoctorSchedule(doctorScheduleDTO);
-        ApiResponse<DoctorScheduleDTO> response = ApiResponse.<DoctorScheduleDTO>builder().code(200).data(doctorSchedule).message("Success").build();
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/create")
+//    public @ResponseBody ResponseEntity<ApiResponse<DoctorScheduleDTO>> createDoctorSchedule(@RequestBody DoctorScheduleDTO doctorScheduleDTO) {
+//        DoctorScheduleDTO doctorSchedule = doctorScheduleService.createDoctorSchedule(doctorScheduleDTO);
+//        ApiResponse<DoctorScheduleDTO> response = ApiResponse.<DoctorScheduleDTO>builder().code(200).data(doctorSchedule).message("Success").build();
+//        return ResponseEntity.ok(response);
+//    }
 
-    @PutMapping("/update")
-    public @ResponseBody ResponseEntity<ApiResponse<DoctorScheduleDTO>> updateDoctorSchedule(@RequestBody DoctorScheduleDTO doctorScheduleDTO) {
-        DoctorScheduleDTO doctorSchedule = doctorScheduleService.updateDoctorSchedule(doctorScheduleDTO);
-        ApiResponse<DoctorScheduleDTO> response = ApiResponse.<DoctorScheduleDTO>builder().code(200).data(doctorSchedule).message("Success").build();
-        return ResponseEntity.ok(response);
-    }
+//    @PutMapping("/update")
+//    public @ResponseBody ResponseEntity<ApiResponse<DoctorScheduleDTO>> updateDoctorSchedule(@RequestBody DoctorScheduleDTO doctorScheduleDTO) {
+//        DoctorScheduleDTO doctorSchedule = doctorScheduleService.updateDoctorSchedule(doctorScheduleDTO);
+//        ApiResponse<DoctorScheduleDTO> response = ApiResponse.<DoctorScheduleDTO>builder().code(200).data(doctorSchedule).message("Success").build();
+//        return ResponseEntity.ok(response);
+//    }
 }

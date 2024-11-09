@@ -3,8 +3,10 @@ package com.example.health_management.domain.services;
 import com.example.health_management.application.DTOs.appointment_record.request.AppointmentRecordRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.request.UpdateAppointmentRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
+import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
+import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.AppointmentRecord;
@@ -23,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,6 +40,7 @@ public class AppointmentRecordService {
     private final AppointmentRecordMapper appointmentRecordMapper;
     private final PrescriptionService prescriptionService;
     private final LoggingService loggingService;
+    private final DoctorScheduleService doctorScheduleService;
 
 
     public AppointmentRecordDTO create(AppointmentRecordRequestDTO request){
@@ -65,6 +69,16 @@ public class AppointmentRecordService {
 
             // Save and return
             AppointmentRecord savedRecord = appointmentRecordRepository.save(appointmentRecord);
+
+            DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
+                    .doctorId(request.getDoctorId())
+                    .startTime(request.getScheduledAt())
+                    .endTime(request.getScheduledAt().plusMinutes(60))
+                    .currentPatientCount(1)
+                    .build();
+            //create doctor schedule
+            doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, true);
+
             loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id " + savedRecord.getId() + " created").type(LoggingType.APPOINTMENT_CREATED).build());
             return appointmentRecordMapper.toDTO(savedRecord);
         } catch (EntityNotFoundException e) {
@@ -116,7 +130,22 @@ public class AppointmentRecordService {
 
     public String deleteAppointmentRecord(Long appointmentRecordId) {
         try {
-            appointmentRecordRepository.deleteById(appointmentRecordId); //soft delete
+            AppointmentRecord appointmentRecord = appointmentRecordRepository.findByIdActive(appointmentRecordId);
+            if(appointmentRecord == null) {
+                throw new ConflictException("Appointment Record not found with ID: " + appointmentRecordId);
+            }
+            Long doctorId = appointmentRecord.getDoctor().getId();
+            LocalDateTime scheduledAt = appointmentRecord.getScheduledAt();
+            DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
+                    .doctorId(doctorId)
+                    .startTime(scheduledAt)
+                    .endTime(scheduledAt.plusMinutes(60))
+                    .currentPatientCount(-1)
+                    .build();
+            //update doctor schedule
+            doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, false);
+            appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
+            appointmentRecordRepository.deleteById(appointmentRecordId);
             loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id " + appointmentRecordId + " deleted").type(LoggingType.APPOINTMENT_DELETED).build());
             return "Appointment Record deleted successfully";
         } catch (Exception e) {

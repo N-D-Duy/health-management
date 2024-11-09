@@ -5,6 +5,8 @@ import com.example.health_management.application.DTOs.appointment_record.request
 import com.example.health_management.application.DTOs.appointment_record.request.UpdateAppointmentRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
+import com.example.health_management.common.shared.enums.DoctorAction;
+import com.example.health_management.common.utils.handle_privilege.doctor_access.DoctorAccess;
 import com.example.health_management.domain.services.AppointmentRecordService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +48,7 @@ public class AppointmentRecordController {
         ApiResponse<AppointmentRecordDTO> apiResponse = ApiResponse.<AppointmentRecordDTO>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
-    @PreAuthorize("hasRole('ROLE_DOCTOR')")
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse<String>> deleteAppointmentRecord(@PathVariable(value = "id") Long appointmentId) {
         String result = AppointmentRecordService.deleteAppointmentRecord(appointmentId);
