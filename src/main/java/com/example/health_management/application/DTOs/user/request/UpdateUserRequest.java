@@ -2,7 +2,7 @@ package com.example.health_management.application.DTOs.user.request;
 
 import com.example.health_management.application.DTOs.account.UpdateAccountRequest;
 import com.example.health_management.application.DTOs.address.AddressDTO;
-import com.example.health_management.application.DTOs.user.response.DoctorDTO;
+import com.example.health_management.application.DTOs.doctor.DoctorDTO;
 import lombok.Data;
 
 import java.io.Serializable;

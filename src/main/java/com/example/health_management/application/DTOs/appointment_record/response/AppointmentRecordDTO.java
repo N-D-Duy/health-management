@@ -2,7 +2,7 @@ package com.example.health_management.application.DTOs.appointment_record.respon
 
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderSummary;
 import com.example.health_management.application.DTOs.prescription.PrescriptionDTO;
-import com.example.health_management.application.DTOs.user.response.DoctorSummaryDTO;
+import com.example.health_management.application.DTOs.doctor.DoctorSummaryDTO;
 import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
 import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.enums.AppointmentType;
@@ -10,7 +10,6 @@ import com.example.health_management.domain.entities.AppointmentRecord;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**

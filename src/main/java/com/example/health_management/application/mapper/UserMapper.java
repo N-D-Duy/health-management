@@ -1,12 +1,8 @@
 package com.example.health_management.application.mapper;
 
-import com.example.health_management.application.DTOs.user.request.UpdateDoctorRequest;
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
-import com.example.health_management.application.DTOs.user.response.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
 import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
-import com.example.health_management.domain.entities.Doctor;
-import com.example.health_management.domain.entities.Key;
 import com.example.health_management.domain.entities.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

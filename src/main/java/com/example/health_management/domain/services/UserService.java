@@ -3,7 +3,7 @@ package com.example.health_management.domain.services;
 import com.example.health_management.application.DTOs.account.UpdateAccountRequest;
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
-import com.example.health_management.application.DTOs.user.response.DoctorDTO;
+import com.example.health_management.application.DTOs.doctor.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
 import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
 import com.example.health_management.application.guards.JwtProvider;

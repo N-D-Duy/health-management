@@ -2,8 +2,12 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderDTO;
 import com.example.health_management.application.DTOs.heath_provider.HealthProviderWithDoctorsDTO;
+import com.example.health_management.application.mapper.DoctorMapper;
 import com.example.health_management.application.mapper.HealthProviderMapper;
+import com.example.health_management.common.shared.enums.DoctorSpecialization;
 import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.domain.entities.Doctor;
+import com.example.health_management.domain.entities.DoctorSchedule;
 import com.example.health_management.domain.entities.HealthProvider;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.HealthProviderRepository;
@@ -14,7 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +32,7 @@ public class HealthProviderService {
     private final HealthProviderRepository healthProviderRepository;
     private final DoctorRepository doctorRepository;
     private final HealthProviderMapper healthProviderMapper;
+    private final DoctorMapper doctorMapper;
 
     public HealthProviderDTO create(HealthProviderDTO request) {
         try{
@@ -109,6 +118,57 @@ public class HealthProviderService {
         HealthProvider updatedHealthProvider = healthProviderRepository.findByIdWithDoctors(healthProviderId)
                 .orElseThrow(() -> new EntityNotFoundException("Health Provider not found"));
         return healthProviderMapper.toDTOWithDoctors(updatedHealthProvider);
+    }
+
+//    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<HealthProviderWithDoctorsDTO> getDoctorsAvailableForTimes(String specialization, LocalDateTime startTime, LocalDateTime endTime) {
+        try {
+            DoctorSpecialization spec = DoctorSpecialization.valueOf(specialization);
+            List<HealthProvider> healthProviders = healthProviderRepository.findAllWithDoctorsBySpecialization(spec);
+
+            List<Doctor> allDoctors = healthProviders.stream()
+                    .flatMap(hp -> hp.getDoctors().stream())
+                    .toList();
+
+            List<Doctor> doctorsWithSchedules = doctorRepository.findDoctorsWithSchedules(allDoctors);
+
+            Map<Long, Doctor> doctorMap = doctorsWithSchedules.stream()
+                    .collect(Collectors.toMap(Doctor::getId, d -> d));
+
+            return healthProviders.stream()
+                    .map(hp -> {
+                        List<Doctor> availableDoctors = hp.getDoctors().stream()
+                                .map(d -> doctorMap.get(d.getId()))
+                                .filter(doctor -> isAvailableForTimeSlot(doctor, startTime, endTime))
+                                .toList();
+
+                        if (!availableDoctors.isEmpty()) {
+                            HealthProviderWithDoctorsDTO dto = healthProviderMapper.toDTOWithDoctors(hp);
+                            dto.setDoctors(availableDoctors.stream().map(doctorMapper::toSummary).toList());
+                            return dto;
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+        } catch (Exception e) {
+            throw new ConflictException(e.getMessage());
+        }
+    }
+
+    private boolean isAvailableForTimeSlot(Doctor doctor, LocalDateTime startTime, LocalDateTime endTime) {
+        List<DoctorSchedule> overlappingSchedules = doctor.getSchedules().stream()
+                .filter(schedule ->
+                        !(schedule.getEndTime().isBefore(startTime) || schedule.getStartTime().isAfter(endTime)))
+                .toList();
+
+        if (overlappingSchedules.isEmpty()) {
+            // No overlapping schedules means doctor is available
+            return true;
+        }
+
+        return overlappingSchedules.stream()
+                .allMatch(DoctorSchedule::isAvailable);
     }
 
 }

@@ -5,12 +5,14 @@ import com.example.health_management.application.DTOs.heath_provider.HealthProvi
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.domain.services.HealthProviderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -63,6 +65,17 @@ public class HealthProviderController {
         ApiResponse<HealthProviderWithDoctorsDTO> apiResponse = ApiResponse.<HealthProviderWithDoctorsDTO>builder()
                 .code(HttpStatus.OK.value())
                 .data(healthProvider)
+                .message("Success")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/filter")
+    public @ResponseBody ResponseEntity<ApiResponse<List<HealthProviderWithDoctorsDTO>>> filterHealthProviders(@Param("specialization") String specialization, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime) {
+        List<HealthProviderWithDoctorsDTO> healthProviders = healthProviderService.getDoctorsAvailableForTimes(specialization, startTime, endTime);
+        ApiResponse<List<HealthProviderWithDoctorsDTO>> apiResponse = ApiResponse.<List<HealthProviderWithDoctorsDTO>>builder()
+                .code(HttpStatus.OK.value())
+                .data(healthProviders)
                 .message("Success")
                 .build();
         return ResponseEntity.ok(apiResponse);

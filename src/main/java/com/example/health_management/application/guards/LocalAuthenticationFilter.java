@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
+import com.example.health_management.common.config.JacksonConfig;
 import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.services.LoggingService;
@@ -40,6 +41,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
     private final AccountRepository accountRepository;
     private final LoggingService loggingService;
     private final UserService userService;
+    private final JacksonConfig jacksonConfig;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -103,7 +105,8 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
         // Gửi tokens về client
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(AuthResponse.builder()
+        ObjectMapper objectMapper = jacksonConfig.modelResolver(new ObjectMapper()).objectMapper();
+        response.getWriter().write(objectMapper.writeValueAsString(AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .user(userDTO)

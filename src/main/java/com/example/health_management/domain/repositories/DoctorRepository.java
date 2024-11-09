@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface DoctorRepository extends SoftDeleteRepository<Doctor, Long> {
@@ -34,4 +35,9 @@ public interface DoctorRepository extends SoftDeleteRepository<Doctor, Long> {
         WHERE d.specialization = :specialization
         """, nativeQuery = true)
     List<Doctor> findBySpecialization(String specialization);
+
+    @Query("SELECT DISTINCT d FROM Doctor d " +
+            "LEFT JOIN FETCH d.schedules " +
+            "WHERE d IN :doctors")
+    List<Doctor> findDoctorsWithSchedules(@Param("doctors") Collection<Doctor> doctors);
 }

@@ -34,7 +34,6 @@ public class AppointmentRecordController {
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<AppointmentRecordDTO>> createAppointmentRecord(@RequestBody AppointmentRecordRequestDTO appointmentRecordRequestDto) {
-        log.debug("Received request: {}", appointmentRecordRequestDto);
         AppointmentRecordDTO appointmentRecordDTO = AppointmentRecordService.create(appointmentRecordRequestDto);
         ApiResponse<AppointmentRecordDTO> apiResponse = ApiResponse.<AppointmentRecordDTO>builder().code(HttpStatus.OK.value()).data(appointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
@@ -54,4 +53,6 @@ public class AppointmentRecordController {
         ApiResponse<String> apiResponse = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data(result).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
+
+
 }

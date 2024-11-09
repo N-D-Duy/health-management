@@ -5,6 +5,8 @@ import com.example.health_management.common.shared.enums.DoctorSpecialization;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,14 +19,6 @@ public class Doctor extends BaseEntity{
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "health_provider_id", referencedColumnName = "id")
-    private HealthProvider healthProvider;
-
     @Enumerated(EnumType.STRING)
     private DoctorSpecialization specialization;
 
@@ -36,4 +30,16 @@ public class Doctor extends BaseEntity{
 
     @Column(columnDefinition = "TEXT")
     private String about;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "health_provider_id", referencedColumnName = "id")
+    private HealthProvider healthProvider;
+
+    @OneToMany(mappedBy = "doctor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DoctorSchedule> schedules;
+
 }
