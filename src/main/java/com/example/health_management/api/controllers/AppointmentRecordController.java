@@ -54,5 +54,10 @@ public class AppointmentRecordController {
         return ResponseEntity.ok(apiResponse);
     }
 
-
+    @GetMapping("/user/{id}")
+    public ResponseEntity<ApiResponse<List<AppointmentRecordDTO>>> getAppointmentRecordByUserId(@PathVariable(value = "id") Long userId) {
+        List<AppointmentRecordDTO> AppointmentRecordDTO = AppointmentRecordService.getByUserId(userId);
+        ApiResponse<List<AppointmentRecordDTO>> apiResponse = ApiResponse.<List<AppointmentRecordDTO>>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
+        return ResponseEntity.ok(apiResponse);
+    }
 }

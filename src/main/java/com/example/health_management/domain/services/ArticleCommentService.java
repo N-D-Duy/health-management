@@ -10,9 +10,9 @@ import com.example.health_management.domain.repositories.ArticleCommentRepositor
 import com.example.health_management.domain.repositories.ArticleRepository;
 import com.example.health_management.domain.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;

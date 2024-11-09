@@ -19,12 +19,12 @@ import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.AddressRepository;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

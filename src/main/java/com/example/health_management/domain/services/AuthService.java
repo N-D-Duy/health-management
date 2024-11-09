@@ -11,11 +11,11 @@ import com.example.health_management.domain.cqrs.commands.impl.auth.AuthCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RefreshTokenCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

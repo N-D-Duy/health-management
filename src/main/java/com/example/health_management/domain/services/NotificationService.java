@@ -2,9 +2,9 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.domain.entities.Notification;
 import com.example.health_management.domain.repositories.NotificationRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

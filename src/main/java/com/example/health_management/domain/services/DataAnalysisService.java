@@ -6,6 +6,7 @@ import com.example.health_management.domain.repositories.analytics.DataAnalysisR
 import com.example.health_management.domain.repositories.analytics.UserStatisticsProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class DataAnalysisService {
     private final DataAnalysisRepository dataAnalysisRepository;
 

@@ -6,10 +6,10 @@ import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Address;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AddressRepository;
-import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Map;

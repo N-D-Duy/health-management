@@ -1,13 +1,13 @@
 package com.example.health_management.domain.services;
 
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.example.health_management.domain.entities.Key;
 import com.example.health_management.domain.repositories.KeyRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

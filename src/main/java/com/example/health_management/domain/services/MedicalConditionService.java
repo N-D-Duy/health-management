@@ -6,9 +6,9 @@ import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.MedicalConditions;
 import com.example.health_management.domain.entities.Prescription;
 import com.example.health_management.domain.repositories.MedicalConditionRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;

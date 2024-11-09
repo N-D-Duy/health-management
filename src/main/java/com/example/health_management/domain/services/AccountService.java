@@ -6,10 +6,10 @@ import com.example.health_management.application.mapper.AccountMapper;
 import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
-import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

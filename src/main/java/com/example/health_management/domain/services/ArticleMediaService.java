@@ -5,10 +5,10 @@ import com.example.health_management.application.mapper.ArticleMediaMapper;
 import com.example.health_management.domain.entities.Article;
 import com.example.health_management.domain.entities.ArticleMedia;
 import com.example.health_management.domain.repositories.ArticleMediaRepository;
-import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;

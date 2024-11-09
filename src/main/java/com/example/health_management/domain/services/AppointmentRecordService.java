@@ -16,11 +16,12 @@ import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.HealthProviderRepository;
 import com.example.health_management.domain.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -127,6 +128,15 @@ public class AppointmentRecordService {
     public List<AppointmentRecordDTO> findAll(){
         try{
             List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findAllActive();
+            return appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
+        } catch (Exception e) {
+            throw new ConflictException(e.getMessage());
+        }
+    }
+
+    public List<AppointmentRecordDTO> getByUserId(Long userId){
+        try{
+            List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findByUserId(userId);
             return appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());

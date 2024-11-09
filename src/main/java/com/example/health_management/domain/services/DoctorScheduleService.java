@@ -11,9 +11,9 @@ import com.example.health_management.domain.entities.DoctorSchedule;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.DoctorScheduleRepository;
 import com.example.health_management.domain.repositories.HealthProviderRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
