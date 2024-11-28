@@ -3,6 +3,7 @@ package com.example.health_management.domain.services;
 import com.example.health_management.application.DTOs.auth.AuthRequest;
 import com.example.health_management.application.DTOs.auth.AuthResponse;
 import com.example.health_management.application.DTOs.auth.RegisterDTO;
+import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.cqrs.commands.handler.auth.AuthCommandHandler;
 import com.example.health_management.domain.cqrs.commands.handler.auth.LogoutCommandHandler;
 import com.example.health_management.domain.cqrs.commands.handler.auth.RefreshTokenCommandHandler;
@@ -10,6 +11,7 @@ import com.example.health_management.domain.cqrs.commands.handler.auth.RegisterC
 import com.example.health_management.domain.cqrs.commands.impl.auth.AuthCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RefreshTokenCommand;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
+import com.example.health_management.domain.repositories.AccountRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class AuthService {
     private final RegisterCommandHandler registerCommandHandler;
     private final RefreshTokenCommandHandler refreshTokenHandler;
     private final LogoutCommandHandler logoutCommandHandler;
+    private final AccountRepository accountRepository;
 
     public AuthResponse register(RegisterDTO registerDto) {
         try {
@@ -51,6 +54,14 @@ public class AuthService {
 
     public String logout() {
         return logoutCommandHandler.handle();
+    }
+
+    public boolean active(String email) {
+        try{
+            return accountRepository.activeAccount(email) == 1;
+        } catch (Exception ex){
+            throw  new ConflictException(ex.getMessage());
+        }
     }
 
 }
