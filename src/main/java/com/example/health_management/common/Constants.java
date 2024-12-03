@@ -6,5 +6,6 @@ public class Constants {
             "/auth/register",
             "/auth/refresh-token",
             "/api-docs/**",
+            "/actuator/**",
     };
 }

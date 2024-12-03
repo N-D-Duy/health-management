@@ -67,7 +67,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
             return authentication;
         } catch (AuthenticationException e) {
             loggingService.saveLog(LoggingDTO.builder().message("User with " + email + " login failed").type(LoggingType.USER_LOGIN).build());
-            throw new ConflictException(e.getMessage());
+            throw e;
         }
     }
 
@@ -120,7 +120,7 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
     protected void unsuccessfulAuthentication(
             HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException failed) throws IOException, ServletException {
+            AuthenticationException failed) throws IOException {
 
         response.getWriter().write("Login failed: " + failed.getMessage());
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

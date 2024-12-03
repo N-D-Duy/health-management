@@ -66,7 +66,7 @@ public class ArticleController {
 
     @CheckUserMatch
     @DeleteMapping("/delete")
-    public @ResponseBody ResponseEntity<ApiResponse<String>> deleteHealthArticle(@Param("id") Long id, @Param("userId") Long userId) {
+    public @ResponseBody ResponseEntity<ApiResponse<String>> deleteHealthArticle(@Param("userId") Long userId, @Param("id") Long id) {
         articleService.deleteArticle(id);
         ApiResponse<String> response = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data("Success").message("Success").build();
         return ResponseEntity.ok(response);
@@ -74,18 +74,16 @@ public class ArticleController {
 
 //    @CheckUserMatch
     @PostMapping("/vote")
-    public @ResponseBody ResponseEntity<ApiResponse<String>> voteHealthArticle(@Param("articleId") Long articleId, @Param("userId") Long userId, @Param("voteType") VoteType voteType) {
+    public @ResponseBody ResponseEntity<ApiResponse<String>> voteHealthArticle(@Param("userId") Long userId, @Param("articleId") Long articleId, @Param("voteType") VoteType voteType) {
         articleVoteService.vote(articleId, userId, voteType);
         ApiResponse<String> response = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data("Success").message("Success").build();
         return ResponseEntity.ok(response);
     }
 
-//    @CheckUserMatch(paramName = "userId")
     @PostMapping("/comment")
     public @ResponseBody ResponseEntity<ApiResponse<ArticleCommentDTO>> commentHealthArticle(@Param("articleId") Long articleId, @Param("userId") Long userId, @RequestBody ArticleCommentDTO commentDTO) {
         ArticleCommentDTO articleCommentDTO = articleCommentService.addComment(articleId, userId, commentDTO);
         ApiResponse<ArticleCommentDTO> response = ApiResponse.<ArticleCommentDTO>builder().code(HttpStatus.OK.value()).data(articleCommentDTO).message("Success").build();
         return ResponseEntity.ok(response);
     }
-
 }

@@ -20,7 +20,7 @@ spec:
       serviceAccountName: health-management-be-service-account
       containers:
       - name: health-management-be
-        image: docker.io/duynguyen03/health-management-be:v3.1
+        image: docker.io/duynguyen03/health-management-be:v4
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
