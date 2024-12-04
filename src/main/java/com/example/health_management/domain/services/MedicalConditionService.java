@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,24 +24,32 @@ public class MedicalConditionService {
 
     public Set<MedicalConditions> updateMedicalConditions(Prescription prescription,
                                                           Set<MedicalConditionDTO> conditionDTOs) {
-        Set<MedicalConditions> medicalConditionSet = new HashSet<>();
+        Set<MedicalConditions> currentConditions = prescription.getMedicalConditions();
 
-        for (MedicalConditionDTO conditionDTO : conditionDTOs) {
-            if (conditionDTO.getId() != null) {
-                // Update existing condition
-                MedicalConditions condition = medicalConditionRepository
-                        .findById(conditionDTO.getId())
-                        .orElseThrow(() -> new ConflictException("MedicalCondition not found"));
-                medicalConditionMapper.update(conditionDTO, condition);
-                medicalConditionSet.add(condition);
-            } else {
-                // Create new condition
-                MedicalConditions newCondition = medicalConditionMapper.toEntity(conditionDTO);
-                newCondition.setPrescription(prescription);
-                medicalConditionSet.add(newCondition);
-            }
+        Set<MedicalConditionDTO> existingConditionDTOs = conditionDTOs.stream()
+                .filter(dto -> dto.getId() != null)
+                .collect(Collectors.toSet());
+
+        Set<MedicalConditionDTO> newConditionDTOs = conditionDTOs.stream()
+                .filter(dto -> dto.getId() == null)
+                .collect(Collectors.toSet());
+
+        for (MedicalConditionDTO conditionDTO : existingConditionDTOs) {
+            MedicalConditions condition = currentConditions.stream()
+                    .filter(c -> c.getId().equals(conditionDTO.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new ConflictException("MedicalCondition not found"));
+
+            medicalConditionMapper.update(conditionDTO, condition);
         }
 
-        return medicalConditionSet;
+        for (MedicalConditionDTO conditionDTO : newConditionDTOs) {
+            MedicalConditions newCondition = new MedicalConditions();
+            medicalConditionMapper.update(conditionDTO, newCondition);
+            newCondition.setPrescription(prescription);
+            currentConditions.add(newCondition);
+        }
+
+        return currentConditions;
     }
 }

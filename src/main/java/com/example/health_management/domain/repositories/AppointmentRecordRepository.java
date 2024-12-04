@@ -19,6 +19,9 @@ public interface AppointmentRecordRepository extends SoftDeleteRepository<Appoin
 //
 //    Optional<AppointmentRecord> findByAppointment_IdAndUser_Id(@NonNull Long id, @NonNull Long id1);
 
-    @Query("SELECT a FROM AppointmentRecord a WHERE a.user.id = :id OR a.doctor.id = :id")
+    @Query("SELECT a FROM AppointmentRecord a WHERE a.user.id = :id")
     List<AppointmentRecord> findByUserId(@NonNull Long id);
+
+    @Query("SELECT a FROM AppointmentRecord a WHERE a.doctor.id = :id")
+    List<AppointmentRecord> findByDoctorId(@NonNull Long id);
 }

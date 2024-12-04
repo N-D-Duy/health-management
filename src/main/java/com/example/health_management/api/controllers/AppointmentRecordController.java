@@ -1,6 +1,7 @@
 package com.example.health_management.api.controllers;
 
 
+import ch.qos.logback.classic.Logger;
 import com.example.health_management.application.DTOs.appointment_record.request.AppointmentRecordRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.request.UpdateAppointmentRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
@@ -49,7 +50,7 @@ public class AppointmentRecordController {
         return ResponseEntity.ok(apiResponse);
     }
 
-    @PreAuthorize("hasRole('ROLE_DOCTOR')")
+//    @PreAuthorize("hasRole('ROLE_DOCTOR')")
     @PutMapping("/update")
     public ResponseEntity<ApiResponse<AppointmentRecordDTO>> updateAppointmentRecord(@RequestBody UpdateAppointmentRequestDTO appointmentRecordRequestDto) {
         AppointmentRecordDTO AppointmentRecordDTO = AppointmentRecordService.update(appointmentRecordRequestDto);
@@ -67,6 +68,13 @@ public class AppointmentRecordController {
     @GetMapping("/user/{id}")
     public ResponseEntity<ApiResponse<List<AppointmentRecordDTO>>> getAppointmentRecordByUserId(@PathVariable(value = "id") Long userId) {
         List<AppointmentRecordDTO> AppointmentRecordDTO = AppointmentRecordService.getByUserId(userId);
+        ApiResponse<List<AppointmentRecordDTO>> apiResponse = ApiResponse.<List<AppointmentRecordDTO>>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/doctor/{id}")
+    public ResponseEntity<ApiResponse<List<AppointmentRecordDTO>>> getAppointmentRecordByDoctorId(@PathVariable(value = "id") Long doctorId) {
+        List<AppointmentRecordDTO> AppointmentRecordDTO = AppointmentRecordService.getByDoctorId(doctorId);
         ApiResponse<List<AppointmentRecordDTO>> apiResponse = ApiResponse.<List<AppointmentRecordDTO>>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }

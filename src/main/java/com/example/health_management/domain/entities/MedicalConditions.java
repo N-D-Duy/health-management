@@ -16,7 +16,7 @@ public class MedicalConditions extends BaseEntity{
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = Prescription.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Prescription.class)
     @JoinColumn(name = "prescription_id", referencedColumnName = "id")
     private Prescription prescription;
 

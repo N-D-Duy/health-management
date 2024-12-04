@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,24 +23,31 @@ public class PrescriptionDetailsService {
 
     public Set<PrescriptionDetails> updatePrescriptionDetails(Prescription prescription,
                                                               Set<PrescriptionDetailsDTO> detailsDTOs) {
-        Set<PrescriptionDetails> detailsSet = new HashSet<>();
+        Set<PrescriptionDetails> currentDetails = prescription.getDetails();
 
-        for (PrescriptionDetailsDTO detailsDTO : detailsDTOs) {
-            if (detailsDTO.getId() != null) {
-                // Update existing details
-                PrescriptionDetails details = prescriptionDetailsRepository
-                        .findById(detailsDTO.getId())
-                        .orElseThrow(() -> new ConflictException("PrescriptionDetails not found"));
-                prescriptionDetailsMapper.update(details, detailsDTO);
-                detailsSet.add(details);
-            } else {
-                // Create new details
-                PrescriptionDetails newDetails = prescriptionDetailsMapper.toEntity(detailsDTO);
-                newDetails.setPrescription(prescription);
-                detailsSet.add(newDetails);
-            }
+        Set<PrescriptionDetailsDTO> existingDetailsDTOs = detailsDTOs.stream()
+                .filter(dto -> dto.getId() != null)
+                .collect(Collectors.toSet());
+
+        Set<PrescriptionDetailsDTO> newDetailsDTOs = detailsDTOs.stream()
+                .filter(dto -> dto.getId() == null)
+                .collect(Collectors.toSet());
+
+        for (PrescriptionDetailsDTO detailsDTO : existingDetailsDTOs) {
+            PrescriptionDetails details = currentDetails.stream()
+                    .filter(d -> d.getId().equals(detailsDTO.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new ConflictException("PrescriptionDetails not found"));
+
+            prescriptionDetailsMapper.update(details, detailsDTO);
         }
 
-        return detailsSet;
+        for (PrescriptionDetailsDTO detailsDTO : newDetailsDTOs) {
+            PrescriptionDetails newDetails = prescriptionDetailsMapper.toEntity(detailsDTO);
+            newDetails.setPrescription(prescription);
+            currentDetails.add(newDetails);
+        }
+
+        return currentDetails;
     }
 }

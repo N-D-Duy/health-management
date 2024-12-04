@@ -183,4 +183,13 @@ public class AppointmentRecordService {
             throw new ConflictException(e.getMessage());
         }
     }
+
+    public List<AppointmentRecordDTO> getByDoctorId(Long doctorId){
+        try{
+            List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findByDoctorId(doctorId);
+            return appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
+        } catch (Exception e) {
+            throw new ConflictException(e.getMessage());
+        }
+    }
 }
