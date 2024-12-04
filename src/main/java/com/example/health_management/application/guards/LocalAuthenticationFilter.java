@@ -122,7 +122,10 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
             HttpServletResponse response,
             AuthenticationException failed) throws IOException {
 
-        response.getWriter().write("Login failed: " + failed.getMessage());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        ObjectMapper objectMapper = jacksonConfig.modelResolver(new ObjectMapper()).objectMapper();
+        response.getWriter().write(objectMapper.writeValueAsString("Login failed: " + failed.getMessage()));
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 

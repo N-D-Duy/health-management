@@ -163,6 +163,18 @@ public class AppointmentRecordService {
         }
     }
 
+    public AppointmentRecordDTO getById(Long id){
+        try{
+            AppointmentRecord appointmentRecord = appointmentRecordRepository.findByIdActive(id);
+            if(appointmentRecord == null) {
+                throw new ConflictException("Appointment Record not found with ID: " + id);
+            }
+            return appointmentRecordMapper.toDTO(appointmentRecord);
+        } catch (Exception e) {
+            throw new ConflictException(e.getMessage());
+        }
+    }
+
     public List<AppointmentRecordDTO> getByUserId(Long userId){
         try{
             List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findByUserId(userId);
