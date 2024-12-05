@@ -3,6 +3,7 @@ package com.example.health_management.domain.cqrs.commands.handler.auth;
 import com.example.health_management.application.DTOs.auth.AuthResponse;
 import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.guards.JwtProvider;
+import com.example.health_management.application.mapper.UserMapper;
 import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.common.shared.exceptions.ConflictException;
@@ -41,6 +42,7 @@ public class RegisterCommandHandler {
     private final PasswordEncoder passwordEncoder;
 
     private final LoggingService loggingService;
+    private final UserMapper userMapper;
 
     @Transactional
     public AuthResponse handle(RegisterCommand command) {
@@ -95,7 +97,7 @@ public class RegisterCommandHandler {
             accountRepository.save(account);
             keyRepository.save(key);
             loggingService.saveLog(LoggingDTO.builder().message("User with email " + account.getEmail() + " registered").type(LoggingType.USER_CREATED).build());
-            return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).build();
+            return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).user(userMapper.toUserDTO(user)).build();
         } catch (ConflictException e) {
             loggingService.saveLog(LoggingDTO.builder().message("Error registering user with email " + command.getEmail()).type(LoggingType.USER_CREATED).build());
             throw new ConflictException(e.getMessage());

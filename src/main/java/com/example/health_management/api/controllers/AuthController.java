@@ -20,7 +20,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final AccountService accountService;
 
     @PostMapping("/register")
     public @ResponseBody AuthResponse register(@RequestBody RegisterDTO registerDto) {
