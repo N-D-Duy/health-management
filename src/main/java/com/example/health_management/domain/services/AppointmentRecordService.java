@@ -145,7 +145,7 @@ public class AppointmentRecordService {
             //update doctor schedule
             doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, false);
             appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
-            appointmentRecordRepository.deleteById(appointmentRecordId);
+//            appointmentRecordRepository.deleteById(appointmentRecordId);
             loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id " + appointmentRecordId + " deleted").type(LoggingType.APPOINTMENT_DELETED).build());
             return "Appointment Record deleted successfully";
         } catch (Exception e) {
@@ -156,7 +156,7 @@ public class AppointmentRecordService {
 
     public List<AppointmentRecordDTO> findAll(){
         try{
-            List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findAllActive();
+            List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findAll();
             return appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
@@ -165,7 +165,7 @@ public class AppointmentRecordService {
 
     public AppointmentRecordDTO getById(Long id){
         try{
-            AppointmentRecord appointmentRecord = appointmentRecordRepository.findByIdActive(id);
+            AppointmentRecord appointmentRecord = appointmentRecordRepository.findById(id).orElse(null);
             if(appointmentRecord == null) {
                 throw new ConflictException("Appointment Record not found with ID: " + id);
             }
