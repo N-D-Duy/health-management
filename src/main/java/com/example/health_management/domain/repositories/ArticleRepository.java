@@ -12,6 +12,6 @@ public interface ArticleRepository extends SoftDeleteRepository<Article, Long> {
     @Query("SELECT h FROM Article h WHERE h.user.id = :userId")
     Article findByUserId(Long userId);
 
-    @Query("SELECT h FROM Article h WHERE h.user.id = :userId")
+    @Query("SELECT h FROM Article h WHERE h.user.id = :userId AND h.deletedAt IS NULL")
     List<Article> findAllByUserId(Long userId);
 }

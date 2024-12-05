@@ -145,7 +145,7 @@ public class AppointmentRecordService {
             //update doctor schedule
             doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, false);
             appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
-//            appointmentRecordRepository.deleteById(appointmentRecordId);
+            appointmentRecordRepository.deleteById(appointmentRecordId);
             loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id " + appointmentRecordId + " deleted").type(LoggingType.APPOINTMENT_DELETED).build());
             return "Appointment Record deleted successfully";
         } catch (Exception e) {
