@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class MedicalConditionDTO {
     private Long id;
-    private String condition_name;
+    private String conditionName;
     private MedicalConditionStatus status;
     private String notes;
 }

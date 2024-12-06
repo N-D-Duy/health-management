@@ -7,6 +7,7 @@ import com.example.health_management.domain.entities.MedicalConditions;
 import com.example.health_management.domain.entities.Prescription;
 import com.example.health_management.domain.repositories.MedicalConditionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,37 +20,36 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class MedicalConditionService {
-    private final MedicalConditionRepository medicalConditionRepository;
     private final MedicalConditionMapper medicalConditionMapper;
 
     public Set<MedicalConditions> updateMedicalConditions(Prescription prescription,
                                                           Set<MedicalConditionDTO> conditionDTOs) {
         Set<MedicalConditions> currentConditions = prescription.getMedicalConditions();
 
-        Set<MedicalConditionDTO> existingConditionDTOs = conditionDTOs.stream()
-                .filter(dto -> dto.getId() != null)
+        Set<Long> incomingIds = conditionDTOs.stream()
+                .map(MedicalConditionDTO::getId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        Set<MedicalConditionDTO> newConditionDTOs = conditionDTOs.stream()
-                .filter(dto -> dto.getId() == null)
-                .collect(Collectors.toSet());
+        currentConditions.removeIf(condition -> !incomingIds.contains(condition.getId()));
 
-        for (MedicalConditionDTO conditionDTO : existingConditionDTOs) {
-            MedicalConditions condition = currentConditions.stream()
-                    .filter(c -> c.getId().equals(conditionDTO.getId()))
-                    .findFirst()
-                    .orElseThrow(() -> new ConflictException("MedicalCondition not found"));
+        for (MedicalConditionDTO conditionDTO : conditionDTOs) {
+            if (conditionDTO.getId() != null) {
+                MedicalConditions condition = currentConditions.stream()
+                        .filter(c -> c.getId().equals(conditionDTO.getId()))
+                        .findFirst()
+                        .orElseThrow(() -> new ConflictException("MedicalCondition not found"));
 
-            medicalConditionMapper.update(conditionDTO, condition);
-        }
-
-        for (MedicalConditionDTO conditionDTO : newConditionDTOs) {
-            MedicalConditions newCondition = new MedicalConditions();
-            medicalConditionMapper.update(conditionDTO, newCondition);
-            newCondition.setPrescription(prescription);
-            currentConditions.add(newCondition);
+                medicalConditionMapper.update(conditionDTO, condition);
+            } else {
+                MedicalConditions newCondition = medicalConditionMapper.toEntity(conditionDTO);
+                newCondition.setPrescription(prescription);
+                currentConditions.add(newCondition);
+            }
         }
 
         return currentConditions;
     }
+
+
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,36 +19,35 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class PrescriptionDetailsService {
-    private final PrescriptionDetailsRepository prescriptionDetailsRepository;
     private final PrescriptionDetailsMapper prescriptionDetailsMapper;
 
     public Set<PrescriptionDetails> updatePrescriptionDetails(Prescription prescription,
                                                               Set<PrescriptionDetailsDTO> detailsDTOs) {
         Set<PrescriptionDetails> currentDetails = prescription.getDetails();
 
-        Set<PrescriptionDetailsDTO> existingDetailsDTOs = detailsDTOs.stream()
-                .filter(dto -> dto.getId() != null)
+        Set<Long> incomingIds = detailsDTOs.stream()
+                .map(PrescriptionDetailsDTO::getId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        Set<PrescriptionDetailsDTO> newDetailsDTOs = detailsDTOs.stream()
-                .filter(dto -> dto.getId() == null)
-                .collect(Collectors.toSet());
+        currentDetails.removeIf(details -> !incomingIds.contains(details.getId()));
 
-        for (PrescriptionDetailsDTO detailsDTO : existingDetailsDTOs) {
-            PrescriptionDetails details = currentDetails.stream()
-                    .filter(d -> d.getId().equals(detailsDTO.getId()))
-                    .findFirst()
-                    .orElseThrow(() -> new ConflictException("PrescriptionDetails not found"));
+        for (PrescriptionDetailsDTO detailsDTO : detailsDTOs) {
+            if (detailsDTO.getId() != null) {
+                PrescriptionDetails details = currentDetails.stream()
+                        .filter(d -> d.getId().equals(detailsDTO.getId()))
+                        .findFirst()
+                        .orElseThrow(() -> new ConflictException("PrescriptionDetails not found"));
 
-            prescriptionDetailsMapper.update(details, detailsDTO);
-        }
-
-        for (PrescriptionDetailsDTO detailsDTO : newDetailsDTOs) {
-            PrescriptionDetails newDetails = prescriptionDetailsMapper.toEntity(detailsDTO);
-            newDetails.setPrescription(prescription);
-            currentDetails.add(newDetails);
+                prescriptionDetailsMapper.update(details, detailsDTO);
+            } else {
+                PrescriptionDetails newDetails = prescriptionDetailsMapper.toEntity(detailsDTO);
+                newDetails.setPrescription(prescription);
+                currentDetails.add(newDetails);
+            }
         }
 
         return currentDetails;
     }
+
 }
