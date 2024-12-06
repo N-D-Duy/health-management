@@ -34,6 +34,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{id}")
+    public @ResponseBody ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable("id") Long id) {
+        UserDTO user = userService.getUserById(id);
+        ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder().code(200).data(user).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
+
     @GetMapping("/doctors")
     public @ResponseBody ResponseEntity<ApiResponse<List<UserDTO>>> getDoctors() {
         List<UserDTO> doctors = userService.getAllDoctors();
