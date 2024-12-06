@@ -1,20 +1,18 @@
 package com.example.health_management.api.controllers;
 
 
-import ch.qos.logback.classic.Logger;
 import com.example.health_management.application.DTOs.appointment_record.request.AppointmentRecordRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.request.UpdateAppointmentRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
+import com.example.health_management.application.DTOs.medication.MedicationDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
-import com.example.health_management.common.shared.enums.DoctorAction;
-import com.example.health_management.common.utils.handle_privilege.doctor_access.DoctorAccess;
 import com.example.health_management.domain.services.AppointmentRecordService;
+import com.example.health_management.domain.services.MedicationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +25,7 @@ import java.util.List;
 public class AppointmentRecordController {
 
     private final AppointmentRecordService AppointmentRecordService;
+    private final MedicationService medicationService;
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<AppointmentRecordDTO>>> getAllAppointmentRecords() {
@@ -78,4 +77,35 @@ public class AppointmentRecordController {
         ApiResponse<List<AppointmentRecordDTO>> apiResponse = ApiResponse.<List<AppointmentRecordDTO>>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
+
+    @GetMapping("/medication/{id}")
+    public ResponseEntity<ApiResponse<MedicationDTO>> getAppointmentRecordByMedicationId(@PathVariable(value = "id") Long medicationId) {
+        MedicationDTO response = medicationService.getById(medicationId);
+        ApiResponse<MedicationDTO> apiResponse = ApiResponse.<MedicationDTO>builder().code(HttpStatus.OK.value()).data(response).message("Success").build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("medication/all")
+    public ResponseEntity<ApiResponse<List<MedicationDTO>>> getAllMedications() {
+        List<MedicationDTO> response = medicationService.findAll();
+        ApiResponse<List<MedicationDTO>> apiResponse = ApiResponse.<List<MedicationDTO>>builder().code(HttpStatus.OK.value()).data(response).message("Success").build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+
+    @PostMapping("medication/create")
+    public ResponseEntity<ApiResponse<MedicationDTO>> createMedication(@RequestBody MedicationDTO medicationDTO) {
+        MedicationDTO response = medicationService.create(medicationDTO);
+        ApiResponse<MedicationDTO> apiResponse = ApiResponse.<MedicationDTO>builder().code(HttpStatus.OK.value()).data(response).message("Success").build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PutMapping("medication/update")
+    public ResponseEntity<ApiResponse<MedicationDTO>> updateMedication(@RequestBody MedicationDTO medicationDTO) {
+        MedicationDTO response = medicationService.update(medicationDTO);
+        ApiResponse<MedicationDTO> apiResponse = ApiResponse.<MedicationDTO>builder().code(HttpStatus.OK.value()).data(response).message("Success").build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+
 }
