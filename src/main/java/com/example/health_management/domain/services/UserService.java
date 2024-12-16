@@ -146,8 +146,8 @@ public class UserService {
         return userMapper.toUserSummaryDTO(user);
     }
 
-    public List<DoctorDTO> getTopRatedDoctors() {
-        return doctorRepository.topRatedDoctors().stream().map(doctorMapper::toDoctorDTO).toList();
+    public List<UserDTO> getTopRatedDoctors() {
+        return userRepository.topRatedDoctors().stream().map(userMapper::toUserDTO).toList();
     }
 
     public List<DoctorDTO> getDoctorsBySpecialization(String specialization) {

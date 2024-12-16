@@ -36,7 +36,7 @@ public class MedicalConditionService {
         for (MedicalConditionDTO conditionDTO : conditionDTOs) {
             if (conditionDTO.getId() != null) {
                 MedicalConditions condition = currentConditions.stream()
-                        .filter(c -> c.getId().equals(conditionDTO.getId()))
+                        .filter(c -> Objects.equals(c.getId(), conditionDTO.getId()))
                         .findFirst()
                         .orElseThrow(() -> new ConflictException("MedicalCondition not found"));
 
@@ -50,6 +50,4 @@ public class MedicalConditionService {
 
         return currentConditions;
     }
-
-
 }

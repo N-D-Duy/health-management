@@ -115,9 +115,9 @@ public class UserController {
     }
 
     @GetMapping("/top-rated")
-    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorDTO>>> getTopRatedDoctors() {
-        List<DoctorDTO> doctors = userService.getTopRatedDoctors();
-        ApiResponse<List<DoctorDTO>> response = ApiResponse.<List<DoctorDTO>>builder().code(200).data(doctors).message("Success").build();
+    public @ResponseBody ResponseEntity<ApiResponse<List<UserDTO>>> getTopRatedDoctors() {
+        List<UserDTO> doctors = userService.getTopRatedDoctors();
+        ApiResponse<List<UserDTO>> response = ApiResponse.<List<UserDTO>>builder().code(200).data(doctors).message("Success").build();
         return ResponseEntity.ok(response);
     }
 

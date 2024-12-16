@@ -35,7 +35,7 @@ public class PrescriptionDetailsService {
         for (PrescriptionDetailsDTO detailsDTO : detailsDTOs) {
             if (detailsDTO.getId() != null) {
                 PrescriptionDetails details = currentDetails.stream()
-                        .filter(d -> d.getId().equals(detailsDTO.getId()))
+                        .filter(d -> Objects.equals(d.getId(), detailsDTO.getId()))
                         .findFirst()
                         .orElseThrow(() -> new ConflictException("PrescriptionDetails not found"));
 

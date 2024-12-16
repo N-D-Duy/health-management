@@ -25,7 +25,6 @@ public class DataAnalysisController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         DataAnalysis data = dataAnalysisService.getDataAnalysis(startDate, endDate);
-        System.out.println("Data Analysis: " + data);
         ApiResponse<DataAnalysis> response = ApiResponse.<DataAnalysis>builder()
                 .code(200)
                 .data(data)

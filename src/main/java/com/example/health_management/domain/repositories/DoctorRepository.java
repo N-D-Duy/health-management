@@ -23,14 +23,6 @@ public interface DoctorRepository extends SoftDeleteRepository<Doctor, Long> {
 
     @Query(value = """
         SELECT * 
-        FROM doctors 
-        ORDER BY rating DESC 
-        LIMIT 10
-        """, nativeQuery = true)
-    List<Doctor> topRatedDoctors();
-
-    @Query(value = """
-        SELECT * 
         FROM doctors d
         WHERE d.specialization = :specialization
         """, nativeQuery = true)
