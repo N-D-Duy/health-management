@@ -6,7 +6,7 @@ metadata:
     app: health-management-be
     version: v1
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: health-management-be
@@ -20,7 +20,7 @@ spec:
       serviceAccountName: health-management-be-service-account
       containers:
       - name: health-management-be
-        image: docker.io/duynguyen03/health-management-be:v6
+        image: docker.io/duynguyen03/health-management-be:v6.1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
