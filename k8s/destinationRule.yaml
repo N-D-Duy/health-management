@@ -1,0 +1,10 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: health-management-be
+spec:
+  host: health-management-be
+  subsets:
+  - name: v1
+    labels:
+      version: v1

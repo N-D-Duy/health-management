@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+k8s/secrets.yaml
+docker-compose.yaml
+
+### ENV ###
+.env
+### FIREBASE CONFIG FILE ###
+firebase.json
