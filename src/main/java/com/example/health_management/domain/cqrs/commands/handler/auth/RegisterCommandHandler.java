@@ -5,6 +5,7 @@ import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.mapper.UserMapper;
 import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.domain.cache.services.UserCacheService;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
 import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.entities.Key;
@@ -36,6 +37,8 @@ public class RegisterCommandHandler {
     private final PasswordEncoder passwordEncoder;
 
     private final UserMapper userMapper;
+
+    private final UserCacheService userCacheService;
 
     @Transactional
     public AuthResponse handle(RegisterCommand command) {
@@ -89,6 +92,7 @@ public class RegisterCommandHandler {
             // Save entities
             accountRepository.save(account);
             keyRepository.save(key);
+            userCacheService.invalidateAllUsersCache();
             return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).user(userMapper.toUserDTO(user)).build();
         } catch (ConflictException e) {
             throw new ConflictException(e.getMessage());

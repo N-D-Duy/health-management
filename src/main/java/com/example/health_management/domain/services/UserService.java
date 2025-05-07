@@ -11,6 +11,7 @@ import com.example.health_management.application.mapper.AddressMapper;
 import com.example.health_management.application.mapper.DoctorMapper;
 import com.example.health_management.application.mapper.UserMapper;
 import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.domain.cache.services.UserCacheService;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
@@ -45,19 +46,34 @@ public class UserService {
     private final AddressService addressService;
     private final AccountService accountService;
 
+    //cache
+    private final UserCacheService userCacheService;
+
     public void deleteById(Long id) {
         try {
-            if(accountRepository.findByIdActive(id) == null) {
+            if (accountRepository.findByIdActive(id) == null) {
                 throw new ConflictException("User not found");
             }
             accountRepository.deleteById(id);
+
+            String cacheKey = "user:" + id;
+            userCacheService.cacheUser(cacheKey, null);
+            userCacheService.invalidateAllUsersCache();
+            userCacheService.invalidateTopRatedDoctorsCache(); // Invalidate top rated doctors cache as well
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
     }
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
+        List<UserDTO> cachedUsers = userCacheService.getCachedAllUsers();
+        if (cachedUsers != null && !cachedUsers.isEmpty()) {
+            return cachedUsers;
+        }
+
+        List<UserDTO> users = userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
+        userCacheService.cacheAllUsers(users);
+        return users;
     }
 
     public List<UserDTO> getAllDoctors() {
@@ -83,8 +99,15 @@ public class UserService {
     }
 
     public UserDTO getUserById(Long id) {
+        String cacheKey = "user:" + id;
+        UserDTO cachedUser = userCacheService.getCachedUser(cacheKey);
+        if (cachedUser != null) {
+            return cachedUser;
+        }
         User user = userRepository.findByIdActive(id);
-        return userMapper.toUserDTO(user);
+        UserDTO userDTO = userMapper.toUserDTO(user);
+        userCacheService.cacheUser(cacheKey, userDTO);
+        return userDTO;
     }
 
     public UserDTO updateUser(UpdateUserRequest request, Long userId, Boolean isDoctorUpdate) {
@@ -102,15 +125,26 @@ public class UserService {
                 addressService.updateAddresses(user, request.getAddresses());
             }
 
-            if(isDoctorUpdate && request.getDoctorProfile() != null) {
+            if (isDoctorUpdate && request.getDoctorProfile() != null) {
                 updateDoctorProfile(user, request.getDoctorProfile());
             }
 
-            //update other fields
             userMapper.update(request, user);
 
             userRepository.save(user);
-            return userMapper.toUserDTO(user);
+
+            UserDTO updatedUserDTO = userMapper.toUserDTO(user);
+
+            String cacheKey = "user:" + userId;
+            userCacheService.cacheUser(cacheKey, updatedUserDTO);
+            userCacheService.invalidateAllUsersCache();
+            
+            // If it's a doctor update, invalidate top rated doctors cache
+            if (isDoctorUpdate || "DOCTOR".equals(updatedUserDTO.getAccount().getRole())) {
+                userCacheService.invalidateTopRatedDoctorsCache();
+            }
+
+            return updatedUserDTO;
         } catch (Exception e) {
             throw new ConflictException("Error updating user: " + e.getMessage());
         }
@@ -140,7 +174,19 @@ public class UserService {
     }
 
     public List<UserDTO> getTopRatedDoctors() {
-        return userRepository.topRatedDoctors().stream().map(userMapper::toUserDTO).toList();
+        // Try to get from cache first
+        List<UserDTO> cachedDoctors = userCacheService.getCachedTopRatedDoctors();
+        if (cachedDoctors != null && !cachedDoctors.isEmpty()) {
+            return cachedDoctors;
+        }
+        
+        // If not cached, get from repository
+        List<UserDTO> doctors = userRepository.topRatedDoctors().stream().map(userMapper::toUserDTO).toList();
+        
+        // Cache the result
+        userCacheService.cacheTopRatedDoctors(doctors);
+        
+        return doctors;
     }
 
     public List<DoctorDTO> getDoctorsBySpecialization(String specialization) {

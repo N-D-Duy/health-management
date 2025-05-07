@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/appointment-record")
-@Tag(name = "Medical Record", description = "Medical Record API")
+@RequestMapping("/appointments")
+@Tag(name = "Appointment Record", description = "Appointment Record API")
 @Slf4j
 @RequiredArgsConstructor
 public class AppointmentRecordController {

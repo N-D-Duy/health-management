@@ -1,7 +1,6 @@
-package com.example.health_management.domain.redis;
+package com.example.health_management.domain.cache;
 
 import io.micrometer.common.lang.Nullable;
-import org.slf4j.Logger;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 
 import java.time.Duration;

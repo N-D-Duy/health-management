@@ -7,6 +7,7 @@ import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
 import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.domain.cache.services.AppointmentCacheService;
 import com.example.health_management.domain.entities.AppointmentRecord;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.HealthProvider;
@@ -16,7 +17,6 @@ import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.HealthProviderRepository;
 import com.example.health_management.domain.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +38,12 @@ public class AppointmentRecordService {
     private final AppointmentRecordMapper appointmentRecordMapper;
     private final PrescriptionService prescriptionService;
     private final DoctorScheduleService doctorScheduleService;
+    private final AppointmentCacheService appointmentCacheService;
 
 
-    public AppointmentRecordDTO create(AppointmentRecordRequestDTO request){
+    public AppointmentRecordDTO create(AppointmentRecordRequestDTO request) {
         try {
-            // Find entities first
+
             Doctor doctor = doctorRepository.findById(request.getDoctorId())
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + request.getDoctorId()));
 
@@ -52,19 +53,16 @@ public class AppointmentRecordService {
             HealthProvider healthProvider = healthProviderRepository.findById(request.getHealthProviderId())
                     .orElseThrow(() -> new EntityNotFoundException("Health Provider not found with ID: " + request.getHealthProviderId()));
 
-            // Create and populate appointment record
             AppointmentRecord appointmentRecord = new AppointmentRecord();
             appointmentRecord.setNote(request.getNote());
             appointmentRecord.setAppointmentType(request.getAppointmentType());
             appointmentRecord.setScheduledAt(request.getScheduledAt());
             appointmentRecord.setStatus(request.getStatus());
 
-            // Set relationships
             appointmentRecord.setDoctor(doctor);
             appointmentRecord.setUser(user);
             appointmentRecord.setHealthProvider(healthProvider);
 
-            // Save and return
             AppointmentRecord savedRecord = appointmentRecordRepository.save(appointmentRecord);
 
             DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
@@ -73,10 +71,13 @@ public class AppointmentRecordService {
                     .endTime(request.getScheduledAt().plusMinutes(60))
                     .currentPatientCount(1)
                     .build();
-            //create doctor schedule
+
             doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, true);
 
-            return appointmentRecordMapper.toDTO(savedRecord);
+            AppointmentRecordDTO result = appointmentRecordMapper.toDTO(savedRecord);
+            appointmentCacheService.invalidateAppointmentCaches(savedRecord.getId(), user.getId(), doctor.getId());
+
+            return result;
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -90,34 +91,43 @@ public class AppointmentRecordService {
                     .findById(request.getId())
                     .orElseThrow(() -> new ConflictException("AppointmentRecord not found"));
 
-            // Update AppointmentRecord fields
+            Long userId = appointmentRecord.getUser().getId();
+            Long doctorId = appointmentRecord.getDoctor().getId();
+
             appointmentRecordMapper.update(appointmentRecord, request);
 
-            // Update Prescription
             prescriptionService.updatePrescription(appointmentRecord, request);
 
-            // Update relationships
             updateRelationships(appointmentRecord, request);
 
             appointmentRecordRepository.save(appointmentRecord);
-            return appointmentRecordMapper.toDTO(appointmentRecord);
+
+            AppointmentRecordDTO updatedAppointment = appointmentRecordMapper.toDTO(appointmentRecord);
+
+            userId = appointmentRecord.getUser().getId();
+            doctorId = appointmentRecord.getDoctor().getId();
+
+            appointmentCacheService.invalidateAppointmentCaches(request.getId(), userId, doctorId);
+            appointmentCacheService.cacheAppointment(request.getId(), updatedAppointment);
+
+            return updatedAppointment;
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
     }
 
     private void updateRelationships(@NonNull AppointmentRecord appointmentRecord, @NonNull UpdateAppointmentRequestDTO request) {
-        if(request.getDoctorId() != null) {
+        if (request.getDoctorId() != null) {
             appointmentRecord.setDoctor(doctorRepository.findById(request.getDoctorId())
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + request.getDoctorId())));
         }
 
-        if(request.getUserId() != null) {
+        if (request.getUserId() != null) {
             appointmentRecord.setUser(userRepository.findById(request.getUserId())
                     .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + request.getUserId())));
         }
 
-        if(request.getHealthProviderId() != null) {
+        if (request.getHealthProviderId() != null) {
             appointmentRecord.setHealthProvider(healthProviderRepository.findById(request.getHealthProviderId())
                     .orElseThrow(() -> new EntityNotFoundException("Health Provider not found with ID: " + request.getHealthProviderId())));
         }
@@ -126,21 +136,28 @@ public class AppointmentRecordService {
     public String deleteAppointmentRecord(Long appointmentRecordId) {
         try {
             AppointmentRecord appointmentRecord = appointmentRecordRepository.findByIdActive(appointmentRecordId);
-            if(appointmentRecord == null) {
+            if (appointmentRecord == null) {
                 throw new ConflictException("Appointment Record not found with ID: " + appointmentRecordId);
             }
+
             Long doctorId = appointmentRecord.getDoctor().getId();
+            Long userId = appointmentRecord.getUser().getId();
             LocalDateTime scheduledAt = appointmentRecord.getScheduledAt();
+
             DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
                     .doctorId(doctorId)
                     .startTime(scheduledAt)
                     .endTime(scheduledAt.plusMinutes(60))
                     .currentPatientCount(-1)
                     .build();
-            //update doctor schedule
+
             doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, false);
             appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
             appointmentRecordRepository.deleteById(appointmentRecordId);
+
+
+            appointmentCacheService.invalidateAppointmentCaches(appointmentRecordId, userId, doctorId);
+
             return "Appointment Record deleted successfully";
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -148,40 +165,86 @@ public class AppointmentRecordService {
         }
     }
 
-    public List<AppointmentRecordDTO> findAll(){
-        try{
+    public List<AppointmentRecordDTO> findAll() {
+        try {
+
+            List<AppointmentRecordDTO> cachedAppointments = appointmentCacheService.getCachedAllAppointments();
+            if (cachedAppointments != null) {
+                return cachedAppointments;
+            }
+
+
             List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findAll();
-            return appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
+            List<AppointmentRecordDTO> result = appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
+
+            if(!result.isEmpty()){
+                appointmentCacheService.cacheAllAppointments(result);
+            }
+            return result;
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
     }
 
-    public AppointmentRecordDTO getById(Long id){
-        try{
+    public AppointmentRecordDTO getById(Long id) {
+        try {
+            AppointmentRecordDTO cachedAppointment = appointmentCacheService.getCachedAppointment(id);
+            if (cachedAppointment != null) {
+                return cachedAppointment;
+            }
+
             AppointmentRecord appointmentRecord = appointmentRecordRepository.findById(id).orElse(null);
-            if(appointmentRecord == null) {
+            if (appointmentRecord == null) {
                 throw new ConflictException("Appointment Record not found with ID: " + id);
             }
-            return appointmentRecordMapper.toDTO(appointmentRecord);
+
+            AppointmentRecordDTO result = appointmentRecordMapper.toDTO(appointmentRecord);
+
+            if(result!=null){
+                appointmentCacheService.cacheAppointment(id, result);
+            }
+
+            return result;
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
     }
 
-    public List<AppointmentRecordDTO> getByUserId(Long userId){
-        try{
+    public List<AppointmentRecordDTO> getByUserId(Long userId) {
+        try {
+
+            List<AppointmentRecordDTO> cachedAppointments = appointmentCacheService.getCachedUserAppointments(userId);
+            if (cachedAppointments != null) {
+                return cachedAppointments;
+            }
+
             List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findByUserId(userId);
-            return appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
+            List<AppointmentRecordDTO> result = appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
+
+            if(!result.isEmpty()){
+                appointmentCacheService.cacheUserAppointments(userId, result);
+            }
+            return result;
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
     }
 
-    public List<AppointmentRecordDTO> getByDoctorId(Long doctorId){
-        try{
+    public List<AppointmentRecordDTO> getByDoctorId(Long doctorId) {
+        try {
+
+            List<AppointmentRecordDTO> cachedAppointments = appointmentCacheService.getCachedDoctorAppointments(doctorId);
+            if (cachedAppointments != null) {
+                return cachedAppointments;
+            }
+
             List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findByDoctorId(doctorId);
-            return appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
+            List<AppointmentRecordDTO> result = appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
+
+            if(!result.isEmpty()){
+                appointmentCacheService.cacheDoctorAppointments(doctorId, result);
+            }
+            return result;
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
