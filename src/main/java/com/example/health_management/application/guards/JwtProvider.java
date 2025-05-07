@@ -1,21 +1,16 @@
 package com.example.health_management.application.guards;
 
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.common.utils.TokenExpiration;
 import com.example.health_management.domain.entities.Payload;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
 import com.example.health_management.domain.services.KeyService;
-import com.example.health_management.domain.services.LoggingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,7 +32,6 @@ public class JwtProvider {
     private final KeyService keyService;
     private final AccountRepository accountRepository;
     private final KeyRepository keyRepository;
-    private final LoggingService loggingService;
 
     public Map<String, String> generateKeyPair() {
         try {
@@ -63,7 +57,6 @@ public class JwtProvider {
     }
 
     public String generateToken(Payload payload, String privateKeyPEM, long expirationMillis) {
-        //convert privateKeyPEM from PEM string to PrivateKey
         PrivateKey privateKey;
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -106,7 +99,6 @@ public class JwtProvider {
     }
 
     public boolean verifyToken(String token, String publicKeyPEM) {
-        // convert publicKeyPEM from PEM string to PublicKey
         PublicKey publicKey;
         try{
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -173,7 +165,6 @@ public class JwtProvider {
     }
 
     public boolean versioningVerify(int version, String email){
-        //get version from database
         int dbVersion = getVersionByEmail(email);
         return version == dbVersion;
     }
@@ -232,13 +223,10 @@ public class JwtProvider {
             MyUserDetails user = extractUserDetailsFromToken();
             keyRepository.signOut(user.getId().toString());
             SecurityContextHolder.clearContext();
-            loggingService.saveLog(LoggingDTO.builder().message("User: "+user.getEmail()+" logged out").type(LoggingType.USER_LOGOUT).build());
             return "Logged out";
         } catch (Exception e) {
-            loggingService.saveLog(LoggingDTO.builder().message("Error logging out").type(LoggingType.USER_LOGOUT).build());
             throw new ConflictException(e.getMessage());
         }
     }
-
 }
 

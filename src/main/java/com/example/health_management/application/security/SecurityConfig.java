@@ -7,8 +7,6 @@ import com.example.health_management.common.Constants;
 import com.example.health_management.common.config.JacksonConfig;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
-import com.example.health_management.domain.services.KeyService;
-import com.example.health_management.domain.services.LoggingService;
 import com.example.health_management.domain.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -36,8 +34,6 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final KeyRepository keyRepository;
-    private final AccountRepository accountRepository;
-    private final LoggingService loggingService;
     private final JacksonConfig jacksonConfig;
 
     private final String[] WHITE_LIST = Constants.WHITE_LIST;
@@ -45,7 +41,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserService userService) throws Exception {
-        final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider, keyRepository, accountRepository, loggingService, userService, jacksonConfig);
+        final LocalAuthenticationFilter localAuthenticationFilter = new LocalAuthenticationFilter(authenticationManager(http), jwtProvider, keyRepository, userService, jacksonConfig);
         localAuthenticationFilter.setFilterProcessesUrl("/auth/login");
 
         http

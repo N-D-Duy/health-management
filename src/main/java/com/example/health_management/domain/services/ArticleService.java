@@ -4,9 +4,7 @@ import com.example.health_management.application.DTOs.article.ArticleDTO;
 import com.example.health_management.application.DTOs.article.CreateArticleRequest;
 import com.example.health_management.application.DTOs.article.UpdateArticleRequest;
 import com.example.health_management.application.DTOs.article_support.ArticleCommentDTO;
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.ArticleMapper;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Article;
 import com.example.health_management.domain.entities.User;
@@ -29,7 +27,6 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final ArticleMapper articleMapper;
-    private final LoggingService loggingService;
 
     private final ArticleMediaService articleMediaService;
     private final ArticleCommentService articleCommentService;
@@ -43,7 +40,6 @@ public class ArticleService {
 
         articleMediaService.createArticleMedia(request.getMedia(), savedArticle);
 
-        loggingService.saveLog(LoggingDTO.builder().message("User with " + userId + " created article").type(LoggingType.ARTICLE_CREATED).build());
         return articleMapper.toDTO(savedArticle);
     }
 
@@ -53,7 +49,6 @@ public class ArticleService {
                     .orElseThrow(() -> new ConflictException(".getMessage()Health article not found with ID: " + articleId));
 
             Article updatedArticle = articleMapper.updateFromRequest(request, article);
-            loggingService.saveLog(LoggingDTO.builder().message("Article with " + articleId + " updated").type(LoggingType.ARTICLE_UPDATED).build());
             return articleMapper.toDTO(articleRepository.save(updatedArticle));
         } catch (ConflictException e) {
             throw new ConflictException(e.getMessage());
@@ -100,7 +95,6 @@ public class ArticleService {
     public void deleteArticle(Long id) {
         try {
             articleRepository.deleteById(id);
-            loggingService.saveLog(LoggingDTO.builder().message("Article with id" + id + "deleted").type(LoggingType.ARTICLE_DELETED).build());
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }

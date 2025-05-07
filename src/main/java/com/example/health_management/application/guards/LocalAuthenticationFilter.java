@@ -2,16 +2,11 @@ package com.example.health_management.application.guards;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.logging.Logger;
 
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
 import com.example.health_management.common.config.JacksonConfig;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
-import com.example.health_management.domain.services.LoggingService;
 import com.example.health_management.domain.services.UserService;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.health_management.application.DTOs.auth.AuthResponse;
 import com.example.health_management.domain.entities.Payload;
-import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -38,14 +32,11 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final KeyRepository keyRepository;
-    private final AccountRepository accountRepository;
-    private final LoggingService loggingService;
     private final UserService userService;
     private final JacksonConfig jacksonConfig;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        // Parse JSON body to get email and password
         Map<String, String> requestBody;
         try {
             requestBody = new ObjectMapper().readValue(request.getInputStream(), Map.class);
@@ -63,10 +54,8 @@ public class LocalAuthenticationFilter extends UsernamePasswordAuthenticationFil
             Authentication authentication = authenticationManager.authenticate(authRequest);
             //update notification key
             jwtProvider.updateFcmToken(email, fcmToken);
-            loggingService.saveLog(LoggingDTO.builder().message("User with " + email + " login success").type(LoggingType.USER_LOGIN).build());
             return authentication;
         } catch (AuthenticationException e) {
-            loggingService.saveLog(LoggingDTO.builder().message("User with " + email + " login failed").type(LoggingType.USER_LOGIN).build());
             throw e;
         }
     }

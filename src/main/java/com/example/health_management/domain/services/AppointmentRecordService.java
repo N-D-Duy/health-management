@@ -4,10 +4,8 @@ import com.example.health_management.application.DTOs.appointment_record.request
 import com.example.health_management.application.DTOs.appointment_record.request.UpdateAppointmentRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
 import com.example.health_management.common.shared.enums.AppointmentStatus;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.AppointmentRecord;
 import com.example.health_management.domain.entities.Doctor;
@@ -39,7 +37,6 @@ public class AppointmentRecordService {
     private final HealthProviderRepository healthProviderRepository;
     private final AppointmentRecordMapper appointmentRecordMapper;
     private final PrescriptionService prescriptionService;
-    private final LoggingService loggingService;
     private final DoctorScheduleService doctorScheduleService;
 
 
@@ -79,7 +76,6 @@ public class AppointmentRecordService {
             //create doctor schedule
             doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, true);
 
-            loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id " + savedRecord.getId() + " created").type(LoggingType.APPOINTMENT_CREATED).build());
             return appointmentRecordMapper.toDTO(savedRecord);
         } catch (EntityNotFoundException e) {
             throw e;
@@ -104,7 +100,6 @@ public class AppointmentRecordService {
             updateRelationships(appointmentRecord, request);
 
             appointmentRecordRepository.save(appointmentRecord);
-            loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id " + appointmentRecord.getId() + " updated").type(LoggingType.APPOINTMENT_UPDATED).build());
             return appointmentRecordMapper.toDTO(appointmentRecord);
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
@@ -146,7 +141,6 @@ public class AppointmentRecordService {
             doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, false);
             appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
             appointmentRecordRepository.deleteById(appointmentRecordId);
-            loggingService.saveLog(LoggingDTO.builder().message("Appointment record with id " + appointmentRecordId + " deleted").type(LoggingType.APPOINTMENT_DELETED).build());
             return "Appointment Record deleted successfully";
         } catch (Exception e) {
             log.error(e.getMessage());

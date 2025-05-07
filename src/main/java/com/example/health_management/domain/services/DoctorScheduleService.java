@@ -1,9 +1,7 @@
 package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.DoctorScheduleMapper;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.DoctorSchedule;
@@ -22,7 +20,6 @@ public class DoctorScheduleService {
     private final DoctorScheduleRepository doctorScheduleRepository;
     private final DoctorRepository doctorRepository;
     private final DoctorScheduleMapper doctorScheduleMapper;
-    private final LoggingService loggingService;
 
     public void createDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {
         Doctor doctor = doctorRepository.findByIdActive(doctorScheduleDTO.getDoctorId());
@@ -34,10 +31,6 @@ public class DoctorScheduleService {
         doctorSchedule.setStartTime(doctorScheduleDTO.getStartTime());
         doctorSchedule.setEndTime(doctorScheduleDTO.getEndTime());
         doctorSchedule.setCurrentPatientCount(doctorScheduleDTO.getCurrentPatientCount());
-        loggingService.saveLog(LoggingDTO.builder()
-                .type(LoggingType.DOCTOR_SCHEDULE_CREATED)
-                .message("Schedule created for doctor: " + doctorScheduleDTO.getDoctorId())
-                .build());
 
         doctorScheduleRepository.save(doctorSchedule);
     }
@@ -48,10 +41,6 @@ public class DoctorScheduleService {
     }
 
     public void updateDoctorSchedule(DoctorSchedule doctorSchedule, Boolean increase) {
-        loggingService.saveLog(LoggingDTO.builder()
-                .type(LoggingType.DOCTOR_SCHEDULE_UPDATED)
-                .message("Schedule updated for doctor: " + doctorSchedule.getDoctor().getId())
-                .build());
         if(increase){
             doctorScheduleRepository.updatePatientsCount(doctorSchedule.getId(), 1);
         } else {
