@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-tables
+      author: duynguyen
+      changes:
+        - sqlFile:
+            path: changelog/ddl/changelog-0001.sql
+  - changeSet:
+      id: test-data
+      author: duynguyen
+      changes:
+        - sqlFile:
+            path: changelog/data/changelog-0001-core.sql

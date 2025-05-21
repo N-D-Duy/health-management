@@ -145,7 +145,6 @@ public class AppointmentCacheService {
     public List<AppointmentRecordDTO> getCachedAllAppointments() {
         try {
             Object cachedValue = redisTemplate.opsForValue().get(ALL_APPOINTMENTS_KEY);
-            
             if (cachedValue == null) {
                 return null;
             }

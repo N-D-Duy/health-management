@@ -1,28 +1,35 @@
-# Use a Maven image to build the project
+# Build stage: dùng Maven để build project
 FROM maven:3.9.3-eclipse-temurin-17 AS builder
-
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the pom.xml and source code
+# Copy source và build
 COPY pom.xml .
 COPY src ./src
-
-# Build the project
 RUN mvn clean package -DskipTests
 
-# Use a smaller JRE image to run the application
-FROM eclipse-temurin:17-jre-alpine
+# Extract layers từ jar đã build
+FROM eclipse-temurin:17-jre-alpine AS layertool
+WORKDIR /layertools
+COPY --from=builder /app/target/health-management-0.0.1-SNAPSHOT.jar app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
 
-# Set the working directory
+# Final image
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# Copy the JAR file from the builder stage
-COPY --from=builder /app/target/health-management-0.0.1-SNAPSHOT.jar app.jar
+# Timezone (nếu cần)
+ENV TZ=Asia/Ho_Chi_Minh
 
-# Use a non-root user for security (optional)
+# Copy từng layer
+COPY --from=layertool /layertools/dependencies/ ./
+COPY --from=layertool /layertools/snapshot-dependencies/ ./
+COPY --from=layertool /layertools/spring-boot-loader/ ./
+COPY --from=layertool /layertools/application/ ./
+
+# Tùy chọn user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
-# Run the JAR file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Port và entrypoint
+EXPOSE 8080
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]

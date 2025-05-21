@@ -80,6 +80,11 @@
 			<version>0.12.6</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-gson -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
