@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/health_management
+    url: jdbc:postgresql://localhost:5434/health_management
     username: postgres
     password: duynguyen
     driver-class-name: org.postgresql.Driver
