@@ -1,0 +1,95 @@
+services:
+  #postgresql:
+  postgres:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: postgres
+    hostname: ${POSTGRES_HOSTNAME}
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
+      - postgres:/var/lib/postgresql/data
+    command: postgres -c 'max_connections=500'
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    networks:
+      - health-management-network
+
+  #pgadmin:
+  pgadmin:
+    image: dpage/pgadmin4:${PGADMIN_VERSION}
+    container_name: pgadmin
+    restart: unless-stopped
+    ports:
+      - "${PGADMIN_PORT}:80"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL
+      - PGADMIN_DEFAULT_PASSWORD
+    networks:
+      - health-management-network
+
+  #redis:
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+    environment:
+      - REDIS_PASSWORD
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "redis-cli -a $${REDIS_PASSWORD} ping" ]
+      interval: 10s
+      retries: 3
+      start_period: 30s
+      timeout: 5s
+    networks:
+      - health-management-network
+
+  #redis_insight:
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis_insight
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis_insight:/db
+    networks:
+      - health-management-network
+
+
+  application:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: application
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    networks:
+      - health-management-network
+
+volumes:
+    postgres:
+        driver: local
+    pgadmin:
+        driver: local
+    redis:
+        driver: local
+    redis_insight:
+        driver: local
+networks:
+    health-management-network:
+        driver: bridge
