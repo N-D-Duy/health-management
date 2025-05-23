@@ -69,6 +69,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    profiles:
+      - app
     container_name: application
     restart: always
     ports:
@@ -78,6 +80,8 @@ services:
       - redis
     env_file:
       - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - health-management-network
 

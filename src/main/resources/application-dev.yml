@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/health_management
+    username: postgres
+    password: duynguyen
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        boot:
+          allow_jdbc_metadata_access: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+
+  liquibase:
+    enabled: false
