@@ -12,7 +12,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         boot:
-          allow_jdbc_metadata_access: false
+          allow_jdbc_metadata_access:true
 
   data:
     redis:

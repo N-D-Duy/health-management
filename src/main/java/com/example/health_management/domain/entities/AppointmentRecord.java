@@ -2,9 +2,12 @@ package com.example.health_management.domain.entities;
 
 import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.enums.AppointmentType;
+import com.example.health_management.common.shared.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,4 +48,8 @@ public class AppointmentRecord extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", columnDefinition = "varchar(255) default 'INITIAL'")
+    private PaymentStatus paymentStatus;
 }
