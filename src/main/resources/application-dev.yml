@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: health-management
+
   datasource:
     url: jdbc:postgresql://localhost:5434/health_management
     username: postgres
@@ -22,3 +25,7 @@ spring:
 
   liquibase:
     enabled: false
+
+logging:
+  level:
+    root: info
