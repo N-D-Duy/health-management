@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!-- Properties -->
+	<property name="ENCODING" value="UTF-8" />
+	<property name="LOG_LEVEL" value="INFO" />
+
+	<!-- Spring properties -->
+	<springProperty scope="context" name="appName" source="spring.application.name" defaultValue="application" />
+	<springProperty scope="context" name="hostname" source="HOSTNAME" defaultValue="localhost" />
+
+	<!-- Include Spring Boot defaults for patterns and properties -->
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+	<!-- JSON Console Appender for structured logging -->
+	<appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+			<providers>
+				<!-- Basic log information -->
+				<timestamp>
+					<pattern>yyyy-MM-dd'T'HH:mm:ss.SSS'Z'</pattern>
+					<timeZone>UTC</timeZone>
+				</timestamp>
+				<logLevel />
+				<loggerName />
+				<message />
+
+				<!-- Application context -->
+				<pattern>
+					<pattern>
+						{
+						"application": "${appName:-application}",
+						"host": "${hostname:-localhost}",
+						"thread": "%thread"
+						}
+					</pattern>
+				</pattern>
+
+				<!-- MDC (Mapped Diagnostic Context) -->
+				<mdc />
+
+				<!-- Arguments (if any) -->
+				<arguments />
+
+				<!-- Stack trace for exceptions -->
+				<stackTrace>
+					<throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+						<maxDepthPerThrowable>30</maxDepthPerThrowable>
+						<maxLength>2048</maxLength>
+						<shortenedClassNameLength>20</shortenedClassNameLength>
+						<rootCauseFirst>true</rootCauseFirst>
+						<inlineHash>true</inlineHash>
+					</throwableConverter>
+				</stackTrace>
+			</providers>
+		</encoder>
+	</appender>
+
+	<!-- Human-readable console appender for development -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx</pattern>
+			<charset>${ENCODING}</charset>
+		</encoder>
+	</appender>
+
+	<!-- OpenTelemetry Appender -->
+	<appender name="OTEL" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
+		<appender-ref ref="JSON_CONSOLE" />
+	</appender>
+
+	<!-- Logger configurations -->
+	<!-- Suppress noisy framework logs -->
+	<logger name="org.apache.catalina.startup.DigesterFactory" level="ERROR" />
+	<logger name="org.apache.catalina.util.LifecycleBase" level="ERROR" />
+	<logger name="org.apache.coyote.http11.Http11NioProtocol" level="WARN" />
+	<logger name="org.apache.sshd.common.util.SecurityUtils" level="WARN" />
+	<logger name="org.apache.tomcat.util.net.NioSelectorPool" level="WARN" />
+	<logger name="org.eclipse.jetty.util.component.AbstractLifeCycle" level="ERROR" />
+	<logger name="org.hibernate.validator.internal.util.Version" level="WARN" />
+	<logger name="org.springframework.boot.actuate.endpoint.jmx" level="WARN" />
+
+	<!-- Application-specific loggers -->
+	<logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG" />
+
+	<!-- Root logger with conditional appenders based on profile -->
+	<springProfile name="prod">
+		<root level="${LOG_LEVEL}">
+			<appender-ref ref="OTEL" />
+		</root>
+	</springProfile>
+
+	<springProfile name="!prod">
+		<root level="${LOG_LEVEL}">
+			<appender-ref ref="CONSOLE" />
+		</root>
+	</springProfile>
+</configuration>
