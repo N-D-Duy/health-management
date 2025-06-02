@@ -1,6 +1,7 @@
 package com.example.health_management.domain.services;
 
 import com.example.health_management.common.shared.enums.VoteType;
+import com.example.health_management.domain.cache.services.ArticleCacheService;
 import com.example.health_management.domain.entities.Article;
 import com.example.health_management.domain.entities.ArticleVote;
 import com.example.health_management.domain.repositories.ArticleRepository;
@@ -20,6 +21,7 @@ public class ArticleVoteService {
     private final ArticleVoteRepository articleVoteRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
+    private final ArticleCacheService articleCacheService;
 
 
     public void vote(Long articleId, Long userId, VoteType voteType) {
@@ -63,6 +65,9 @@ public class ArticleVoteService {
         } else {
             article.setDownVoteCount(article.getDownVoteCount() + (isRemove ? -1 : 1));
         }
+        articleCacheService.invalidateAllArticlesCache();
+        articleCacheService.invalidateUserArticlesCache(article.getUser().getId());
+        articleCacheService.invalidateArticleCache(article.getId().toString());
         articleRepository.save(article);
     }
 }

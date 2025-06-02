@@ -38,3 +38,5 @@ docker-compose.yaml
 .env
 ### FIREBASE CONFIG FILE ###
 firebase.json
+
+logs/

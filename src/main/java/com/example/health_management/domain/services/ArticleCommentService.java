@@ -2,6 +2,7 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.article_support.ArticleCommentDTO;
 import com.example.health_management.application.mapper.ArticleCommentMapper;
+import com.example.health_management.domain.cache.services.ArticleCacheService;
 import com.example.health_management.domain.entities.Article;
 import com.example.health_management.domain.entities.ArticleComment;
 import com.example.health_management.domain.repositories.ArticleCommentRepository;
@@ -25,6 +26,7 @@ public class ArticleCommentService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final ArticleCommentMapper articleCommentMapper;
+    private final ArticleCacheService articleCacheService;
 
     public ArticleCommentDTO addComment(Long articleId, Long userId, ArticleCommentDTO dto) {
         Article article = articleRepository.findById(articleId)
@@ -43,6 +45,10 @@ public class ArticleCommentService {
 
         article.setCommentCount(article.getCommentCount() + 1);
         articleRepository.save(article);
+
+        articleCacheService.invalidateAllArticlesCache();
+        articleCacheService.invalidateUserArticlesCache(userId);
+        articleCacheService.invalidateArticleCache(articleId.toString());
 
         return articleCommentMapper.toDTO(articleCommentRepository.save(comment));
     }

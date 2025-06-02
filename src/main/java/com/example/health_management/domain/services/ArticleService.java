@@ -142,6 +142,7 @@ public class ArticleService {
             articleCacheService.cacheArticle(id.toString(), null);
             articleCacheService.invalidateAllArticlesCache();
             articleCacheService.invalidateUserArticlesCache(userId);
+            articleCacheService.invalidateArticleCache(id.toString());
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (Exception e) {
