@@ -176,8 +176,10 @@ CREATE TABLE public.appointment_records (
     doctor_id bigint NOT NULL,
     health_provider_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    CONSTRAINT appointment_records_appointment_type_check CHECK (((appointment_type)::text = ANY ((ARRAY['TELEMEDICINE'::character varying, 'IN_PERSON'::character varying])::text[]))),
-    CONSTRAINT appointment_records_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'SCHEDULED'::character varying, 'CANCELLED'::character varying, 'COMPLETED'::character varying])::text[])))
+    payment_status character varying(255) DEFAULT 'INITIAL'::character varying,
+    CONSTRAINT appointment_records_appointment_type_check CHECK (((appointment_type)::text = ANY (ARRAY[('TELEMEDICINE'::character varying)::text, ('IN_PERSON'::character varying)::text]))),
+    CONSTRAINT appointment_records_payment_status_check CHECK (((payment_status)::text = ANY ((ARRAY['INITIAL'::character varying, 'DEPOSITED'::character varying, 'PAID_IN_FULL'::character varying])::text[]))),
+    CONSTRAINT appointment_records_status_check CHECK (((status)::text = ANY (ARRAY[('PENDING'::character varying)::text, ('SCHEDULED'::character varying)::text, ('CANCELLED'::character varying)::text, ('COMPLETED'::character varying)::text])))
 );
 
 

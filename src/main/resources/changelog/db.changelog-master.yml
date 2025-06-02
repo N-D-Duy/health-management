@@ -6,7 +6,7 @@ databaseChangeLog:
         - sqlFile:
             path: changelog/ddl/changelog-0001.sql
   - changeSet:
-      id: test-data
+      id: init-data
       author: duynguyen
       changes:
         - sqlFile:
