@@ -130,4 +130,8 @@ public class ArticleCacheService {
     public void invalidateUserArticlesCache(Long userId) {
         redisTemplate.delete(USER_ARTICLES_KEY + userId);
     }
+
+    public void invalidateArticleCache(String articleId) {
+        redisTemplate.delete(ARTICLE_KEY_PREFIX + articleId);
+    }
 }
