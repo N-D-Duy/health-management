@@ -40,10 +40,8 @@ public class AppointmentRecordService {
     private final DoctorScheduleService doctorScheduleService;
     private final AppointmentCacheService appointmentCacheService;
 
-
     public AppointmentRecordDTO create(AppointmentRecordRequestDTO request) {
         try {
-
             Doctor doctor = doctorRepository.findById(request.getDoctorId())
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + request.getDoctorId()));
 

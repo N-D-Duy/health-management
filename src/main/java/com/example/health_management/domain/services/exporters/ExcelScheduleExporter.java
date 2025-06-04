@@ -16,17 +16,25 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ExcelScheduleExporter {
-    public static Workbook export(List<DoctorSchedule> schedules) {
+    public static Workbook export(List<DoctorSchedule> schedules, String queryDate) {
         try (InputStream templateStream = new ClassPathResource("templates/xlsx/template_doctor_schedule.xlsx").getInputStream()) {
             Workbook workbook = new XSSFWorkbook(templateStream);
             Sheet sheet = workbook.getSheetAt(0);
 
-            String date = LocalDateTime.now().toLocalDate().toString();
-            sheet.getRow(1).getCell(4).setCellValue(
-                    sheet.getRow(1).getCell(4).getStringCellValue().replace("${date}", date)
+            sheet.getRow(0).getCell(0).setCellValue(
+                    sheet.getRow(0).getCell(0).getStringCellValue().replace("${date}", queryDate)
             );
 
-            int rowIndex = 4;
+            String date = LocalDateTime.now().toLocalDate().toString();
+            sheet.getRow(1).getCell(5).setCellValue(
+                    sheet.getRow(1).getCell(5).getStringCellValue().replace("${exportDate}", date)
+            );
+
+            String doctorName = schedules.isEmpty() ? "Unknown Doctor" : schedules.get(0).getDoctor().getUser().getFirstName() + " " + schedules.get(0).getDoctor().getUser().getLastName();
+            sheet.getRow(2).getCell(5).setCellValue(
+                    sheet.getRow(2).getCell(5).getStringCellValue().replace("${doctorName}", doctorName)
+            );
+            int rowIndex = 5;
             int index = 1;
 
             CellStyle center = ExcelUtils.createCenterStyle(workbook);
@@ -36,8 +44,13 @@ public class ExcelScheduleExporter {
                 if( s == null) continue;
                 Row row = sheet.createRow(rowIndex++);
                 ExcelUtils.writeRow(row, center, left, Arrays.asList(
-                        String.valueOf(index++)
-                        //data fill
+                        String.valueOf(index++),
+                        s.getStartTime().toLocalDate().toString(),
+                        s.getStartTime().toLocalTime().toString(),
+                        s.getPatientName(),
+                        s.getExaminationType() != null ? s.getExaminationType() : "N/A",
+                        s.getAppointmentStatus() != null ? s.getAppointmentStatus() : "N/A",
+                        s.getNote() != null ? s.getNote() : "N/A"
                 ));
             }
 
