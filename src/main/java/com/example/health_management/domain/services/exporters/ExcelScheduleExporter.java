@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,8 +16,9 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+@Service
 public class ExcelScheduleExporter {
-    public static Workbook export(List<DoctorSchedule> schedules, String queryDate) {
+    public Workbook export(List<DoctorSchedule> schedules, String queryDate) {
         try (InputStream templateStream = new ClassPathResource("templates/xlsx/template_doctor_schedule.xlsx").getInputStream()) {
             Workbook workbook = new XSSFWorkbook(templateStream);
             Sheet sheet = workbook.getSheetAt(0);

@@ -38,7 +38,7 @@ public class AuthController {
                     content = @io.swagger.v3.oas.annotations.media.Content(
                             mediaType = "application/json",
                             schema = @io.swagger.v3.oas.annotations.media.Schema(
-                                    example = "{\"email\": \"nguyenducduypc160903@gmail.com\", \"password\": \"12332145\", \"notification_key\": \"fcm_token\"}"
+                                    example = "{\"email\": \"john.doe@example.com\", \"password\": \"12332145\", \"notification_key\": \"fcm_token\"}"
                             )
                     )
             )

@@ -5,6 +5,7 @@ import org.springframework.core.io.ByteArrayResource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ExcelUtils {
@@ -51,5 +52,15 @@ public class ExcelUtils {
             throw new RuntimeException("Failed to write Excel file", e);
         }
     }
+
+    public static String extractDateFromRequest(LocalDateTime startDate, LocalDateTime endDate) {
+        if (endDate == null || startDate.getMonth().equals(endDate.getMonth()) && startDate.getYear() == endDate.getYear()) {
+            return "Tháng " + startDate.getMonthValue() + " Năm " + startDate.getYear();
+        } else {
+            return "Lịch sử khám từ " + startDate.getMonthValue() + "/" + startDate.getYear() +
+                    " đến " + endDate.getMonthValue() + "/" + endDate.getYear();
+        }
+    }
+
 }
 
