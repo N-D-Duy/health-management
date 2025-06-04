@@ -28,6 +28,9 @@ public class DoctorScheduleService {
     private final ExcelScheduleExporter excelScheduleExporter;
 
     public void createDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {
+        if (doctorScheduleRepository.existsByPatientNameAndStartTime(doctorScheduleDTO.getPatientName(), doctorScheduleDTO.getStartTime())) {
+            throw new ConflictException("Patient already has a schedule at this time");
+        }
         if(isDoctorBusy(doctorScheduleDTO.getDoctorId(), doctorScheduleDTO.getStartTime())) {
             throw new ConflictException("Doctor is busy at this time");
         }
