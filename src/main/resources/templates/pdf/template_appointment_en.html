@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Medical Report</title>
+    <style>
+        body {
+            font-family: "DejaVu Sans", Arial, sans-serif;
+            margin: 40px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin-top: 30px;
+        }
+        .info-grid {
+            width: 100%;
+        }
+        .info-grid table {
+            width: 100%;
+            border: none;
+            margin: 0;
+        }
+        .info-grid td {
+            border: none;
+            padding: 3px 0;
+            vertical-align: top;
+        }
+        .info-grid .label {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        /* Patient info section with image */
+        .patient-info {
+            width: 100%;
+        }
+        .patient-info table {
+            border: none;
+            margin: 0;
+        }
+        .patient-info td {
+            border: none;
+            padding: 5px;
+            vertical-align: top;
+        }
+        .patient-avatar {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+        }
+
+        /* Data tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .clearfix {
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Medical Examination Record</h1>
+<h2 th:text="'Appointment Date: ' + ${scheduled_at}"></h2>
+
+<div class="section">
+    <h3>Patient Information</h3>
+    <div class="patient-info">
+        <table>
+            <tr>
+                <td style="width: 120px;">
+                    <img th:src="${user.avatarUrl}" alt="Patient Avatar" class="patient-avatar" />
+                </td>
+                <td>
+                    <div th:text="'Full Name: ' + ${user.firstName} + ' ' + ${user.lastName}"></div>
+                    <div th:text="'Email: ' + ${user.email}"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="section">
+    <h3>Doctor Information</h3>
+    <div class="info-grid">
+        <table>
+            <tr>
+                <td class="label">Doctor:</td>
+                <td th:text="'Dr. ' + ${doctor.firstName} + ' ' + ${doctor.lastName}"></td>
+            </tr>
+            <tr>
+                <td class="label">Specialization:</td>
+                <td th:text="${doctor.specialization}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="section">
+    <h3>Diagnosis &amp; Notes</h3>
+    <div class="info-grid">
+        <table>
+            <tr>
+                <td class="label">Diagnosis:</td>
+                <td th:text="${prescription.diagnosis}"></td>
+            </tr>
+            <tr>
+                <td class="label">Notes:</td>
+                <td th:text="${prescription.notes}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="section">
+    <h3>Medical History</h3>
+    <table class="data-table">
+        <thead>
+        <tr><th>Condition</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+        <!-- Loop medical history -->
+        <tr th:each="history : ${medicalHistories}">
+            <td th:text="${history.conditionName} + ' (' + ${history.status} + ')'"></td>
+            <td th:text="${history.notes}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h3>Prescription</h3>
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Medication</th><th>Dosage</th><th>Frequency/Day</th><th>Duration</th><th>Instructions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Loop prescription -->
+        <tr th:each="med : ${medications}">
+            <td th:text="${med.medication.name}"></td>
+            <td th:text="${med.dosage}"></td>
+            <td th:text="${med.frequency}"></td>
+            <td th:text="${med.duration}"></td>
+            <td th:text="${med.instructions}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h3>Additional Notes</h3>
+    <p th:text="${note}"></p>
+</div>
+
+</body>
+</html>

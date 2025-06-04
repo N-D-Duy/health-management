@@ -4,6 +4,7 @@ import com.example.health_management.application.DTOs.appointment_record.request
 import com.example.health_management.application.DTOs.appointment_record.request.UpdateAppointmentRequestDTO;
 import com.example.health_management.application.DTOs.appointment_record.response.AppointmentRecordDTO;
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
+import com.example.health_management.application.DTOs.prescription.PrescriptionDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
 import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.exceptions.ConflictException;
@@ -16,15 +17,19 @@ import com.example.health_management.domain.repositories.AppointmentRecordReposi
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.HealthProviderRepository;
 import com.example.health_management.domain.repositories.UserRepository;
+import com.example.health_management.domain.services.exporters.PDFExporter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -234,4 +239,42 @@ public class AppointmentRecordService {
             throw new ConflictException(e.getMessage());
         }
     }
+
+    public ByteArrayResource exportAppointmentPDF(Long appointmentRecordId, String language) {
+        try{
+            if(language == null || language.isEmpty()) {
+                language = "en";
+            }
+            if(!language.equalsIgnoreCase("en") && !language.equalsIgnoreCase("vie")) {
+                throw new ConflictException("Unsupported language: " + language);
+            }
+            AppointmentRecordDTO appointmentRecord = getById(appointmentRecordId);
+            if (appointmentRecord == null) {
+                throw new ConflictException("Appointment Record not found with ID: " + appointmentRecordId);
+            }
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("scheduled_at", appointmentRecord.getScheduledAt());
+            data.put("user", appointmentRecord.getUser());
+            data.put("doctor", appointmentRecord.getDoctor());
+            data.put("note", appointmentRecord.getNote());
+
+            PrescriptionDTO prescription = appointmentRecord.getPrescription();
+            data.put("prescription", prescription);
+
+            data.put("medicalHistories", appointmentRecord.getPrescription().getMedicalConditions());
+
+            data.put("medications", prescription != null ? prescription.getDetails() : List.of());
+
+            String fileName = "Doctor_Schedule_" + appointmentRecord.getDoctor().getFirstName() + ".pdf";
+
+            String template = language.equalsIgnoreCase("en") ? "template_appointment_en" : "template_appointment_vie";
+            return new PDFExporter().generatePdfFromTemplate(template, data);
+
+        } catch (Exception e) {
+            log.error("Error exporting appointment PDF: {}", e.getMessage());
+            throw new ConflictException("Error exporting appointment PDF: " + e.getMessage());
+        }
+    }
+
 }

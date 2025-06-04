@@ -11,10 +11,14 @@ import com.example.health_management.domain.services.MedicationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -105,6 +109,15 @@ public class AppointmentRecordController {
         MedicationDTO response = medicationService.update(medicationDTO);
         ApiResponse<MedicationDTO> apiResponse = ApiResponse.<MedicationDTO>builder().code(HttpStatus.OK.value()).data(response).message("Success").build();
         return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("export/{id}")
+    public @ResponseBody ResponseEntity<ByteArrayResource> exportDoctorSchedules(@PathVariable("id") Long id, @RequestParam("lang") String language) {
+        ByteArrayResource file = AppointmentRecordService.exportAppointmentPDF(id, language);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getFilename())
+                .body(file);
     }
 
 

@@ -8,7 +8,9 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class PDFExporter {
@@ -33,6 +35,17 @@ public class PDFExporter {
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ITextRenderer renderer = new ITextRenderer();
+
+            String fontPath = "/fonts/DejaVuSans.ttf";
+            try (InputStream fontStream = getClass().getResourceAsStream(fontPath)) {
+                if (fontStream != null) {
+                    renderer.getFontResolver().addFont(
+                        Objects.requireNonNull(getClass().getResource(fontPath)).toExternalForm(),
+                        true
+                    );
+                }
+            }
+
             renderer.setDocumentFromString(htmlContent);
             renderer.layout();
             renderer.createPDF(outputStream);
@@ -44,4 +57,3 @@ public class PDFExporter {
         }
     }
 }
-
