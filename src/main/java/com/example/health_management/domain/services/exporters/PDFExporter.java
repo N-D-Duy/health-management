@@ -27,7 +27,7 @@ public class PDFExporter {
         this.templateEngine.setTemplateResolver(resolver);
     }
 
-    public ByteArrayResource generatePdfFromTemplate(String templateName, Map<String, Object> data) {
+    public ByteArrayResource generatePdfFromTemplate(String templateName, Map<String, Object> data, String fileName) {
         try {
             Context context = new Context();
             context.setVariables(data);
@@ -50,7 +50,12 @@ public class PDFExporter {
             renderer.layout();
             renderer.createPDF(outputStream);
 
-            return new ByteArrayResource(outputStream.toByteArray());
+            return new ByteArrayResource(outputStream.toByteArray()){
+                @Override
+                public String getFilename() {
+                    return fileName;
+                }
+            };
 
         } catch (Exception e) {
             throw new RuntimeException("Error generating PDF", e);

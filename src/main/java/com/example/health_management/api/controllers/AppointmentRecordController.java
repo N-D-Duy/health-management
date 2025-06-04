@@ -119,6 +119,4 @@ public class AppointmentRecordController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getFilename())
                 .body(file);
     }
-
-
 }

@@ -269,7 +269,7 @@ public class AppointmentRecordService {
             String fileName = "Doctor_Schedule_" + appointmentRecord.getDoctor().getFirstName() + ".pdf";
 
             String template = language.equalsIgnoreCase("en") ? "template_appointment_en" : "template_appointment_vie";
-            return new PDFExporter().generatePdfFromTemplate(template, data);
+            return new PDFExporter().generatePdfFromTemplate(template, data, fileName);
 
         } catch (Exception e) {
             log.error("Error exporting appointment PDF: {}", e.getMessage());
