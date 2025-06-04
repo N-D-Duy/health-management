@@ -23,11 +23,11 @@ spring:
       port: 6379
       password:
 
-  liquibase:
-    enabled: false
 #  liquibase:
-#    enabled: true
-#    change-log: classpath:changelog/db.changelog-master.yml
+#    enabled: false
+  liquibase:
+    enabled: true
+    change-log: classpath:changelog/db.changelog-master.yml
 
 logging:
   level:

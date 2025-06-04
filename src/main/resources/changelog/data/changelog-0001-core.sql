@@ -130,21 +130,21 @@ INSERT INTO public.doctors (id, created_at, deleted_at, updated_at, about, exper
 -- Data for Name: appointment_records; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (1, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Follow-up consultation', '2024-11-15 00:00:00', 'PENDING', 1, 1, 1, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (3, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Review test results', '2024-11-17 00:00:00', 'COMPLETED', 3, 1,  5, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (2, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Initial checkup', '2024-11-16 00:00:00', 'SCHEDULED', 2, 2,  3, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (4, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Vaccination appointment', '2024-11-18 00:00:00', 'CANCELLED', 4, 2,  7, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (5, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Mental health check', '2024-11-19 00:00:00', 'PENDING', 5, 1,  9, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (6, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Annual physical exam', '2024-11-20 00:00:00', 'SCHEDULED', 6, 2,  11, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (7, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Consultation about medication', '2024-11-21 00:00:00', 'COMPLETED', 7, 1, 13, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (8, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Follow-up on treatment', '2024-11-22 00:00:00', 'PENDING', 1, 1, 1, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (9, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Discuss test results', '2024-11-23 00:00:00', 'SCHEDULED', 2, 2,  3, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (10, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Routine checkup', '2024-11-24 00:00:00', 'COMPLETED', 3, 1,  5, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (11, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Medication review', '2024-11-25 00:00:00', 'CANCELLED', 4, 2,  7, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (12, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Health screening', '2024-11-26 00:00:00', 'PENDING', 5, 1, 9, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (13, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Lifestyle consultation', '2024-11-27 00:00:00', 'SCHEDULED', 6, 2,  11, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (14, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Post-operative check', '2024-11-28 00:00:00', 'COMPLETED', 7, 1, 13, 'INITIAL');
-INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (15, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Follow-up appointment', '2024-11-29 00:00:00', 'PENDING', 1, 1, 1, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (1, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Follow-up consultation', '2024-11-15 01:00:00', 'PENDING', 1, 1, 1, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (3, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Review test results', '2024-11-17 02:00:00', 'COMPLETED', 3, 1,  5, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (2, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Initial checkup', '2024-11-16 03:00:00', 'SCHEDULED', 2, 2,  3, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (4, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Vaccination appointment', '2024-11-18 04:00:00', 'CANCELLED', 4, 2,  7, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (5, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Mental health check', '2024-11-19 05:00:00', 'PENDING', 5, 1,  9, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (6, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Annual physical exam', '2024-11-20 06:00:00', 'SCHEDULED', 6, 2,  11, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (7, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Consultation about medication', '2024-11-21 07:00:00', 'COMPLETED', 7, 1, 13, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (8, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Follow-up on treatment', '2024-11-22 08:00:00', 'PENDING', 1, 1, 1, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (9, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Discuss test results', '2024-11-23 09:00:00', 'SCHEDULED', 2, 2,  3, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (10, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Routine checkup', '2024-11-24 10:00:00', 'COMPLETED', 3, 1,  5, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (11, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Medication review', '2024-11-25 11:00:00', 'CANCELLED', 4, 2,  7, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (12, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Health screening', '2024-11-26 12:00:00', 'PENDING', 5, 1, 9, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (13, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Lifestyle consultation', '2024-11-27 13:00:00', 'SCHEDULED', 6, 2,  11, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (14, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'IN_PERSON', 'Post-operative check', '2024-11-28 14:00:00', 'COMPLETED', 7, 1, 13, 'INITIAL');
+INSERT INTO public.appointment_records (id, created_at, deleted_at, updated_at, appointment_type, note, scheduled_at, status, doctor_id, health_provider_id, user_id, payment_status) VALUES (15, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'TELEMEDICINE', 'Follow-up appointment', '2024-11-29 15:00:00', 'PENDING', 1, 1, 1, 'INITIAL');
 
 
 --
@@ -166,15 +166,6 @@ INSERT INTO public.prescriptions (id, created_at, deleted_at, updated_at, diagno
 INSERT INTO public.prescriptions (id, created_at, deleted_at, updated_at, diagnosis, notes, appointment_record_id) VALUES (13, '2024-11-05 12:52:53.104083', NULL, '2024-11-05 12:52:53.104083', 'Stomach upset', 'Prescribed Omeprazole', 13);
 INSERT INTO public.prescriptions (id, created_at, deleted_at, updated_at, diagnosis, notes, appointment_record_id) VALUES (14, '2024-11-05 12:52:53.104083', NULL, '2024-11-05 12:52:53.104083', 'Skin rash', 'Prescribed Hydrocortisone', 14);
 INSERT INTO public.prescriptions (id, created_at, deleted_at, updated_at, diagnosis, notes, appointment_record_id) VALUES (15, '2024-11-05 12:52:53.104083', NULL, '2024-11-05 12:52:53.104083', 'Fungal infection', 'Prescribed Clotrimazole', 15);
-
-
-
-
-
-
---
--- Data for Name: article_comments; Type: TABLE DATA; Schema: public; Owner: postgres
---
 
 
 --
@@ -319,6 +310,26 @@ INSERT INTO public.prescription_details (id, created_at, deleted_at, updated_at,
 INSERT INTO public.prescription_details (id, created_at, deleted_at, updated_at, dosage, duration, frequency, instructions, medication_id, prescription_id) VALUES (18, '2024-11-05 12:54:02.981744', NULL, '2024-11-05 12:54:02.981744', '1 cream tube', 'as needed', 'apply twice a day', 'Apply to affected area', 15, 15);
 
 --
+-- Data for Name: doctor_schedules; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+INSERT INTO public.doctor_schedules VALUES (1, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'PENDING', NULL, 'Follow-up consultation', 'John Doe', '2024-11-15 00:00:00', 1);
+INSERT INTO public.doctor_schedules VALUES (2, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Initial checkup', 'Mark Johnson', '2024-11-16 00:00:00', 2);
+INSERT INTO public.doctor_schedules VALUES (3, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Review test results', 'Alice Brown', '2024-11-17 00:00:00', 3);
+INSERT INTO public.doctor_schedules VALUES (4, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'CANCELLED', NULL, 'Vaccination appointment', 'Cathy Miller', '2024-11-18 00:00:00', 4);
+INSERT INTO public.doctor_schedules VALUES (5, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'PENDING', NULL, 'Mental health check', 'Eve Moore', '2024-11-19 00:00:00', 5);
+INSERT INTO public.doctor_schedules VALUES (6, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Annual physical exam', 'Grace Anderson', '2024-11-20 00:00:00', 6);
+INSERT INTO public.doctor_schedules VALUES (7, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Consultation about medication', 'Ivy Jackson', '2024-11-21 00:00:00', 7);
+INSERT INTO public.doctor_schedules VALUES (8, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'PENDING', NULL, 'Follow-up on treatment', 'John Doe', '2024-11-22 00:00:00', 1);
+INSERT INTO public.doctor_schedules VALUES (9, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Discuss test results', 'Mark Johnson', '2024-11-23 00:00:00', 2);
+INSERT INTO public.doctor_schedules VALUES (10, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Routine checkup', 'Alice Brown', '2024-11-24 00:00:00', 3);
+INSERT INTO public.doctor_schedules VALUES (11, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'CANCELLED', NULL, 'Medication review', 'Cathy Miller', '2024-11-25 00:00:00', 4);
+INSERT INTO public.doctor_schedules VALUES (12, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'PENDING', NULL, 'Health screening', 'Eve Moore', '2024-11-26 00:00:00', 5);
+INSERT INTO public.doctor_schedules VALUES (13, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Lifestyle consultation', 'Grace Anderson', '2024-11-27 00:00:00', 6);
+INSERT INTO public.doctor_schedules VALUES (14, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Post-operative check', 'Ivy Jackson', '2024-11-28 00:00:00', 7);
+INSERT INTO public.doctor_schedules VALUES (15, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'PENDING', NULL, 'Follow-up appointment', 'John Doe', '2024-11-29 00:00:00', 1);
+
+
+--
 -- Update Sequence for public.keys
 --
 SELECT setval('public.keys_id_seq', (SELECT MAX(id) FROM public.keys), true);
@@ -389,3 +400,8 @@ SELECT setval('public.articles_id_seq', (SELECT MAX(id) FROM public.articles), t
 -- Update Sequence for public.article_media
 --
 SELECT setval('public.article_media_id_seq', (SELECT MAX(id) FROM public.article_media), true);
+
+--
+-- Update Sequence for public.doctor_schedules
+--
+SELECT setval('public.doctor_schedules_id_seq', (SELECT MAX(id) FROM public.doctor_schedules), true);

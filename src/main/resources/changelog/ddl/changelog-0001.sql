@@ -347,8 +347,10 @@ CREATE TABLE public.doctor_schedules (
     created_at timestamp(6) without time zone NOT NULL,
     deleted_at timestamp(6) without time zone,
     updated_at timestamp(6) without time zone,
-    current_patient_count integer,
-    end_time timestamp(6) without time zone,
+    appointment_status character varying(255) COLLATE pg_catalog."default",
+    examination_type character varying(255) COLLATE pg_catalog."default",
+    note character varying(255) COLLATE pg_catalog."default",
+    patient_name character varying(255) COLLATE pg_catalog."default",
     start_time timestamp(6) without time zone,
     doctor_id bigint
 );
