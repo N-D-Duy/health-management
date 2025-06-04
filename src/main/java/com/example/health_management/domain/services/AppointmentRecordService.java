@@ -69,11 +69,13 @@ public class AppointmentRecordService {
             DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
                     .doctorId(request.getDoctorId())
                     .startTime(request.getScheduledAt())
-                    .endTime(request.getScheduledAt().plusMinutes(60))
-                    .currentPatientCount(1)
+                    .patientName(user.getFirstName() + " " + user.getLastName())
+                    .appointmentStatus(request.getStatus().toString())
+                    .examinationType("-")
+                    .note(request.getNote())
                     .build();
 
-            doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, true);
+            doctorScheduleService.createDoctorSchedule(doctorScheduleDTO);
 
             AppointmentRecordDTO result = appointmentRecordMapper.toDTO(savedRecord);
             appointmentCacheService.invalidateAppointmentCaches(savedRecord.getId(), user.getId(), doctor.getId());
@@ -92,9 +94,6 @@ public class AppointmentRecordService {
                     .findById(request.getId())
                     .orElseThrow(() -> new ConflictException("AppointmentRecord not found"));
 
-            Long userId = appointmentRecord.getUser().getId();
-            Long doctorId = appointmentRecord.getDoctor().getId();
-
             appointmentRecordMapper.update(appointmentRecord, request);
 
             prescriptionService.updatePrescription(appointmentRecord, request);
@@ -104,9 +103,8 @@ public class AppointmentRecordService {
             appointmentRecordRepository.save(appointmentRecord);
 
             AppointmentRecordDTO updatedAppointment = appointmentRecordMapper.toDTO(appointmentRecord);
-
-            userId = appointmentRecord.getUser().getId();
-            doctorId = appointmentRecord.getDoctor().getId();
+            Long userId = appointmentRecord.getUser().getId();
+            Long doctorId = appointmentRecord.getDoctor().getId();
 
             appointmentCacheService.invalidateAppointmentCaches(request.getId(), userId, doctorId);
             appointmentCacheService.cacheAppointment(request.getId(), updatedAppointment);
@@ -141,21 +139,12 @@ public class AppointmentRecordService {
                 throw new ConflictException("Appointment Record not found with ID: " + appointmentRecordId);
             }
 
-            Long doctorId = appointmentRecord.getDoctor().getId();
             Long userId = appointmentRecord.getUser().getId();
-            LocalDateTime scheduledAt = appointmentRecord.getScheduledAt();
-
-            DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
-                    .doctorId(doctorId)
-                    .startTime(scheduledAt)
-                    .endTime(scheduledAt.plusMinutes(60))
-                    .currentPatientCount(-1)
-                    .build();
-
-            doctorScheduleService.updateOrCreateDoctorSchedule(doctorScheduleDTO, false);
+            Long doctorId = appointmentRecord.getDoctor().getId();
             appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
             appointmentRecordRepository.deleteById(appointmentRecordId);
 
+            doctorScheduleService.updateDoctorScheduleStatus(appointmentRecordId, AppointmentStatus.CANCELLED.toString());
 
             appointmentCacheService.invalidateAppointmentCaches(appointmentRecordId, userId, doctorId);
 
@@ -168,13 +157,10 @@ public class AppointmentRecordService {
 
     public List<AppointmentRecordDTO> findAll() {
         try {
-
             List<AppointmentRecordDTO> cachedAppointments = appointmentCacheService.getCachedAllAppointments();
             if (cachedAppointments != null) {
                 return cachedAppointments;
             }
-
-
             List<AppointmentRecord> appointmentRecords = appointmentRecordRepository.findAll();
             List<AppointmentRecordDTO> result = appointmentRecords.stream().map(appointmentRecordMapper::toDTO).toList();
 

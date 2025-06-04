@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 public class DoctorScheduleDTO {
     private Long id;
     private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private Integer currentPatientCount;
+    private String patientName;
+    private String examinationType;
+    private String appointmentStatus;
+    private String note;
     private Long doctorId;
 }

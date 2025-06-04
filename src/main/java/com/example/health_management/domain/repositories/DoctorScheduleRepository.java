@@ -14,10 +14,11 @@ public interface DoctorScheduleRepository extends SoftDeleteRepository<DoctorSch
     @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.deletedAt IS NULL")
     List<DoctorSchedule> findAllByDoctorId(Long doctorId);
 
-    @Modifying
-    @Query("UPDATE DoctorSchedule ds SET ds.currentPatientCount = ds.currentPatientCount + :increase WHERE ds.id = :id")
-    void updatePatientsCount(Long id, Integer increase);
 
-    @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.endTime = :endTime AND ds.deletedAt IS NULL")
-    DoctorSchedule findByTimes(Long doctorId, LocalDateTime startTime, LocalDateTime endTime);
+    @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.deletedAt IS NULL")
+    DoctorSchedule findByTimes(Long doctorId, LocalDateTime startTime);
+
+    @Query("SELECT COUNT(ds) FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.deletedAt IS NULL")
+    Integer countDoctorSchedulesAtTime(Long doctorId, LocalDateTime startTime);
+
 }
