@@ -1,27 +1,33 @@
-FROM maven:3.9.3-eclipse-temurin-17 AS builder
+# Stage 1: Cache dependencies
+FROM gradle:8.5-jdk17-alpine AS cache
 WORKDIR /app
+COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradle ./gradle/
+RUN gradle dependencies --no-daemon
 
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests --batch-mode
+# Stage 2: Build application
+FROM gradle:8.5-jdk17-alpine AS builder
+WORKDIR /app
+COPY --from=cache /home/gradle/.gradle /home/gradle/.gradle
+COPY . .
+RUN gradle clean bootJar -x test --build-cache --parallel
 
-FROM eclipse-temurin:17-jre-alpine AS layertool
-WORKDIR /layertools
-COPY --from=builder /app/target/*.jar app.jar
-RUN java -Djarmode=tools -jar app.jar extract --layers --destination extracted
-
+# Final stage: Run application
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-
 ENV TZ=Asia/Ho_Chi_Minh
 
-COPY --from=layertool /layertools/extracted/dependencies/ ./
-COPY --from=layertool /layertools/extracted/spring-boot-loader/ ./
-COPY --from=layertool /layertools/extracted/snapshot-dependencies/ ./
-COPY --from=layertool /layertools/extracted/application/ ./
+COPY --from=builder /app/build/libs/health-management-*.jar app.jar
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java", \
+  "-XX:+UseG1GC", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Dspring.profiles.active=prod", \
+  "-jar", \
+  "app.jar"]
