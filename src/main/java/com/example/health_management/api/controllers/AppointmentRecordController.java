@@ -123,7 +123,8 @@ public class AppointmentRecordController {
     @PostMapping("/cancel/{userId}/{appointmentId}")
     public ResponseEntity<ApiResponse<String>> cancelAppointment(
             @PathVariable("userId") Long userId,
-            @PathVariable("appointmentId") Long appointmentId) {
+            @PathVariable("appointmentId") Long appointmentId
+    ) {
         String result = AppointmentRecordService.cancelAppointment(userId, appointmentId);
         ApiResponse<String> apiResponse = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data(result).message("Success").build();
         return ResponseEntity.ok(apiResponse);

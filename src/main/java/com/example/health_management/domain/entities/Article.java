@@ -36,18 +36,28 @@ public class Article extends BaseEntity{
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
+    @Builder.Default
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<ArticleVote> votes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<ArticleComment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<ArticleMedia> media = new ArrayList<>();
 
     // Các trường thống kê
+    @Builder.Default
     private Integer upVoteCount = 0;
+
+    @Builder.Default
     private Integer downVoteCount = 0;
+
+    @Builder.Default
     private Integer commentCount = 0;
+
+    @Builder.Default
     private Integer viewCount = 0;
 }

@@ -23,6 +23,7 @@ public class MedicalConditions extends BaseEntity{
     @Column(name = "condition_name")
     private String conditionName;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private MedicalConditionStatus status = MedicalConditionStatus.ACTIVE;

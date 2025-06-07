@@ -5,4 +5,6 @@ public enum DepositStatus {
     HOLD,
     USED,
     REFUNDED,
+    LOST,
+    PARTIAL_LOST
 }

@@ -24,9 +24,11 @@ public class Prescription extends BaseEntity{
     private String diagnosis;
     private String notes;
 
+    @Builder.Default
     @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PrescriptionDetails> details = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MedicalConditions> medicalConditions = new HashSet<>();
 

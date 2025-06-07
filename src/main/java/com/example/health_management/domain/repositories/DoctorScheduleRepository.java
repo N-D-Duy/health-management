@@ -26,4 +26,8 @@ public interface DoctorScheduleRepository extends SoftDeleteRepository<DoctorSch
 
     @Query("SELECT EXISTS (SELECT 1 FROM DoctorSchedule ds WHERE ds.patientName = :patientName AND ds.startTime = :startTime AND ds.deletedAt IS NULL)")
     boolean existsByPatientNameAndStartTime(String patientName, LocalDateTime startTime);
+
+    @Modifying
+    @Query("UPDATE DoctorSchedule ds SET ds.appointmentStatus = :status WHERE ds.appointmentRecord.id = :appointmentId")
+    void updateAppointmentStatusByAppointmentId(Long appointmentId, String status);
 }

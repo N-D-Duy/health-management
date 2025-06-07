@@ -28,4 +28,8 @@ public class DoctorSchedule extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private AppointmentStatus appointmentStatus;
     private String note;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = AppointmentRecord.class)
+    @JoinColumn(name = "appointment_record_id", referencedColumnName = "id")
+    private AppointmentRecord appointmentRecord;
 }

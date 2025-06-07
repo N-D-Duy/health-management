@@ -66,11 +66,8 @@ public class DoctorScheduleService {
         doctorScheduleRepository.save(doctorSchedule);
     }
 
-    public void updateDoctorScheduleStatus(Long doctorScheduleId, AppointmentStatus status) {
-        DoctorSchedule doctorSchedule = doctorScheduleRepository.findById(doctorScheduleId)
-                .orElseThrow(() -> new ConflictException("Doctor schedule not found"));
-        doctorSchedule.setAppointmentStatus(status);
-        doctorScheduleRepository.save(doctorSchedule);
+    public void updateDoctorScheduleStatusByAppointmentId(Long appointmentId, AppointmentStatus status) {
+        doctorScheduleRepository.updateAppointmentStatusByAppointmentId(appointmentId, status.name());
     }
 
     public void deleteDoctorSchedule(Long doctorScheduleId) {

@@ -51,10 +51,10 @@ public class AppointmentRecord extends BaseEntity{
     private AppointmentStatus status;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", columnDefinition = "varchar(20) default 'INITIAL'")
-    private PaymentStatus paymentStatus;
+    @Column(name = "payment_status")
+    private PaymentStatus paymentStatus = PaymentStatus.INITIAL;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="deposit_status", columnDefinition = "varchar(20) default 'NONE'")
-    private DepositStatus depositStatus;
+    @Column(name="deposit_status")
+    private DepositStatus depositStatus = DepositStatus.NONE;
 }

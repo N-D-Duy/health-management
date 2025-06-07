@@ -51,7 +51,7 @@ public class ExcelScheduleExporter {
                         s.getStartTime().toLocalTime().toString(),
                         s.getPatientName(),
                         s.getExaminationType() != null ? s.getExaminationType() : "N/A",
-                        s.getAppointmentStatus() != null ? s.getAppointmentStatus() : "N/A",
+                        s.getAppointmentStatus() != null ? s.getAppointmentStatus().toString() : "N/A",
                         s.getNote() != null ? s.getNote() : "N/A"
                 ));
             }

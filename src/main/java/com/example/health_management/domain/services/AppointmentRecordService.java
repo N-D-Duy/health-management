@@ -14,10 +14,7 @@ import com.example.health_management.domain.entities.AppointmentRecord;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.HealthProvider;
 import com.example.health_management.domain.entities.User;
-import com.example.health_management.domain.repositories.AppointmentRecordRepository;
-import com.example.health_management.domain.repositories.DoctorRepository;
-import com.example.health_management.domain.repositories.HealthProviderRepository;
-import com.example.health_management.domain.repositories.UserRepository;
+import com.example.health_management.domain.repositories.*;
 import com.example.health_management.domain.services.exporters.PDFExporter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
@@ -27,6 +24,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +43,7 @@ public class AppointmentRecordService {
     private final PrescriptionService prescriptionService;
     private final DoctorScheduleService doctorScheduleService;
     private final AppointmentCacheService appointmentCacheService;
+    private final AccountRepository accountRepository;
 
     public AppointmentRecordDTO create(AppointmentRecordRequestDTO request) {
         try {
@@ -77,6 +76,7 @@ public class AppointmentRecordService {
                     .appointmentStatus(AppointmentStatus.SCHEDULED)
                     .examinationType("-")
                     .note(request.getNote())
+                    .appointmentRecord(appointmentRecord)
                     .build();
 
             doctorScheduleService.createDoctorSchedule(doctorScheduleDTO);
@@ -148,7 +148,7 @@ public class AppointmentRecordService {
             appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
             appointmentRecordRepository.deleteById(appointmentRecordId);
 
-            doctorScheduleService.updateDoctorScheduleStatus(appointmentRecordId, AppointmentStatus.CANCELLED);
+            doctorScheduleService.updateDoctorScheduleStatusByAppointmentId(appointmentRecordId, AppointmentStatus.CANCELLED);
 
             appointmentCacheService.invalidateAppointmentCaches(appointmentRecordId, userId, doctorId);
 
@@ -282,8 +282,86 @@ public class AppointmentRecordService {
         AppointmentRecord appointment = appointmentRecordRepository.findById(appointmentId)
                 .filter(a -> a.getUser().getId().equals(userId))
                 .orElseThrow(() -> new RuntimeException("Appointment not found or user mismatch"));
+        if(appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new ConflictException("Appointment already cancelled");
+        }
 
-        return "holder";
+        if(accountRepository.isPatient(userId)){
+            return patientCancelAppointment(appointment);
+        }
+        else if(accountRepository.isDoctor(userId)){
+            return doctorCancelAppointment(appointment);
+        } else {
+            throw new ConflictException("User is neither a doctor nor a patient");
+        }
     }
 
+    private String patientCancelAppointment(AppointmentRecord appointment) {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime createdAt = appointment.getCreatedAt();
+            LocalDateTime scheduledAt = appointment.getScheduledAt();
+
+            if (Duration.between(createdAt, now).toMinutes() <= 15) {
+                // Vừa tạo trong vòng 15 phút → cho hủy, hoàn tiền
+                appointment.setDepositStatus(DepositStatus.REFUNDED);
+            } else if (scheduledAt.isAfter(now.plusHours(12))) {
+                // Lịch còn xa hơn 12h → mất 50% tiền cọc
+                appointment.setDepositStatus(DepositStatus.PARTIAL_LOST);
+            } else {
+                // Lịch sắp tới → mất toàn bộ tiền cọc
+                appointment.setDepositStatus(DepositStatus.LOST);
+            }
+
+            setAppointmentStatusCancel(appointment);
+            doctorScheduleService.updateDoctorScheduleStatusByAppointmentId(
+                    appointment.getId(),
+                    AppointmentStatus.CANCELLED
+            );
+
+            appointmentRecordRepository.save(appointment);
+            appointmentCacheService.invalidateAppointmentCaches(
+                    appointment.getId(),
+                    appointment.getUser().getId(),
+                    appointment.getDoctor().getId()
+            );
+
+            return "Appointment cancelled successfully";
+        } catch (Exception e) {
+            log.error("Error cancelling appointment for patient: {}", e.getMessage());
+            throw new ConflictException("Error cancelling appointment: " + e.getMessage());
+        }
+    }
+
+    private String doctorCancelAppointment(AppointmentRecord appointment) {
+        try {
+            // Bác sĩ hủy: tạm giữ cọc (user sẽ chọn đổi hoặc hoàn cọc sau)
+            appointment.setDepositStatus(DepositStatus.HOLD);
+
+            setAppointmentStatusCancel(appointment);
+
+            doctorScheduleService.updateDoctorScheduleStatusByAppointmentId(
+                    appointment.getId(),
+                    AppointmentStatus.CANCELLED
+            );
+
+            appointmentRecordRepository.save(appointment);
+
+            appointmentCacheService.invalidateAppointmentCaches(
+                    appointment.getId(),
+                    appointment.getUser().getId(),
+                    appointment.getDoctor().getId()
+            );
+
+            return "Appointment cancelled by doctor, deposit is on hold";
+        } catch (Exception e) {
+            log.error("Error cancelling appointment for doctor: {}", e.getMessage());
+            throw new ConflictException("Error cancelling appointment: " + e.getMessage());
+        }
+    }
+
+
+    private void setAppointmentStatusCancel(AppointmentRecord appointment) {
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+    }
 }
