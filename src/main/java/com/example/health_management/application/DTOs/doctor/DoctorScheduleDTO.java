@@ -1,5 +1,6 @@
 package com.example.health_management.application.DTOs.doctor;
 
+import com.example.health_management.common.shared.enums.AppointmentStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class DoctorScheduleDTO {
     private LocalDateTime startTime;
     private String patientName;
     private String examinationType;
-    private String appointmentStatus;
+    private AppointmentStatus appointmentStatus;
     private String note;
     private Long doctorId;
 }

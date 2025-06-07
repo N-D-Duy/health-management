@@ -18,7 +18,7 @@ public interface DoctorScheduleRepository extends SoftDeleteRepository<DoctorSch
     @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.deletedAt IS NULL")
     List<DoctorSchedule> findByTimes(Long doctorId, LocalDateTime startTime);
 
-    @Query("SELECT COUNT(ds) FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.deletedAt IS NULL")
+    @Query("SELECT COUNT(ds) FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.appointmentStatus='SCHEDULED' AND ds.deletedAt IS NULL")
     Integer countDoctorSchedulesAtTime(Long doctorId, LocalDateTime startTime);
 
     @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime >= :startDate AND ds.startTime <=:endDate AND ds.deletedAt IS NULL")

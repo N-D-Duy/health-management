@@ -2,6 +2,7 @@ package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.mapper.DoctorScheduleMapper;
+import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.common.utils.exports.ExcelUtils;
 import com.example.health_management.domain.entities.Doctor;
@@ -65,7 +66,7 @@ public class DoctorScheduleService {
         doctorScheduleRepository.save(doctorSchedule);
     }
 
-    public void updateDoctorScheduleStatus(Long doctorScheduleId, String status) {
+    public void updateDoctorScheduleStatus(Long doctorScheduleId, AppointmentStatus status) {
         DoctorSchedule doctorSchedule = doctorScheduleRepository.findById(doctorScheduleId)
                 .orElseThrow(() -> new ConflictException("Doctor schedule not found"));
         doctorSchedule.setAppointmentStatus(status);

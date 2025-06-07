@@ -20,4 +20,6 @@ public interface UserRepository extends SoftDeleteRepository<User, Long> {
 
     @Query("SELECT u FROM User u JOIN Doctor d ON u.id = d.user.id WHERE u.deletedAt IS NULL ORDER BY d.rating DESC LIMIT 10")
     List<User> topRatedDoctors();
+
+
 }

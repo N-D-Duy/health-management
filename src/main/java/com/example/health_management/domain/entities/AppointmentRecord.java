@@ -2,6 +2,7 @@ package com.example.health_management.domain.entities;
 
 import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.enums.AppointmentType;
+import com.example.health_management.common.shared.enums.DepositStatus;
 import com.example.health_management.common.shared.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -50,6 +51,10 @@ public class AppointmentRecord extends BaseEntity{
     private AppointmentStatus status;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", columnDefinition = "varchar(255) default 'INITIAL'")
+    @Column(name = "payment_status", columnDefinition = "varchar(20) default 'INITIAL'")
     private PaymentStatus paymentStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="deposit_status", columnDefinition = "varchar(20) default 'NONE'")
+    private DepositStatus depositStatus;
 }

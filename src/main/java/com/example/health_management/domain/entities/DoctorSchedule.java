@@ -1,5 +1,6 @@
 package com.example.health_management.domain.entities;
 
+import com.example.health_management.common.shared.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,7 @@ public class DoctorSchedule extends BaseEntity {
     private LocalDateTime startTime;
     private String patientName;
     private String examinationType;
-    private String appointmentStatus;
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus appointmentStatus;
     private String note;
 }

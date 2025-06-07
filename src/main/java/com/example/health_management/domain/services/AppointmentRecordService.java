@@ -7,6 +7,7 @@ import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.DTOs.prescription.PrescriptionDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
 import com.example.health_management.common.shared.enums.AppointmentStatus;
+import com.example.health_management.common.shared.enums.DepositStatus;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.cache.services.AppointmentCacheService;
 import com.example.health_management.domain.entities.AppointmentRecord;
@@ -73,7 +74,7 @@ public class AppointmentRecordService {
                     .doctorId(request.getDoctorId())
                     .startTime(request.getScheduledAt())
                     .patientName(user.getFirstName() + " " + user.getLastName())
-                    .appointmentStatus(request.getStatus().toString())
+                    .appointmentStatus(AppointmentStatus.SCHEDULED)
                     .examinationType("-")
                     .note(request.getNote())
                     .build();
@@ -147,7 +148,7 @@ public class AppointmentRecordService {
             appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
             appointmentRecordRepository.deleteById(appointmentRecordId);
 
-            doctorScheduleService.updateDoctorScheduleStatus(appointmentRecordId, AppointmentStatus.CANCELLED.toString());
+            doctorScheduleService.updateDoctorScheduleStatus(appointmentRecordId, AppointmentStatus.CANCELLED);
 
             appointmentCacheService.invalidateAppointmentCaches(appointmentRecordId, userId, doctorId);
 
@@ -275,6 +276,14 @@ public class AppointmentRecordService {
             log.error("Error exporting appointment PDF: {}", e.getMessage());
             throw new ConflictException("Error exporting appointment PDF: " + e.getMessage());
         }
+    }
+
+    public String cancelAppointment(Long userId, Long appointmentId) {
+        AppointmentRecord appointment = appointmentRecordRepository.findById(appointmentId)
+                .filter(a -> a.getUser().getId().equals(userId))
+                .orElseThrow(() -> new RuntimeException("Appointment not found or user mismatch"));
+
+        return "holder";
     }
 
 }
