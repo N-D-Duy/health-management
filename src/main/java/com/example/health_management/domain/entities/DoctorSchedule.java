@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "doctor_schedules")
@@ -20,13 +21,9 @@ public class DoctorSchedule extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = Doctor.class)
     @JoinColumn(name = "doctor_id", referencedColumnName = "id")
     private Doctor doctor;
-
     private LocalDateTime startTime;
-    private LocalDateTime endTime;
-
-    private Integer currentPatientCount;
-
-    public Boolean isAvailable() {
-        return currentPatientCount < doctor.getSpecialization().getMaxPatients();
-    }
+    private String patientName;
+    private String examinationType;
+    private String appointmentStatus;
+    private String note;
 }

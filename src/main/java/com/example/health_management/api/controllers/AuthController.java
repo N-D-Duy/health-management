@@ -26,7 +26,23 @@ public class AuthController {
         return authService.register(registerDto);
     }
 
+
+
     @PostMapping("/login")
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Login user",
+            description = "Authenticate a user with email, password, and notification key",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Login request body",
+                    required = true,
+                    content = @io.swagger.v3.oas.annotations.media.Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(
+                                    example = "{\"email\": \"john.doe@example.com\", \"password\": \"12332145\", \"notification_key\": \"fcm_token\"}"
+                            )
+                    )
+            )
+    )
     public void login(HttpServletResponse response) {
 
     }

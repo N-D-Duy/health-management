@@ -1,7 +1,6 @@
 package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.account.UpdateAccountRequest;
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.DTOs.user.request.UpdateUserRequest;
 import com.example.health_management.application.DTOs.doctor.DoctorDTO;
 import com.example.health_management.application.DTOs.user.response.UserDTO;
@@ -11,8 +10,8 @@ import com.example.health_management.application.mapper.AccountMapper;
 import com.example.health_management.application.mapper.AddressMapper;
 import com.example.health_management.application.mapper.DoctorMapper;
 import com.example.health_management.application.mapper.UserMapper;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.domain.cache.services.UserCacheService;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
@@ -46,23 +45,35 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final AddressService addressService;
     private final AccountService accountService;
-    private final LoggingService loggingService;
+
+    //cache
+    private final UserCacheService userCacheService;
 
     public void deleteById(Long id) {
         try {
-            if(accountRepository.findByIdActive(id) == null) {
+            if (accountRepository.findByIdActive(id) == null) {
                 throw new ConflictException("User not found");
             }
             accountRepository.deleteById(id);
-            loggingService.saveLog(LoggingDTO.builder().message("User with id" + id + "deleted").type(LoggingType.USER_DELETED).build());
+
+            String cacheKey = "user:" + id;
+            userCacheService.cacheUser(cacheKey, null);
+            userCacheService.invalidateAllUsersCache();
+            userCacheService.invalidateTopRatedDoctorsCache(); // Invalidate top rated doctors cache as well
         } catch (Exception e) {
-            loggingService.saveLog(LoggingDTO.builder().message("Error deleting user with id" + id).type(LoggingType.USER_DELETED).build());
             throw new ConflictException(e.getMessage());
         }
     }
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
+        List<UserDTO> cachedUsers = userCacheService.getCachedAllUsers();
+        if (cachedUsers != null && !cachedUsers.isEmpty()) {
+            return cachedUsers;
+        }
+
+        List<UserDTO> users = userRepository.findAllActive().stream().map(userMapper::toUserDTO).toList();
+        userCacheService.cacheAllUsers(users);
+        return users;
     }
 
     public List<UserDTO> getAllDoctors() {
@@ -88,8 +99,15 @@ public class UserService {
     }
 
     public UserDTO getUserById(Long id) {
+        String cacheKey = "user:" + id;
+        UserDTO cachedUser = userCacheService.getCachedUser(cacheKey);
+        if (cachedUser != null) {
+            return cachedUser;
+        }
         User user = userRepository.findByIdActive(id);
-        return userMapper.toUserDTO(user);
+        UserDTO userDTO = userMapper.toUserDTO(user);
+        userCacheService.cacheUser(cacheKey, userDTO);
+        return userDTO;
     }
 
     public UserDTO updateUser(UpdateUserRequest request, Long userId, Boolean isDoctorUpdate) {
@@ -107,16 +125,26 @@ public class UserService {
                 addressService.updateAddresses(user, request.getAddresses());
             }
 
-            if(isDoctorUpdate && request.getDoctorProfile() != null) {
+            if (isDoctorUpdate && request.getDoctorProfile() != null) {
                 updateDoctorProfile(user, request.getDoctorProfile());
             }
 
-            //update other fields
             userMapper.update(request, user);
 
             userRepository.save(user);
-            loggingService.saveLog(LoggingDTO.builder().message("User with id" + userId + "updated").type(LoggingType.USER_UPDATED).build());
-            return userMapper.toUserDTO(user);
+
+            UserDTO updatedUserDTO = userMapper.toUserDTO(user);
+
+            String cacheKey = "user:" + userId;
+            userCacheService.cacheUser(cacheKey, updatedUserDTO);
+            userCacheService.invalidateAllUsersCache();
+            
+            // If it's a doctor update, invalidate top rated doctors cache
+            if (isDoctorUpdate || "DOCTOR".equals(updatedUserDTO.getAccount().getRole())) {
+                userCacheService.invalidateTopRatedDoctorsCache();
+            }
+
+            return updatedUserDTO;
         } catch (Exception e) {
             throw new ConflictException("Error updating user: " + e.getMessage());
         }
@@ -135,7 +163,6 @@ public class UserService {
                 doctorProfile.setUser(user);
                 user.setDoctorProfile(doctorProfile);
             }
-            loggingService.saveLog(LoggingDTO.builder().message("Doctor profile updated for user with id" + user.getId()).type(LoggingType.DOCTOR_PROFILE_UPDATED).build());
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
@@ -147,7 +174,19 @@ public class UserService {
     }
 
     public List<UserDTO> getTopRatedDoctors() {
-        return userRepository.topRatedDoctors().stream().map(userMapper::toUserDTO).toList();
+        // Try to get from cache first
+        List<UserDTO> cachedDoctors = userCacheService.getCachedTopRatedDoctors();
+        if (cachedDoctors != null && !cachedDoctors.isEmpty()) {
+            return cachedDoctors;
+        }
+        
+        // If not cached, get from repository
+        List<UserDTO> doctors = userRepository.topRatedDoctors().stream().map(userMapper::toUserDTO).toList();
+        
+        // Cache the result
+        userCacheService.cacheTopRatedDoctors(doctors);
+        
+        return doctors;
     }
 
     public List<DoctorDTO> getDoctorsBySpecialization(String specialization) {

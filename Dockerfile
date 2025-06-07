@@ -1,28 +1,33 @@
-# Use a Maven image to build the project
-FROM maven:3.9.3-eclipse-temurin-17 AS builder
-
-# Set the working directory in the container
+# Stage 1: Cache dependencies
+FROM gradle:8.5-jdk17-alpine AS cache
 WORKDIR /app
+COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradle ./gradle/
+RUN gradle dependencies --no-daemon
 
-# Copy the pom.xml and source code
-COPY pom.xml .
-COPY src ./src
+# Stage 2: Build application
+FROM gradle:8.5-jdk17-alpine AS builder
+WORKDIR /app
+COPY --from=cache /home/gradle/.gradle /home/gradle/.gradle
+COPY . .
+RUN gradle clean bootJar -x test --build-cache --parallel
 
-# Build the project
-RUN mvn clean package -DskipTests
-
-# Use a smaller JRE image to run the application
+# Final stage: Run application
 FROM eclipse-temurin:17-jre-alpine
-
-# Set the working directory
 WORKDIR /app
+ENV TZ=Asia/Ho_Chi_Minh
 
-# Copy the JAR file from the builder stage
-COPY --from=builder /app/target/health-management-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/build/libs/health-management-*.jar app.jar
 
-# Use a non-root user for security (optional)
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
-# Run the JAR file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 8080
+
+ENTRYPOINT ["java", \
+  "-XX:+UseG1GC", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Dspring.profiles.active=prod", \
+  "-jar", \
+  "app.jar"]

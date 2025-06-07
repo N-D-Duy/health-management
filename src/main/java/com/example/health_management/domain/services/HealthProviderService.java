@@ -33,6 +33,7 @@ public class HealthProviderService {
     private final DoctorRepository doctorRepository;
     private final HealthProviderMapper healthProviderMapper;
     private final DoctorMapper doctorMapper;
+    private final DoctorScheduleService doctorScheduleService;
 
     public HealthProviderDTO create(HealthProviderDTO request) {
         try{
@@ -120,8 +121,7 @@ public class HealthProviderService {
         return healthProviderMapper.toDTOWithDoctors(updatedHealthProvider);
     }
 
-//    @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<HealthProviderWithDoctorsDTO> getDoctorsAvailableForTimes(String specialization, LocalDateTime startTime, LocalDateTime endTime) {
+    public List<HealthProviderWithDoctorsDTO> getDoctorsAvailableForTimes(String specialization, LocalDateTime startTime) {
         try {
             DoctorSpecialization spec = DoctorSpecialization.valueOf(specialization);
             List<HealthProvider> healthProviders = healthProviderRepository.findAllWithDoctorsBySpecialization(spec);
@@ -139,9 +139,10 @@ public class HealthProviderService {
                     .map(hp -> {
                         List<Doctor> availableDoctors = hp.getDoctors().stream()
                                 .map(d -> doctorMap.get(d.getId()))
-                                .filter(doctor -> isAvailableForTimeSlot(doctor, startTime, endTime))
+                                .filter(doctor -> doctor != null &&
+                                        doctor.getSpecialization() == spec &&
+                                        !doctorScheduleService.isDoctorBusy(doctor.getId(), startTime))
                                 .toList();
-
                         if (!availableDoctors.isEmpty()) {
                             HealthProviderWithDoctorsDTO dto = healthProviderMapper.toDTOWithDoctors(hp);
                             dto.setDoctors(availableDoctors.stream().map(doctorMapper::toSummary).toList());
@@ -154,21 +155,6 @@ public class HealthProviderService {
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
-    }
-
-    private boolean isAvailableForTimeSlot(Doctor doctor, LocalDateTime startTime, LocalDateTime endTime) {
-        List<DoctorSchedule> overlappingSchedules = doctor.getSchedules().stream()
-                .filter(schedule ->
-                        !(schedule.getEndTime().isBefore(startTime) || schedule.getStartTime().isAfter(endTime)))
-                .toList();
-
-        if (overlappingSchedules.isEmpty()) {
-            // No overlapping schedules means doctor is available
-            return true;
-        }
-
-        return overlappingSchedules.stream()
-                .allMatch(DoctorSchedule::isAvailable);
     }
 
 }

@@ -1,12 +1,11 @@
 package com.example.health_management.domain.cqrs.commands.handler.auth;
 
 import com.example.health_management.application.DTOs.auth.AuthResponse;
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.guards.JwtProvider;
 import com.example.health_management.application.mapper.UserMapper;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.enums.Role;
 import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.domain.cache.services.UserCacheService;
 import com.example.health_management.domain.cqrs.commands.impl.auth.RegisterCommand;
 import com.example.health_management.domain.entities.Account;
 import com.example.health_management.domain.entities.Key;
@@ -15,11 +14,8 @@ import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.AccountRepository;
 import com.example.health_management.domain.repositories.KeyRepository;
 import com.example.health_management.domain.repositories.UserRepository;
-import com.example.health_management.domain.services.LoggingService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +27,6 @@ public class RegisterCommandHandler {
 
     private final UserRepository userRepository;
 
-
     private final AccountRepository accountRepository;
 
     private final KeyRepository keyRepository;
@@ -41,8 +36,9 @@ public class RegisterCommandHandler {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final LoggingService loggingService;
     private final UserMapper userMapper;
+
+    private final UserCacheService userCacheService;
 
     @Transactional
     public AuthResponse handle(RegisterCommand command) {
@@ -96,10 +92,9 @@ public class RegisterCommandHandler {
             // Save entities
             accountRepository.save(account);
             keyRepository.save(key);
-            loggingService.saveLog(LoggingDTO.builder().message("User with email " + account.getEmail() + " registered").type(LoggingType.USER_CREATED).build());
+            userCacheService.invalidateAllUsersCache();
             return AuthResponse.builder().accessToken(accessToken).refreshToken(key.getRefreshToken()).user(userMapper.toUserDTO(user)).build();
         } catch (ConflictException e) {
-            loggingService.saveLog(LoggingDTO.builder().message("Error registering user with email " + command.getEmail()).type(LoggingType.USER_CREATED).build());
             throw new ConflictException(e.getMessage());
         }
     }

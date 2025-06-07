@@ -1,21 +1,23 @@
 package com.example.health_management;
 
-import com.example.health_management.application.guards.JwtProvider;
+import com.example.health_management.application.DTOs.payment.MerchantAppCreateOrderRequest;
+import com.example.health_management.application.DTOs.payment.MerchantAppCreateOrderResponse;
+import com.example.health_management.domain.services.PaymentService;
+import io.jsonwebtoken.lang.Assert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.security.*;
-import java.util.HashMap;
-import java.util.Map;
 
 @SpringBootTest
 @RequiredArgsConstructor
 @Slf4j
 class HealthManagementApplicationTests {
+	@Autowired
+	private PaymentService paymentService;
 
 
 	@Test
@@ -40,6 +42,21 @@ class HealthManagementApplicationTests {
 			log.info(privateKeyPEM);
 		} catch(NoSuchAlgorithmException e){
 			log.error("Error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	void testCallZaloPayApi(){
+		try {
+			MerchantAppCreateOrderRequest merchantAppCreateOrderRequest = new MerchantAppCreateOrderRequest();
+			merchantAppCreateOrderRequest.setAmount(Integer.toUnsignedLong(100000));
+			merchantAppCreateOrderRequest.setDescription("Test api");
+			merchantAppCreateOrderRequest.setUserId(Integer.toUnsignedLong(1234));
+			MerchantAppCreateOrderResponse merchantAppCreateOrderResponse = paymentService.createZaloPaymentOrder(merchantAppCreateOrderRequest);
+			Assert.notNull(merchantAppCreateOrderResponse.getZpTransToken());
+			System.out.println(merchantAppCreateOrderResponse.toString());
+		} catch (RuntimeException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

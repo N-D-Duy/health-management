@@ -71,8 +71,8 @@ public class HealthProviderController {
     }
 
     @GetMapping("/filter")
-    public @ResponseBody ResponseEntity<ApiResponse<List<HealthProviderWithDoctorsDTO>>> filterHealthProviders(@Param("specialization") String specialization, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime) {
-        List<HealthProviderWithDoctorsDTO> healthProviders = healthProviderService.getDoctorsAvailableForTimes(specialization, startTime, endTime);
+    public @ResponseBody ResponseEntity<ApiResponse<List<HealthProviderWithDoctorsDTO>>> filterHealthProviders(@Param("specialization") String specialization, @Param("startTime") LocalDateTime startTime) {
+        List<HealthProviderWithDoctorsDTO> healthProviders = healthProviderService.getDoctorsAvailableForTimes(specialization, startTime);
         ApiResponse<List<HealthProviderWithDoctorsDTO>> apiResponse = ApiResponse.<List<HealthProviderWithDoctorsDTO>>builder()
                 .code(HttpStatus.OK.value())
                 .data(healthProviders)

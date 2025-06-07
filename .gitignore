@@ -38,3 +38,8 @@ docker-compose.yaml
 .env
 ### FIREBASE CONFIG FILE ###
 firebase.json
+
+logs/
+/src/main/resources/templates/xlsx/.~lock.template_doctor_schedule.xlsx#
+
+.gradle

@@ -4,10 +4,9 @@ import com.example.health_management.application.DTOs.article.ArticleDTO;
 import com.example.health_management.application.DTOs.article.CreateArticleRequest;
 import com.example.health_management.application.DTOs.article.UpdateArticleRequest;
 import com.example.health_management.application.DTOs.article_support.ArticleCommentDTO;
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.ArticleMapper;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.domain.cache.services.ArticleCacheService;
 import com.example.health_management.domain.entities.Article;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.ArticleRepository;
@@ -29,7 +28,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final ArticleMapper articleMapper;
-    private final LoggingService loggingService;
+    private final ArticleCacheService articleCacheService;
 
     private final ArticleMediaService articleMediaService;
     private final ArticleCommentService articleCommentService;
@@ -43,7 +42,9 @@ public class ArticleService {
 
         articleMediaService.createArticleMedia(request.getMedia(), savedArticle);
 
-        loggingService.saveLog(LoggingDTO.builder().message("User with " + userId + " created article").type(LoggingType.ARTICLE_CREATED).build());
+        articleCacheService.invalidateAllArticlesCache();
+        articleCacheService.invalidateUserArticlesCache(userId);
+
         return articleMapper.toDTO(savedArticle);
     }
 
@@ -52,59 +53,100 @@ public class ArticleService {
             Article article = articleRepository.findById(articleId)
                     .orElseThrow(() -> new ConflictException(".getMessage()Health article not found with ID: " + articleId));
 
+            Long userId = article.getUser().getId();
             Article updatedArticle = articleMapper.updateFromRequest(request, article);
-            loggingService.saveLog(LoggingDTO.builder().message("Article with " + articleId + " updated").type(LoggingType.ARTICLE_UPDATED).build());
-            return articleMapper.toDTO(articleRepository.save(updatedArticle));
+            ArticleDTO updatedArticleDTO = articleMapper.toDTO(articleRepository.save(updatedArticle));
+
+
+            articleCacheService.cacheArticle(articleId.toString(), updatedArticleDTO);
+            articleCacheService.invalidateAllArticlesCache();
+            articleCacheService.invalidateUserArticlesCache(userId);
+
+            return updatedArticleDTO;
         } catch (ConflictException e) {
             throw new ConflictException(e.getMessage());
         }
     }
 
     public List<ArticleDTO> getArticles() {
-        return articleRepository.findAllActive().stream()
+
+        List<ArticleDTO> cachedArticles = articleCacheService.getCachedAllArticles();
+        if (cachedArticles != null) {
+            return cachedArticles;
+        }
+
+        List<ArticleDTO> articles = articleRepository.findAllActive().stream()
                 .map(article -> {
                     ArticleDTO articleDTO = articleMapper.toDTO(article);
-
                     List<ArticleCommentDTO> rootComments = articleCommentService.buildCommentTree(articleDTO.getComments());
                     articleDTO.setComments(rootComments);
-
                     return articleDTO;
                 })
                 .collect(Collectors.toList());
+
+        articleCacheService.cacheAllArticles(articles);
+        return articles;
     }
 
     public List<ArticleDTO> getArticlesByUserId(Long userId) {
-        return articleRepository.findAllByUserId(userId).stream()
+
+        List<ArticleDTO> cachedUserArticles = articleCacheService.getCachedUserArticles(userId);
+        if (cachedUserArticles != null) {
+            return cachedUserArticles;
+        }
+
+        List<ArticleDTO> userArticles = articleRepository.findAllByUserId(userId).stream()
                 .map(article -> {
                     ArticleDTO articleDTO = articleMapper.toDTO(article);
-
                     List<ArticleCommentDTO> rootComments = articleCommentService.buildCommentTree(articleDTO.getComments());
                     articleDTO.setComments(rootComments);
-
                     return articleDTO;
                 })
                 .collect(Collectors.toList());
+
+        articleCacheService.cacheUserArticles(userId, userArticles);
+        return userArticles;
     }
 
-
     public ArticleDTO getArticle(Long id) {
+
+        ArticleDTO cachedArticle = articleCacheService.getCachedArticle(id.toString());
+        if (cachedArticle != null) {
+            return cachedArticle;
+        }
+
+
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Article not found with ID: " + id));
         article.setViewCount(article.getViewCount() + 1);
         articleRepository.save(article);
+
         ArticleDTO articleDTO = articleMapper.toDTO(article);
         articleDTO.setComments(articleCommentService.buildCommentTree(articleDTO.getComments()));
+
+
+        articleCacheService.cacheArticle(id.toString(), articleDTO);
+
         return articleDTO;
     }
 
     public void deleteArticle(Long id) {
         try {
+            Article article = articleRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Article not found with ID: " + id));
+            Long userId = article.getUser().getId();
+
             articleRepository.deleteById(id);
-            loggingService.saveLog(LoggingDTO.builder().message("Article with id" + id + "deleted").type(LoggingType.ARTICLE_DELETED).build());
+
+
+            articleCacheService.cacheArticle(id.toString(), null);
+            articleCacheService.invalidateAllArticlesCache();
+            articleCacheService.invalidateUserArticlesCache(userId);
+            articleCacheService.invalidateArticleCache(id.toString());
+        } catch (EntityNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new ConflictException(e.getMessage());
         }
     }
-
-
 }

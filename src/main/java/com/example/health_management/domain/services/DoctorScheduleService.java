@@ -1,18 +1,21 @@
 package com.example.health_management.domain.services;
 
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
-import com.example.health_management.application.DTOs.logging.LoggingDTO;
 import com.example.health_management.application.mapper.DoctorScheduleMapper;
-import com.example.health_management.common.shared.enums.LoggingType;
 import com.example.health_management.common.shared.exceptions.ConflictException;
+import com.example.health_management.common.utils.exports.ExcelUtils;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.DoctorSchedule;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.DoctorScheduleRepository;
+import com.example.health_management.domain.services.exporters.ExcelScheduleExporter;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,9 +25,15 @@ public class DoctorScheduleService {
     private final DoctorScheduleRepository doctorScheduleRepository;
     private final DoctorRepository doctorRepository;
     private final DoctorScheduleMapper doctorScheduleMapper;
-    private final LoggingService loggingService;
+    private final ExcelScheduleExporter excelScheduleExporter;
 
     public void createDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {
+        if (doctorScheduleRepository.existsByPatientNameAndStartTime(doctorScheduleDTO.getPatientName(), doctorScheduleDTO.getStartTime())) {
+            throw new ConflictException("Patient already has a schedule at this time");
+        }
+        if(isDoctorBusy(doctorScheduleDTO.getDoctorId(), doctorScheduleDTO.getStartTime())) {
+            throw new ConflictException("Doctor is busy at this time");
+        }
         Doctor doctor = doctorRepository.findByIdActive(doctorScheduleDTO.getDoctorId());
         if (doctor == null) {
             throw new IllegalArgumentException("Doctor not found");
@@ -32,12 +41,10 @@ public class DoctorScheduleService {
         DoctorSchedule doctorSchedule = new DoctorSchedule();
         doctorSchedule.setDoctor(doctor);
         doctorSchedule.setStartTime(doctorScheduleDTO.getStartTime());
-        doctorSchedule.setEndTime(doctorScheduleDTO.getEndTime());
-        doctorSchedule.setCurrentPatientCount(doctorScheduleDTO.getCurrentPatientCount());
-        loggingService.saveLog(LoggingDTO.builder()
-                .type(LoggingType.DOCTOR_SCHEDULE_CREATED)
-                .message("Schedule created for doctor: " + doctorScheduleDTO.getDoctorId())
-                .build());
+        doctorSchedule.setPatientName(doctorScheduleDTO.getPatientName());
+        doctorSchedule.setExaminationType(doctorScheduleDTO.getExaminationType());
+        doctorSchedule.setAppointmentStatus(doctorScheduleDTO.getAppointmentStatus());
+        doctorSchedule.setNote(doctorScheduleDTO.getNote());
 
         doctorScheduleRepository.save(doctorSchedule);
     }
@@ -47,36 +54,53 @@ public class DoctorScheduleService {
         return doctorSchedules.stream().map(doctorScheduleMapper::toDTO).toList();
     }
 
-    public void updateDoctorSchedule(DoctorSchedule doctorSchedule, Boolean increase) {
-        loggingService.saveLog(LoggingDTO.builder()
-                .type(LoggingType.DOCTOR_SCHEDULE_UPDATED)
-                .message("Schedule updated for doctor: " + doctorSchedule.getDoctor().getId())
-                .build());
-        if(increase){
-            doctorScheduleRepository.updatePatientsCount(doctorSchedule.getId(), 1);
-        } else {
-            if(doctorSchedule.getCurrentPatientCount() == 1){
-                //remove the schedule
-                doctorScheduleRepository.delete(doctorSchedule);
-            }
-            doctorScheduleRepository.updatePatientsCount(doctorSchedule.getId(), -1);
+    public void updateDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {
+        DoctorSchedule doctorSchedule = doctorScheduleRepository.findById(doctorScheduleDTO.getId())
+                .orElse(null);
+
+        if (doctorSchedule == null) {
+            throw new ConflictException("Doctor schedule not found");
         }
+        doctorScheduleMapper.update(doctorSchedule, doctorScheduleDTO);
+        doctorScheduleRepository.save(doctorSchedule);
     }
 
-    public void updateOrCreateDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO, Boolean increase) {
-        DoctorSchedule doctorSchedule = doctorScheduleRepository.findByTimes(doctorScheduleDTO.getDoctorId(), doctorScheduleDTO.getStartTime(), doctorScheduleDTO.getEndTime());
-
-        if(doctorSchedule == null){
-            createDoctorSchedule(doctorScheduleDTO);
-        } else {
-            if(increase){
-                if(!doctorSchedule.isAvailable()){
-                    throw new ConflictException("Doctor is already busy");
-                }
-                updateDoctorSchedule(doctorSchedule, true);
-            } else {
-                updateDoctorSchedule(doctorSchedule, false);
-            }
-        }
+    public void updateDoctorScheduleStatus(Long doctorScheduleId, String status) {
+        DoctorSchedule doctorSchedule = doctorScheduleRepository.findById(doctorScheduleId)
+                .orElseThrow(() -> new ConflictException("Doctor schedule not found"));
+        doctorSchedule.setAppointmentStatus(status);
+        doctorScheduleRepository.save(doctorSchedule);
     }
+
+    public void deleteDoctorSchedule(Long doctorScheduleId) {
+        DoctorSchedule doctorSchedule = doctorScheduleRepository.findById(doctorScheduleId)
+                .orElseThrow(() -> new ConflictException("Doctor schedule not found"));
+        doctorScheduleRepository.delete(doctorSchedule);
+    }
+
+    public boolean isDoctorBusy(Long doctorId, LocalDateTime startTime) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+
+        int bookedCount = doctorScheduleRepository.countDoctorSchedulesAtTime(doctorId, startTime);
+        int maxPatients = doctor.getSpecialization().getMaxPatients();
+
+        return bookedCount >= maxPatients;
+    }
+
+    public ByteArrayResource exportDoctorSchedules(Long doctorId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<DoctorSchedule> schedules = doctorScheduleRepository.findByDoctorIdAndDateRange(doctorId, startDate, endDate);
+        if (schedules == null || schedules.isEmpty()) {
+            throw new ConflictException("No schedules found for the given date range");
+        }
+        if (startDate == null) {
+            throw new IllegalArgumentException("Start date cannot be null");
+        }
+        String range = ExcelUtils.extractDateFromRequest(startDate, endDate);
+        Workbook workbook = excelScheduleExporter.export(schedules, range);
+        String doctorName = schedules.get(0).getDoctor().getUser().getFirstName() + " " + schedules.get(0).getDoctor().getUser().getLastName();
+        String fileName = "Doctor_Schedule_" + doctorName + ".xlsx";
+        return ExcelUtils.toByteArrayResource(workbook, fileName);
+    }
+
 }
