@@ -16,6 +16,7 @@ import com.example.health_management.domain.entities.HealthProvider;
 import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.*;
 import com.example.health_management.domain.services.exporters.PDFExporter;
+import com.example.health_management.infrastructure.client.MailClient;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class AppointmentRecordService {
     private final DoctorScheduleService doctorScheduleService;
     private final AppointmentCacheService appointmentCacheService;
     private final AccountRepository accountRepository;
+    private final MailClient mailClient;
 
     public AppointmentRecordDTO create(AppointmentRecordRequestDTO request) {
         try {
@@ -317,46 +319,79 @@ public class AppointmentRecordService {
         }
     }
 
+    /*
+    * string 1: email
+    * string 2: content to send to this email
+    * */
+    private void sendCancellationNotification(Map<String, String> notificationData) {
+        if(notificationData == null || notificationData.isEmpty()) {
+            throw new ConflictException("Notification data cannot be null or empty");
+        }
+        notificationData.forEach((key, value) -> {
+            if(key == null || key.isEmpty() || value == null || value.isEmpty()) {
+                throw new ConflictException("Email and content cannot be null or empty");
+            }
+            try {
+                mailClient.sendMail(key, value).subscribe();
+                log.info("Cancellation notification sent to: {}", key);
+            } catch (Exception e) {
+                log.error("Failed to send cancellation notification to {}: {}", key, e.getMessage());
+                throw new ConflictException("Failed to send cancellation notification: " + e.getMessage());
+            }
+        });
+    }
+
+    private void notifyCancellation(AppointmentRecord appointment, boolean isCancelledByDoctor, String message) {
+        String email = isCancelledByDoctor
+                ? appointment.getUser().getAccount().getEmail()
+                : appointment.getDoctor().getUser().getAccount().getEmail();
+
+        String content = isCancelledByDoctor
+                ? "[Doctor Cancelled] " + message
+                : "[Patient Cancelled] " + message;
+
+        sendCancellationNotification(Map.of(email, content));
+    }
+
+
     private String patientCancelAppointment(AppointmentRecord appointment) {
         try {
             String result;
+            String mailContent;
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime createdAt = appointment.getCreatedAt();
             LocalDateTime scheduledAt = appointment.getScheduledAt();
 
             if (Duration.between(createdAt, now).toMinutes() <= 15) {
-                // Vừa tạo trong vòng 15 phút → cho hủy, hoàn tiền
                 appointment.setDepositStatus(DepositStatus.REFUNDED);
-                result = "Appointment cancelled successfully, based on our policy, you will receive a full refund of your deposit";
+                result = "Appointment cancelled successfully, full deposit refunded to you";
+                mailContent = "Patient has cancelled the appointment. Full deposit will be refunded to them.";
             } else if (scheduledAt.isAfter(now.plusHours(12))) {
-                // Lịch còn xa hơn 12h → mất 50% tiền cọc
                 appointment.setDepositStatus(DepositStatus.PARTIAL_LOST);
-                result = "Appointment cancelled successfully, based on our policy, you lost 50% of your deposit";
+                result = "Appointment cancelled, 50% of your deposit is lost based on policy";
+                mailContent = "Patient has cancelled the appointment. They will lose 50% of the deposit.";
             } else {
-                // Lịch sắp tới → mất toàn bộ tiền cọc
                 appointment.setDepositStatus(DepositStatus.LOST);
-                result = "Appointment cancelled successfully, base on our policy, you lost your deposit";
+                result = "Appointment cancelled, you lost full deposit based on policy";
+                mailContent = "Patient has cancelled the appointment. Full deposit is lost.";
             }
 
             setAppointmentStatusCancel(appointment);
             doctorScheduleService.updateDoctorScheduleStatusByAppointmentId(
-                    appointment.getId(),
-                    AppointmentStatus.CANCELLED
-            );
+                    appointment.getId(), AppointmentStatus.CANCELLED);
 
             appointmentRecordRepository.save(appointment);
             appointmentCacheService.invalidateAppointmentCaches(
-                    appointment.getId(),
-                    appointment.getUser().getId(),
-                    appointment.getDoctor().getId()
-            );
+                    appointment.getId(), appointment.getUser().getId(), appointment.getDoctor().getId());
 
-            return result;
+            notifyCancellation(appointment, false, mailContent);
+            return result; // show to patient
         } catch (Exception e) {
             log.error("Error cancelling appointment for patient: {}", e.getMessage());
             throw new ConflictException("Error cancelling appointment: " + e.getMessage());
         }
     }
+
 
     private String doctorCancelAppointment(AppointmentRecord appointment) {
         try {
@@ -377,8 +412,10 @@ public class AppointmentRecordService {
                     appointment.getUser().getId(),
                     appointment.getDoctor().getId()
             );
-
-            return "Appointment cancelled by doctor, deposit is on hold";
+            String result = "Appointment cancelled by doctor, deposit is on hold";
+            String mailContent = "Doctor has cancelled the appointment. Deposit is on hold until further action. You can choose to refund or reschedule later. After 24 hours, the deposit will be refunded automatically.";
+            notifyCancellation(appointment, true, mailContent);
+            return result;
         } catch (Exception e) {
             log.error("Error cancelling appointment for doctor: {}", e.getMessage());
             throw new ConflictException("Error cancelling appointment: " + e.getMessage());
