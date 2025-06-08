@@ -1,5 +1,6 @@
 package com.example.health_management.domain.repositories;
 
+import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.utils.softdelete.SoftDeleteRepository;
 import com.example.health_management.domain.entities.DoctorSchedule;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,5 +30,5 @@ public interface DoctorScheduleRepository extends SoftDeleteRepository<DoctorSch
 
     @Modifying
     @Query("UPDATE DoctorSchedule ds SET ds.appointmentStatus = :status WHERE ds.appointmentRecord.id = :appointmentId")
-    void updateAppointmentStatusByAppointmentId(Long appointmentId, String status);
+    void updateAppointmentStatusByAppointmentId(Long appointmentId, AppointmentStatus status);
 }

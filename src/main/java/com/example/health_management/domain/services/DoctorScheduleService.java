@@ -67,7 +67,7 @@ public class DoctorScheduleService {
     }
 
     public void updateDoctorScheduleStatusByAppointmentId(Long appointmentId, AppointmentStatus status) {
-        doctorScheduleRepository.updateAppointmentStatusByAppointmentId(appointmentId, status.name());
+        doctorScheduleRepository.updateAppointmentStatusByAppointmentId(appointmentId, status);
     }
 
     public void deleteDoctorSchedule(Long doctorScheduleId) {

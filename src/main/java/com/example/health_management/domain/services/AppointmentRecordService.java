@@ -84,6 +84,19 @@ public class AppointmentRecordService {
             AppointmentRecordDTO result = appointmentRecordMapper.toDTO(savedRecord);
             appointmentCacheService.invalidateAppointmentCaches(savedRecord.getId(), user.getId(), doctor.getId());
 
+            //check if there is any deposit been holding
+            AppointmentRecord latestHeldDeposit = appointmentRecordRepository
+                    .findLatestHeldDepositByUserId(user.getId())
+                    .orElse(null);
+            if (latestHeldDeposit != null) {
+                if (latestHeldDeposit.getDepositStatus() == DepositStatus.HOLD) {
+                    // If there is a held deposit, update the appointment record to use this deposit
+                    latestHeldDeposit.setDepositStatus(DepositStatus.USED);
+                    appointmentRecordRepository.save(latestHeldDeposit);
+                    log.info("Deposit status updated to USED");
+                }
+            }
+
             return result;
         } catch (EntityNotFoundException e) {
             throw e;
@@ -280,10 +293,18 @@ public class AppointmentRecordService {
 
     public String cancelAppointment(Long userId, Long appointmentId) {
         AppointmentRecord appointment = appointmentRecordRepository.findById(appointmentId)
-                .filter(a -> a.getUser().getId().equals(userId))
+                .filter(a -> a.getUser().getId().equals(userId) || a.getDoctor().getUser().getId().equals(userId))
                 .orElseThrow(() -> new RuntimeException("Appointment not found or user mismatch"));
         if(appointment.getStatus() == AppointmentStatus.CANCELLED) {
             throw new ConflictException("Appointment already cancelled");
+        }
+
+        if(appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new ConflictException("Cannot cancel a completed appointment");
+        }
+
+        if(appointment.getScheduledAt().isBefore(LocalDateTime.now())) {
+            throw new ConflictException("Cannot cancel an appointment that has already passed");
         }
 
         if(accountRepository.isPatient(userId)){
@@ -298,6 +319,7 @@ public class AppointmentRecordService {
 
     private String patientCancelAppointment(AppointmentRecord appointment) {
         try {
+            String result;
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime createdAt = appointment.getCreatedAt();
             LocalDateTime scheduledAt = appointment.getScheduledAt();
@@ -305,12 +327,15 @@ public class AppointmentRecordService {
             if (Duration.between(createdAt, now).toMinutes() <= 15) {
                 // Vừa tạo trong vòng 15 phút → cho hủy, hoàn tiền
                 appointment.setDepositStatus(DepositStatus.REFUNDED);
+                result = "Appointment cancelled successfully, based on our policy, you will receive a full refund of your deposit";
             } else if (scheduledAt.isAfter(now.plusHours(12))) {
                 // Lịch còn xa hơn 12h → mất 50% tiền cọc
                 appointment.setDepositStatus(DepositStatus.PARTIAL_LOST);
+                result = "Appointment cancelled successfully, based on our policy, you lost 50% of your deposit";
             } else {
                 // Lịch sắp tới → mất toàn bộ tiền cọc
                 appointment.setDepositStatus(DepositStatus.LOST);
+                result = "Appointment cancelled successfully, base on our policy, you lost your deposit";
             }
 
             setAppointmentStatusCancel(appointment);
@@ -326,7 +351,7 @@ public class AppointmentRecordService {
                     appointment.getDoctor().getId()
             );
 
-            return "Appointment cancelled successfully";
+            return result;
         } catch (Exception e) {
             log.error("Error cancelling appointment for patient: {}", e.getMessage());
             throw new ConflictException("Error cancelling appointment: " + e.getMessage());
