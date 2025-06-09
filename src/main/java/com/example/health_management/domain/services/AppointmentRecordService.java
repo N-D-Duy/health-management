@@ -63,7 +63,6 @@ public class AppointmentRecordService {
             appointmentRecord.setAppointmentType(request.getAppointmentType());
             appointmentRecord.setScheduledAt(request.getScheduledAt());
             appointmentRecord.setStatus(request.getStatus());
-            appointmentRecord.setPaymentStatus(request.getPaymentStatus());
 
             appointmentRecord.setDoctor(doctor);
             appointmentRecord.setUser(user);

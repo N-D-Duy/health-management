@@ -6,7 +6,6 @@ import com.example.health_management.application.DTOs.doctor.DoctorSummaryDTO;
 import com.example.health_management.application.DTOs.user.response.UserSummaryDTO;
 import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.enums.AppointmentType;
-import com.example.health_management.common.shared.enums.PaymentStatus;
 import com.example.health_management.domain.entities.AppointmentRecord;
 import lombok.Data;
 
@@ -27,5 +26,4 @@ public class AppointmentRecordDTO implements Serializable {
     private AppointmentType appointmentType;
     private LocalDateTime scheduledAt;
     private AppointmentStatus status;
-    public PaymentStatus paymentStatus;
 }
