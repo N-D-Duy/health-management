@@ -8,4 +8,5 @@ public class MerchantAppCreateOrderRequest implements Serializable {
     private Long amount;
     private Long userId;
     private String description;
+    private Long appointmentId;
 }

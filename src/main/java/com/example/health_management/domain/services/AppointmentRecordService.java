@@ -68,22 +68,17 @@ public class AppointmentRecordService {
             appointmentRecord.setUser(user);
             appointmentRecord.setHealthProvider(healthProvider);
 
-            AppointmentRecord savedRecord = appointmentRecordRepository.save(appointmentRecord);
 
             DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
                     .doctorId(request.getDoctorId())
                     .startTime(request.getScheduledAt())
                     .patientName(user.getFirstName() + " " + user.getLastName())
-                    .appointmentStatus(AppointmentStatus.SCHEDULED)
+                    .appointmentStatus(AppointmentStatus.PENDING)
                     .examinationType("-")
                     .note(request.getNote())
                     .appointmentRecord(appointmentRecord)
                     .build();
 
-            doctorScheduleService.createDoctorSchedule(doctorScheduleDTO);
-
-            AppointmentRecordDTO result = appointmentRecordMapper.toDTO(savedRecord);
-            appointmentCacheService.invalidateAppointmentCaches(savedRecord.getId(), user.getId(), doctor.getId());
 
             //check if there is any deposit been holding
             AppointmentRecord latestHeldDeposit = appointmentRecordRepository
@@ -93,11 +88,16 @@ public class AppointmentRecordService {
                 if (latestHeldDeposit.getDepositStatus() == DepositStatus.HOLD) {
                     // If there is a held deposit, update the appointment record to use this deposit
                     latestHeldDeposit.setDepositStatus(DepositStatus.USED);
+                    appointmentRecord.setStatus(AppointmentStatus.SCHEDULED);
                     appointmentRecordRepository.save(latestHeldDeposit);
                     log.info("Deposit status updated to USED");
                 }
             }
+            AppointmentRecord savedRecord = appointmentRecordRepository.save(appointmentRecord);
+            doctorScheduleService.createDoctorSchedule(doctorScheduleDTO);
 
+            AppointmentRecordDTO result = appointmentRecordMapper.toDTO(savedRecord);
+            appointmentCacheService.invalidateAppointmentCaches(savedRecord.getId(), user.getId(), doctor.getId());
             return result;
         } catch (EntityNotFoundException e) {
             throw e;
@@ -113,13 +113,9 @@ public class AppointmentRecordService {
                     .orElseThrow(() -> new ConflictException("AppointmentRecord not found"));
 
             appointmentRecordMapper.update(appointmentRecord, request);
-
             prescriptionService.updatePrescription(appointmentRecord, request);
-
             updateRelationships(appointmentRecord, request);
-
             appointmentRecordRepository.save(appointmentRecord);
-
             AppointmentRecordDTO updatedAppointment = appointmentRecordMapper.toDTO(appointmentRecord);
             Long userId = appointmentRecord.getUser().getId();
             Long doctorId = appointmentRecord.getDoctor().getId();
@@ -424,5 +420,21 @@ public class AppointmentRecordService {
 
     private void setAppointmentStatusCancel(AppointmentRecord appointment) {
         appointment.setStatus(AppointmentStatus.CANCELLED);
+    }
+
+    public AppointmentRecord getAppointmentById(Long id) {
+        return appointmentRecordRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment Record not found with ID: " + id));
+    }
+
+    public boolean isAppointmentExists(Long appointmentId) {
+        return appointmentRecordRepository.existsById(appointmentId);
+    }
+
+    public void updateStatus(Long appointmentId, AppointmentStatus status) {
+        AppointmentRecord appointmentRecord = getAppointmentById(appointmentId);
+        appointmentRecord.setStatus(status);
+        appointmentRecordRepository.save(appointmentRecord);
+        appointmentCacheService.invalidateAppointmentCaches(appointmentId, appointmentRecord.getUser().getId(), appointmentRecord.getDoctor().getId());
     }
 }

@@ -4,9 +4,12 @@ import com.example.health_management.application.DTOs.payment.MerchantAppCreateO
 import com.example.health_management.application.DTOs.payment.ZaloPayOrderRequest;
 import com.example.health_management.application.DTOs.payment.ZaloPayOrderResponse;
 import com.example.health_management.common.Constants;
+import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.utils.zalopay.h_mac.ZaloPayHelper;
+import com.example.health_management.domain.entities.AppointmentRecord;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,15 +19,14 @@ import java.time.Duration;
 import java.util.Date;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
-
+    private final TransactionService transactionService;
+    private final AppointmentRecordService appointmentRecordService;
     private final ObjectMapper objectMapper;
 
-    public PaymentService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
-    public MerchantAppCreateOrderResponse createZaloPaymentOrder(MerchantAppCreateOrderRequest merchantAppCreateOrderRequest) {
+    public MerchantAppCreateOrderResponse createZaloPaymentOrder(MerchantAppCreateOrderRequest request) {
             RestTemplate restTemplate = new RestTemplateBuilder()
                     .setConnectTimeout(Duration.ofSeconds(10))
                     .setReadTimeout(Duration.ofSeconds(30))
@@ -33,14 +35,13 @@ public class PaymentService {
             headers.add(org.springframework.http.HttpHeaders.CONTENT_TYPE, org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
             ZaloPayOrderResponse zaloPayOrderResponse = null;
         try {
-            ZaloPayOrderRequest zaloPayOrderRequest = ZaloPayOrderRequest.builder().amount(merchantAppCreateOrderRequest.getAmount()).appUser(merchantAppCreateOrderRequest.getUserId().toString()).build();
+            ZaloPayOrderRequest zaloPayOrderRequest = ZaloPayOrderRequest.builder().amount(request.getAmount()).appUser(request.getUserId().toString()).build();
             zaloPayOrderRequest.setItem("[]");
             zaloPayOrderRequest.setAppId(Constants.APP_ID);
             zaloPayOrderRequest.setEmbedData("{}");
             zaloPayOrderRequest.setAppTransId(ZaloPayHelper.getAppTransId());
-            zaloPayOrderRequest.setAppId(Constants.APP_ID);
             zaloPayOrderRequest.setBankCode("zalopayapp");
-            zaloPayOrderRequest.setDescription(merchantAppCreateOrderRequest.getDescription());
+            zaloPayOrderRequest.setDescription(request.getDescription());
             zaloPayOrderRequest.setAppTime(new Date().getTime());
             zaloPayOrderRequest.getMacWithHelper();
 
@@ -51,6 +52,17 @@ public class PaymentService {
                     ZaloPayOrderResponse.class
             );
 
+            AppointmentRecord appointmentRecord = appointmentRecordService.getAppointmentById(request.getAppointmentId());
+
+            if(appointmentRecord == null) {
+                throw new IllegalArgumentException("Appointment record not found");
+            } else {
+                if (transactionService.isTransactionExists(zaloPayOrderResponse.getZpTransToken())) {
+                    throw new IllegalArgumentException("Transaction ID already exists");
+                }
+                transactionService.createTransaction(zaloPayOrderResponse.getZpTransToken(), request.getAmount(), appointmentRecord);
+                appointmentRecordService.updateStatus(appointmentRecord.getId(), AppointmentStatus.SCHEDULED);
+            }
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeyException e) {
