@@ -12,4 +12,9 @@ public interface TransactionRepository extends SoftDeleteRepository<Transaction,
 
     @Query("SELECT t FROM Transaction t WHERE t.zpTransToken = :zpTransToken")
     Transaction findByZpTransToken(String zpTransToken);
+
+    @Query("SELECT t FROM Transaction t WHERE t.appointmentRecord.id = :appointmentId")
+    Transaction findByAppointmentId(Long appointmentId);
+
+
 }
