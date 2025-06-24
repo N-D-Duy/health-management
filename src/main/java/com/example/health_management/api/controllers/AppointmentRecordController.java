@@ -128,4 +128,5 @@ public class AppointmentRecordController {
         ApiResponse<String> apiResponse = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data(result).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
+
 }
