@@ -417,7 +417,6 @@ public class AppointmentRecordService {
         }
     }
 
-
     private void setAppointmentStatusCancel(AppointmentRecord appointment) {
         appointment.setStatus(AppointmentStatus.CANCELLED);
     }

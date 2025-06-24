@@ -32,3 +32,8 @@ spring:
 logging:
   level:
     root: info
+
+cron-jobs:
+  profiles:
+    - name: AUTO_REFUND
+      cron: "0/3 * * * * ?"
