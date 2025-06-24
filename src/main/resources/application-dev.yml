@@ -26,7 +26,7 @@ spring:
 #  liquibase:
 #    enabled: false
   liquibase:
-    enabled: false
+    enabled: true
     change-log: classpath:changelog/db.changelog-master.yml
 
 logging:
