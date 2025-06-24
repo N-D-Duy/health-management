@@ -14,9 +14,10 @@ public class Transaction extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String transactionId;
     private Long amount;
+    private String zpTransToken;
+    private String transactionId;
     @ManyToOne(targetEntity = AppointmentRecord.class)
-    @JoinColumn(name = "appointment_record_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "appointment_record_id", referencedColumnName = "id")
     private AppointmentRecord appointmentRecord;
 }

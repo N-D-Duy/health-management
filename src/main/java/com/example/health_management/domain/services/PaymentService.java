@@ -1,18 +1,18 @@
 package com.example.health_management.domain.services;
+
 import com.example.health_management.application.DTOs.payment.MerchantAppCreateOrderRequest;
 import com.example.health_management.application.DTOs.payment.MerchantAppCreateOrderResponse;
 import com.example.health_management.application.DTOs.payment.ZaloPayOrderRequest;
 import com.example.health_management.application.DTOs.payment.ZaloPayOrderResponse;
 import com.example.health_management.common.Constants;
-import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.utils.zalopay.h_mac.ZaloPayHelper;
-import com.example.health_management.domain.entities.AppointmentRecord;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
@@ -22,9 +22,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class PaymentService {
     private final TransactionService transactionService;
-    private final AppointmentRecordService appointmentRecordService;
     private final ObjectMapper objectMapper;
-
 
     public MerchantAppCreateOrderResponse createZaloPaymentOrder(MerchantAppCreateOrderRequest request) {
             RestTemplate restTemplate = new RestTemplateBuilder()
@@ -52,17 +50,7 @@ public class PaymentService {
                     ZaloPayOrderResponse.class
             );
 
-            AppointmentRecord appointmentRecord = appointmentRecordService.getAppointmentById(request.getAppointmentId());
-
-            if(appointmentRecord == null) {
-                throw new IllegalArgumentException("Appointment record not found");
-            } else {
-                if (transactionService.isTransactionExists(zaloPayOrderResponse.getZpTransToken())) {
-                    throw new IllegalArgumentException("Transaction ID already exists");
-                }
-                transactionService.createTransaction(zaloPayOrderResponse.getZpTransToken(), request.getAmount(), appointmentRecord);
-                appointmentRecordService.updateStatus(appointmentRecord.getId(), AppointmentStatus.SCHEDULED);
-            }
+            transactionService.createTransaction(zaloPayOrderResponse.getZpTransToken(), request.getAmount());
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeyException e) {

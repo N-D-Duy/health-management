@@ -100,5 +100,4 @@ public class DoctorScheduleService {
         String fileName = "Doctor_Schedule_" + doctorName + ".xlsx";
         return ExcelUtils.toByteArrayResource(workbook, fileName);
     }
-
 }
