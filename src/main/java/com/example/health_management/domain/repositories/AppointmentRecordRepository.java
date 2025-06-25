@@ -14,10 +14,10 @@ import java.util.Optional;
 
 @Repository
 public interface AppointmentRecordRepository extends SoftDeleteRepository<AppointmentRecord, Long> {
-    @Query("SELECT a FROM AppointmentRecord a WHERE a.user.id = :id")
+    @Query("SELECT a FROM AppointmentRecord a WHERE a.user.id = :id and a.deletedAt IS NULL")
     List<AppointmentRecord> findByUserId(@NonNull Long id);
 
-    @Query("SELECT a FROM AppointmentRecord a WHERE a.doctor.id = :id")
+    @Query("SELECT a FROM AppointmentRecord a WHERE a.doctor.id = :id and a.deletedAt IS NULL")
     List<AppointmentRecord> findByDoctorId(@NonNull Long id);
 
     @Query("""
