@@ -29,7 +29,7 @@ public class TransactionService {
     }
 
     public void updateTransaction(UpdateTransRequest req) {
-        String zpTokens = req.getZpTokens();
+        String zpTokens = req.getZpTransToken();
         Long appointmentId = req.getAppointmentId();
         String transactionId = req.getTransactionId();
         if (zpTokens == null || zpTokens.isEmpty()) {
@@ -54,8 +54,32 @@ public class TransactionService {
         transactionRepository.save(transaction);
     }
 
+    public void updateMRefundId(Long appointmentId, String mRefundId) {
+        Transaction transaction = findTransactionByAppointmentId(appointmentId);
+        if (transaction == null) {
+            throw new RuntimeException("Transaction not found for the given appointment ID");
+        }
+        transaction.setMRefundId(mRefundId);
+        transactionRepository.save(transaction);
+    }
+
+
+    public Transaction findTransactionByAppointmentId(Long appointmentId) {
+        try {
+            Transaction transaction = transactionRepository.findByAppointmentId(appointmentId);
+            if (transaction == null) {
+                throw new IllegalArgumentException("Transaction not found for the given appointment ID");
+            }
+            return transaction;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean isTransactionExists(String transactionId) {
         return transactionRepository.existsByZPToken(transactionId);
     }
+
+
 
 }

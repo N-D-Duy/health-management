@@ -201,7 +201,7 @@ CREATE TABLE  public.appointment_records
     CONSTRAINT appointment_records_appointment_type_check CHECK (((appointment_type)::text = ANY (ARRAY[('TELEMEDICINE':: character varying)::text, ('IN_PERSON':: character varying)::text]))),
     CONSTRAINT appointment_records_payment_status_check CHECK (((payment_status)::text = ANY ((ARRAY['INITIAL'::character varying, 'DEPOSITED'::character varying, 'PAID_IN_FULL'::character varying])::text[]))),
     CONSTRAINT appointment_records_status_check CHECK (((status)::text = ANY (ARRAY[('PENDING'::character varying)::text, ('SCHEDULED'::character varying)::text, ('CANCELLED'::character varying)::text, ('COMPLETED'::character varying)::text]))),
-    CONSTRAINT appointment_records_deposit_status_check CHECK (((deposit_status)::text = ANY (ARRAY['NONE'::character varying, 'HOLD'::character varying, 'REFUNDED'::character varying, 'USED'::character varying, 'LOST'::character varying, 'PARTIAL_LOST'::character varying]::text[])))
+    CONSTRAINT appointment_records_deposit_status_check CHECK (((deposit_status)::text = ANY (ARRAY['NONE'::character varying, 'HOLD'::character varying, 'REFUNDED'::character varying, 'USED'::character varying, 'LOST'::character varying, 'PARTIAL_REFUND_PENDING'::character varying, 'FULL_REFUND_PENDING'::character varying]::text[])))
 );
 
 

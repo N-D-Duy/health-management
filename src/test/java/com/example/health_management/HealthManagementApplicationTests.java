@@ -2,15 +2,23 @@ package com.example.health_management;
 
 import com.example.health_management.application.DTOs.payment.MerchantAppCreateOrderRequest;
 import com.example.health_management.application.DTOs.payment.MerchantAppCreateOrderResponse;
+import com.example.health_management.application.DTOs.payment.ZaloPayRefundRequest;
+import com.example.health_management.application.DTOs.payment.ZaloPayRefundResponse;
+import com.example.health_management.common.Constants;
+import com.example.health_management.common.utils.zalopay.h_mac.ZaloPayHelper;
 import com.example.health_management.domain.services.PaymentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.lang.Assert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.web.client.RestTemplate;
 
 import java.security.*;
+import java.time.Duration;
 
 @SpringBootTest
 @RequiredArgsConstructor
@@ -18,6 +26,8 @@ import java.security.*;
 class HealthManagementApplicationTests {
 	@Autowired
 	private PaymentService paymentService;
+	@Autowired
+	private ObjectMapper objectMapper;
 
 
 	@Test
@@ -56,6 +66,25 @@ class HealthManagementApplicationTests {
 			Assert.notNull(merchantAppCreateOrderResponse.getZpTransToken());
 			System.out.println(merchantAppCreateOrderResponse.toString());
 		} catch (RuntimeException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Test
+	public void testRefundApiUsingAppointmentId() {
+		try {
+			paymentService.refundAppointmentTransaction(28L, 0.5);
+		} catch (Exception e) {
+			log.error("Error during refund: " + e.getMessage());
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Test
+	public void testQueryRefundStatus() {
+		try {
+			paymentService.queryRefundStatus(28L);
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

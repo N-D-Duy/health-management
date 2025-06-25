@@ -358,11 +358,11 @@ public class AppointmentRecordService {
             LocalDateTime scheduledAt = appointment.getScheduledAt();
 
             if (Duration.between(createdAt, now).toMinutes() <= 15) {
-                appointment.setDepositStatus(DepositStatus.REFUNDED);
+                appointment.setDepositStatus(DepositStatus.FULL_REFUND_PENDING);
                 result = "Appointment cancelled successfully, full deposit refunded to you";
                 mailContent = "Patient has cancelled the appointment. Full deposit will be refunded to them.";
             } else if (scheduledAt.isAfter(now.plusHours(12))) {
-                appointment.setDepositStatus(DepositStatus.PARTIAL_LOST);
+                appointment.setDepositStatus(DepositStatus.PARTIAL_REFUND_PENDING);
                 result = "Appointment cancelled, 50% of your deposit is lost based on policy";
                 mailContent = "Patient has cancelled the appointment. They will lose 50% of the deposit.";
             } else {
@@ -433,6 +433,13 @@ public class AppointmentRecordService {
     public void updateStatus(Long appointmentId, AppointmentStatus status) {
         AppointmentRecord appointmentRecord = getAppointmentById(appointmentId);
         appointmentRecord.setStatus(status);
+        appointmentRecordRepository.save(appointmentRecord);
+        appointmentCacheService.invalidateAppointmentCaches(appointmentId, appointmentRecord.getUser().getId(), appointmentRecord.getDoctor().getId());
+    }
+
+    public void updateDepositStatus(Long appointmentId, DepositStatus depositStatus) {
+        AppointmentRecord appointmentRecord = getAppointmentById(appointmentId);
+        appointmentRecord.setDepositStatus(depositStatus);
         appointmentRecordRepository.save(appointmentRecord);
         appointmentCacheService.invalidateAppointmentCaches(appointmentId, appointmentRecord.getUser().getId(), appointmentRecord.getDoctor().getId());
     }

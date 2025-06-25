@@ -36,4 +36,4 @@ logging:
 cron-jobs:
   profiles:
     - name: AUTO_REFUND
-      cron: "0/3 * * * * ?"
+      cron: "0/30 * * * * ?"
