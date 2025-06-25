@@ -73,7 +73,7 @@ class HealthManagementApplicationTests {
 	@Test
 	public void testRefundApiUsingAppointmentId() {
 		try {
-			paymentService.refundAppointmentTransaction(28L);
+			paymentService.refundAppointmentTransaction(28L, 0.5);
 		} catch (Exception e) {
 			log.error("Error during refund: " + e.getMessage());
 			throw new RuntimeException(e);

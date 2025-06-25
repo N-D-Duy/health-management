@@ -62,7 +62,7 @@ public class PaymentService {
         return MerchantAppCreateOrderResponse.builder().zpTransToken(zaloPayOrderResponse.getZpTransToken()).build();
     }
 
-    public void refundAppointmentTransaction(Long appointmentId) {
+    public void refundAppointmentTransaction(Long appointmentId, double refundRate) {
         Transaction transaction = transactionService.findTransactionByAppointmentId(appointmentId);
         if (transaction == null) {
             throw new IllegalArgumentException("Completed transaction not found for the given appointment ID");
@@ -78,7 +78,7 @@ public class PaymentService {
         try {
             zaloPayRefundRequest.setAppId(Constants.APP_ID);
             zaloPayRefundRequest.setZpTransId(transaction.getTransactionId());
-            zaloPayRefundRequest.setAmount(transaction.getAmount());
+            zaloPayRefundRequest.setAmount((long) (transaction.getAmount() * refundRate));
             zaloPayRefundRequest.setMRefundId(ZaloPayHelper.getMRefundId(Constants.APP_ID));
             zaloPayRefundRequest.setDescription("Refund for appointment ID: " + appointmentId);
             zaloPayRefundRequest.setTimestamp(new Date().getTime());
@@ -134,4 +134,6 @@ public class PaymentService {
         log.info("Query refund status response: {}", zaloPayQueryRefundStatusResponse);
         return ZaloPayRefundStatus.fromCode(zaloPayQueryRefundStatusResponse.getReturnCode());
     }
+
+
 }
