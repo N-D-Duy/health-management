@@ -8,8 +8,10 @@ import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.common.utils.exports.ExcelUtils;
 import com.example.health_management.domain.entities.Doctor;
 import com.example.health_management.domain.entities.DoctorSchedule;
+import com.example.health_management.domain.entities.User;
 import com.example.health_management.domain.repositories.DoctorRepository;
 import com.example.health_management.domain.repositories.DoctorScheduleRepository;
+import com.example.health_management.domain.repositories.UserRepository;
 import com.example.health_management.domain.services.exporters.ExcelScheduleExporter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -18,7 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +33,10 @@ public class DoctorScheduleService {
     private final DoctorRepository doctorRepository;
     private final DoctorScheduleMapper doctorScheduleMapper;
     private final ExcelScheduleExporter excelScheduleExporter;
+    private final UserRepository userRepository;
 
     public void createDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {
-        if (doctorScheduleRepository.existsByPatientNameAndStartTime(doctorScheduleDTO.getPatientName(), doctorScheduleDTO.getStartTime())) {
+        if (doctorScheduleRepository.patientBusyAtTime(doctorScheduleDTO.getPatientName(), doctorScheduleDTO.getStartTime())) {
             throw new ConflictException("Patient already has a schedule at this time");
         }
         if(isDoctorBusy(doctorScheduleDTO.getDoctorId(), doctorScheduleDTO.getStartTime())) {
@@ -47,6 +53,7 @@ public class DoctorScheduleService {
         doctorSchedule.setExaminationType(doctorScheduleDTO.getExaminationType());
         doctorSchedule.setAppointmentStatus(doctorScheduleDTO.getAppointmentStatus());
         doctorSchedule.setNote(doctorScheduleDTO.getNote());
+        doctorSchedule.setAppointmentRecord(doctorScheduleDTO.getAppointmentRecord());
 
         doctorScheduleRepository.save(doctorSchedule);
     }
@@ -65,6 +72,34 @@ public class DoctorScheduleService {
                         .build())
                 .distinct()
                 .filter(schedule -> !schedule.isAvailable() && schedule.getTime().isAfter(LocalDateTime.now()))
+                .toList();
+    }
+
+    //combine the busy times for the doctor (schedules with no 'CANCELLED' status) and the patient (the schedules that the patient has with no 'CANCELLED' status)
+    public List<DoctorAvailableResponse> getBusyTimesForPatient(Long doctorId, Long patientId) {
+        List<DoctorSchedule> doctorSchedules = doctorScheduleRepository.findAllByDoctorId(doctorId)
+                .stream()
+                .filter(ds -> ds.getAppointmentStatus() == AppointmentStatus.SCHEDULED)
+                .toList();
+
+        User patient = userRepository.findById(patientId)
+                .orElseThrow(() -> new ConflictException("Patient not found"));
+        String patientName = patient.getFirstName() + " " + patient.getLastName();
+
+        List<DoctorSchedule> patientSchedules = doctorSchedules.stream()
+                .filter(ds -> ds.getPatientName().equals(patientName))
+                .toList();
+
+        Set<LocalDateTime> busyTimes = new HashSet<>();
+        doctorSchedules.forEach(ds -> busyTimes.add(ds.getStartTime()));
+        patientSchedules.forEach(ds -> busyTimes.add(ds.getStartTime()));
+
+        return busyTimes.stream()
+                .map(time -> DoctorAvailableResponse.builder()
+                        .time(time)
+                        .isAvailable(false)
+                        .build())
+                .sorted(Comparator.comparing(DoctorAvailableResponse::getTime))
                 .toList();
     }
 

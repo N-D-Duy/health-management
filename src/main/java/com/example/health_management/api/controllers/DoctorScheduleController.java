@@ -36,6 +36,14 @@ public class DoctorScheduleController {
         return ResponseEntity.ok(response);
     }
 
+    //get busy times base on doctor id and patient requesting the schedule (to see what times are unavailable for the patient)
+    @GetMapping("/{doctorId}/busy-times/{patientId}")
+    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorAvailableResponse>>> getBusyTimesForPatient(@PathVariable("doctorId") Long doctorId, @PathVariable("patientId") Long patientId) {
+        List<DoctorAvailableResponse> availableTimes = doctorScheduleService.getBusyTimesForPatient(doctorId, patientId);
+        ApiResponse<List<DoctorAvailableResponse>> response = ApiResponse.<List<DoctorAvailableResponse>>builder().code(200).data(availableTimes).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/export/{doctorId}")
     public @ResponseBody ResponseEntity<ByteArrayResource> exportDoctorSchedules(@PathVariable("doctorId") Long doctorId, @RequestParam("startDate") LocalDateTime startDate, @RequestParam(value = "endDate", required = false) LocalDateTime endDate) {
         ByteArrayResource file = doctorScheduleService.exportDoctorSchedules(doctorId, startDate, endDate);

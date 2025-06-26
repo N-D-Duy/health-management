@@ -17,8 +17,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.*;
 import java.time.Duration;
+import java.util.Base64;
 
 @SpringBootTest
 @RequiredArgsConstructor
@@ -28,6 +33,20 @@ class HealthManagementApplicationTests {
 	private PaymentService paymentService;
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	@Test
+	public void getAvatarDir() {
+		try {
+			String avatar = "src/main/resources/static/avatars/user_" + 1 + ".jpg";
+			Path imagePath = Paths.get(avatar);
+			byte[] imageBytes = Files.readAllBytes(imagePath);
+			String base64 = Base64.getEncoder().encodeToString(imageBytes);
+			String result =  "data:image/jpeg;base64," + base64;
+			log.info("Avatar Base64: {}", result);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 
 	@Test

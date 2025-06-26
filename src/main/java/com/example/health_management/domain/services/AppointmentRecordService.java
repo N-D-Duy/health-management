@@ -10,10 +10,7 @@ import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.shared.enums.DepositStatus;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.cache.services.AppointmentCacheService;
-import com.example.health_management.domain.entities.AppointmentRecord;
-import com.example.health_management.domain.entities.Doctor;
-import com.example.health_management.domain.entities.HealthProvider;
-import com.example.health_management.domain.entities.User;
+import com.example.health_management.domain.entities.*;
 import com.example.health_management.domain.repositories.*;
 import com.example.health_management.domain.services.exporters.PDFExporter;
 import com.example.health_management.infrastructure.client.MailClient;
@@ -76,17 +73,6 @@ public class AppointmentRecordService {
             appointmentRecord.setHealthProvider(healthProvider);
 
 
-            DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
-                    .doctorId(request.getDoctorId())
-                    .startTime(request.getScheduledAt())
-                    .patientName(user.getFirstName() + " " + user.getLastName())
-                    .appointmentStatus(AppointmentStatus.SCHEDULED)
-                    .examinationType("-")
-                    .note(request.getNote())
-                    .appointmentRecord(appointmentRecord)
-                    .build();
-
-
             //check if there is any deposit been holding
             AppointmentRecord latestHeldDeposit = appointmentRecordRepository
                     .findLatestHeldDepositByUserId(user.getId())
@@ -101,6 +87,17 @@ public class AppointmentRecordService {
                 }
             }
             AppointmentRecord savedRecord = appointmentRecordRepository.save(appointmentRecord);
+
+            DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
+                    .doctorId(request.getDoctorId())
+                    .startTime(request.getScheduledAt())
+                    .patientName(user.getFirstName() + " " + user.getLastName())
+                    .appointmentStatus(AppointmentStatus.SCHEDULED)
+                    .examinationType("-")
+                    .note(request.getNote())
+                    .appointmentRecord(savedRecord)
+                    .build();
+
             doctorScheduleService.createDoctorSchedule(doctorScheduleDTO);
 
             AppointmentRecordDTO result = appointmentRecordMapper.toDTO(savedRecord);
@@ -330,6 +327,8 @@ public class AppointmentRecordService {
         } else {
             throw new ConflictException("User is neither a doctor nor a patient");
         }
+
+
     }
 
     /*
@@ -354,22 +353,22 @@ public class AppointmentRecordService {
         });
     }
 
-    private void notifyCancellation(AppointmentRecord appointment, boolean isCancelledByDoctor, String message) {
-        String email = isCancelledByDoctor
-                ? appointment.getUser().getAccount().getEmail()
-                : appointment.getDoctor().getUser().getAccount().getEmail();
+    private void notifyCancellation(AppointmentRecord appointment, Map<String, String> message) {
+        String patientEmail = appointment.getUser().getAccount().getEmail();
+        String doctorEmail = appointment.getDoctor().getUser().getAccount().getEmail();
 
-        String content = isCancelledByDoctor
-                ? "[Doctor Cancelled] " + message
-                : "[Patient Cancelled] " + message;
 
-        sendCancellationNotification(Map.of(email, content));
+        sendCancellationNotification(Map.of(
+            patientEmail, message.get("patient"),
+            doctorEmail, message.get("doctor")
+        ));
     }
 
 
     private String patientCancelAppointment(AppointmentRecord appointment) {
         try {
             String result;
+            String doctorName = appointment.getDoctor().getUser().getFirstName() + " " + appointment.getDoctor().getUser().getLastName();
             String mailContent;
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime createdAt = appointment.getCreatedAt();
@@ -377,15 +376,15 @@ public class AppointmentRecordService {
 
             if (Duration.between(createdAt, now).toMinutes() <= 15) {
                 appointment.setDepositStatus(DepositStatus.FULL_REFUND_PENDING);
-                result = "Appointment cancelled successfully, full deposit refunded to you";
+                result = "You just cancelled appointment with doctor " + doctorName + ". Full deposit will be refunded to you soon.";
                 mailContent = "Patient has cancelled the appointment. Full deposit will be refunded to them.";
             } else if (scheduledAt.isAfter(now.plusHours(12))) {
                 appointment.setDepositStatus(DepositStatus.PARTIAL_REFUND_PENDING);
-                result = "Appointment cancelled, 50% of your deposit is lost based on policy";
+                result = "You just cancelled appointment with doctor " + doctorName + ". 50% of your deposit is lost based on policy";
                 mailContent = "Patient has cancelled the appointment. They will lose 50% of the deposit.";
             } else {
                 appointment.setDepositStatus(DepositStatus.LOST);
-                result = "Appointment cancelled, you lost full deposit based on policy";
+                result = "You just cancelled appointment with doctor " + doctorName + ". Full deposit is lost based on policy";
                 mailContent = "Patient has cancelled the appointment. Full deposit is lost.";
             }
 
@@ -397,8 +396,11 @@ public class AppointmentRecordService {
             appointmentCacheService.invalidateAppointmentCaches(
                     appointment.getId(), appointment.getUser().getId(), appointment.getDoctor().getId());
 
-            notifyCancellation(appointment, false, mailContent);
-            return result; // show to patient
+            notifyCancellation(appointment, Map.of(
+                    "patient", result,
+                    "doctor", mailContent
+            ));
+            return result;
         } catch (Exception e) {
             log.error("Error cancelling appointment for patient: {}", e.getMessage());
             throw new ConflictException("Error cancelling appointment: " + e.getMessage());
@@ -408,6 +410,7 @@ public class AppointmentRecordService {
 
     private String doctorCancelAppointment(AppointmentRecord appointment) {
         try {
+            String patientName = appointment.getUser().getFirstName() + " " + appointment.getUser().getLastName();
             // Bác sĩ hủy: tạm giữ cọc (user sẽ chọn đổi hoặc hoàn cọc sau)
             appointment.setDepositStatus(DepositStatus.HOLD);
 
@@ -425,9 +428,12 @@ public class AppointmentRecordService {
                     appointment.getUser().getId(),
                     appointment.getDoctor().getId()
             );
-            String result = "Appointment cancelled by doctor, deposit is on hold";
+            String result = "You just cancelled the appointment with patient: " + patientName + " , the deposit is on hold";
             String mailContent = "Doctor has cancelled the appointment. Deposit is on hold until further action. You can choose to refund or reschedule later. After 24 hours, the deposit will be refunded automatically.";
-            notifyCancellation(appointment, true, mailContent);
+            notifyCancellation(appointment, Map.of(
+                    "patient", result,
+                    "doctor", mailContent
+            ));
             return result;
         } catch (Exception e) {
             log.error("Error cancelling appointment for doctor: {}", e.getMessage());
