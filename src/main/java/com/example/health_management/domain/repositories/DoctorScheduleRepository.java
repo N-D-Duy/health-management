@@ -33,4 +33,7 @@ public interface DoctorScheduleRepository extends SoftDeleteRepository<DoctorSch
     @Transactional
     @Query("UPDATE DoctorSchedule ds SET ds.appointmentStatus = :status WHERE ds.appointmentRecord.id = :appointmentId")
     void updateAppointmentStatusByAppointmentId(Long appointmentId, AppointmentStatus status);
+
+    @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.patientName = :patientName AND ds.deletedAt IS NULL AND ds.appointmentStatus = 'SCHEDULED'")
+    List<DoctorSchedule> findByPatientName(String patientName);
 }

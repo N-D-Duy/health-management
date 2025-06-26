@@ -86,7 +86,7 @@ public class DoctorScheduleService {
                 .orElseThrow(() -> new ConflictException("Patient not found"));
         String patientName = patient.getFirstName() + " " + patient.getLastName();
 
-        List<DoctorSchedule> patientSchedules = doctorSchedules.stream()
+        List<DoctorSchedule> patientSchedules = doctorScheduleRepository.findByPatientName(patientName).stream()
                 .filter(ds -> ds.getPatientName().equals(patientName))
                 .toList();
 
