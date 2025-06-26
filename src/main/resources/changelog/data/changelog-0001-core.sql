@@ -312,21 +312,21 @@ INSERT INTO public.prescription_details (id, created_at, deleted_at, updated_at,
 --
 -- Data for Name: doctor_schedules; Type: TABLE DATA; Schema: public; Owner: postgres
 --
-INSERT INTO public.doctor_schedules VALUES (1, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Follow-up consultation', 'John Doe', '2024-11-15 00:00:00', 1, 1);
-INSERT INTO public.doctor_schedules VALUES (2, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Initial checkup', 'Mark Johnson', '2024-11-16 00:00:00', 2, 2);
-INSERT INTO public.doctor_schedules VALUES (3, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Review test results', 'Alice Brown', '2024-11-17 00:00:00', 3, 3);
-INSERT INTO public.doctor_schedules VALUES (4, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'CANCELLED', NULL, 'Vaccination appointment', 'Cathy Miller', '2024-11-18 00:00:00', 4, 4);
-INSERT INTO public.doctor_schedules VALUES (5, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Mental health check', 'Eve Moore', '2024-11-19 00:00:00', 5, 5);
-INSERT INTO public.doctor_schedules VALUES (6, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Annual physical exam', 'Grace Anderson', '2024-11-20 00:00:00', 6, 6);
-INSERT INTO public.doctor_schedules VALUES (7, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Consultation about medication', 'Ivy Jackson', '2024-11-21 00:00:00', 7, 7);
-INSERT INTO public.doctor_schedules VALUES (8, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Follow-up on treatment', 'John Doe', '2024-11-22 00:00:00', 1, 8);
-INSERT INTO public.doctor_schedules VALUES (9, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Discuss test results', 'Mark Johnson', '2024-11-23 00:00:00', 2, 9);
-INSERT INTO public.doctor_schedules VALUES (10, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Routine checkup', 'Alice Brown', '2024-11-24 00:00:00', 3, 10);
-INSERT INTO public.doctor_schedules VALUES (11, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'CANCELLED', NULL, 'Medication review', 'Cathy Miller', '2024-11-25 00:00:00', 4, 11);
-INSERT INTO public.doctor_schedules VALUES (12, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Health screening', 'Eve Moore', '2024-11-26 00:00:00', 5, 12);
-INSERT INTO public.doctor_schedules VALUES (13, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Lifestyle consultation', 'Grace Anderson', '2024-11-27 00:00:00', 6, 13);
-INSERT INTO public.doctor_schedules VALUES (14, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Post-operative check', 'Ivy Jackson', '2024-11-28 00:00:00', 7, 14);
-INSERT INTO public.doctor_schedules VALUES (15, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Follow-up appointment', 'John Doe', '2024-11-29 00:00:00', 1, 15);
+INSERT INTO public.doctor_schedules VALUES (1, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Follow-up consultation', 'John Doe', '2024-11-15 08:00:00', 1, 1);
+INSERT INTO public.doctor_schedules VALUES (2, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Initial checkup', 'Mark Johnson', '2024-11-16 09:00:00', 2, 2);
+INSERT INTO public.doctor_schedules VALUES (3, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Review test results', 'Alice Brown', '2024-11-17 10:00:00', 3, 3);
+INSERT INTO public.doctor_schedules VALUES (4, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'CANCELLED', NULL, 'Vaccination appointment', 'Cathy Miller', '2024-11-18 10:00:00', 4, 4);
+INSERT INTO public.doctor_schedules VALUES (5, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Mental health check', 'Eve Moore', '2024-11-19 11:00:00', 5, 5);
+INSERT INTO public.doctor_schedules VALUES (6, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Annual physical exam', 'Grace Anderson', '2024-11-20 12:00:00', 6, 6);
+INSERT INTO public.doctor_schedules VALUES (7, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Consultation about medication', 'Ivy Jackson', '2024-11-21 13:00:00', 7, 7);
+INSERT INTO public.doctor_schedules VALUES (8, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Follow-up on treatment', 'John Doe', '2024-11-22 10:00:00', 1, 8);
+INSERT INTO public.doctor_schedules VALUES (9, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Discuss test results', 'Mark Johnson', '2024-11-23 08:00:00', 2, 9);
+INSERT INTO public.doctor_schedules VALUES (10, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Routine checkup', 'Alice Brown', '2024-11-24 10:00:00', 3, 10);
+INSERT INTO public.doctor_schedules VALUES (11, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'CANCELLED', NULL, 'Medication review', 'Cathy Miller', '2024-11-25 09:00:00', 4, 11);
+INSERT INTO public.doctor_schedules VALUES (12, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Health screening', 'Eve Moore', '2024-11-26 10:00:00', 5, 12);
+INSERT INTO public.doctor_schedules VALUES (13, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Lifestyle consultation', 'Grace Anderson', '2024-11-27 10:00:00', 6, 13);
+INSERT INTO public.doctor_schedules VALUES (14, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'COMPLETED', NULL, 'Post-operative check', 'Ivy Jackson', '2024-11-28 10:00:00', 7, 14);
+INSERT INTO public.doctor_schedules VALUES (15, '2024-11-05 12:41:53.826392', NULL, '2024-11-05 12:41:53.826392', 'SCHEDULED', NULL, 'Follow-up appointment', 'John Doe', '2024-11-15 08:00:00', 1, 15);
 
 
 --

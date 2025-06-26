@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +56,7 @@ public class DoctorScheduleService {
         return doctorSchedules.stream().map(doctorScheduleMapper::toDTO).toList();
     }
 
-    public List<DoctorAvailableResponse> getAvailableTimes(Long doctorId) {
+    public List<DoctorAvailableResponse> getBusyTimes(Long doctorId) {
         List<DoctorSchedule> schedules = doctorScheduleRepository.findAllByDoctorId(doctorId);
         return schedules.stream()
                 .map(schedule -> DoctorAvailableResponse.builder()
@@ -65,6 +64,7 @@ public class DoctorScheduleService {
                         .isAvailable(!isDoctorBusy(doctorId, schedule.getStartTime()))
                         .build())
                 .distinct()
+                .filter(schedule -> !schedule.isAvailable() && schedule.getTime().isAfter(LocalDateTime.now()))
                 .toList();
     }
 

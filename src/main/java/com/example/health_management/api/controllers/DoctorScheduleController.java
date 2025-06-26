@@ -4,7 +4,6 @@ import com.example.health_management.application.DTOs.doctor.DoctorAvailableResp
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.domain.services.DoctorScheduleService;
-import com.example.health_management.domain.services.exporters.ExcelScheduleExporter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -30,9 +29,9 @@ public class DoctorScheduleController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{doctorId}/available-times")
-    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorAvailableResponse>>> getAvailableTimes(@PathVariable("doctorId") Long doctorId) {
-        List<DoctorAvailableResponse> availableTimes = doctorScheduleService.getAvailableTimes(doctorId);
+    @GetMapping("/{doctorId}/busy-times")
+    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorAvailableResponse>>> getBusyTimes(@PathVariable("doctorId") Long doctorId) {
+        List<DoctorAvailableResponse> availableTimes = doctorScheduleService.getBusyTimes(doctorId);
         ApiResponse<List<DoctorAvailableResponse>> response = ApiResponse.<List<DoctorAvailableResponse>>builder().code(200).data(availableTimes).message("Success").build();
         return ResponseEntity.ok(response);
     }
