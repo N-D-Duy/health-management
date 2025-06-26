@@ -44,7 +44,6 @@ public class AppointmentRecordController {
         return ResponseEntity.ok(apiResponse);
     }
 
-
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<AppointmentRecordDTO>> createAppointmentRecord(@RequestBody AppointmentRecordRequestDTO appointmentRecordRequestDto) {
         AppointmentRecordDTO appointmentRecordDTO = AppointmentRecordService.create(appointmentRecordRequestDto);

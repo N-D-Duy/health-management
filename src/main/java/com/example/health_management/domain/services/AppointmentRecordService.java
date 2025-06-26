@@ -73,7 +73,7 @@ public class AppointmentRecordService {
                     .doctorId(request.getDoctorId())
                     .startTime(request.getScheduledAt())
                     .patientName(user.getFirstName() + " " + user.getLastName())
-                    .appointmentStatus(AppointmentStatus.PENDING)
+                    .appointmentStatus(AppointmentStatus.SCHEDULED)
                     .examinationType("-")
                     .note(request.getNote())
                     .appointmentRecord(appointmentRecord)

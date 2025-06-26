@@ -34,7 +34,7 @@ public class RefundService {
             return;
         }
 
-        for( AppointmentRecord appointment : targetAppointmentList) {
+        for(AppointmentRecord appointment : targetAppointmentList) {
             log.info("Processing refund for appointment ID: {}", appointment.getId());
             ZaloPayRefundStatus appointmentRefundStatus = paymentService.queryRefundStatus(appointment.getId());
             if (appointmentRefundStatus == ZaloPayRefundStatus.SUCCESS) {

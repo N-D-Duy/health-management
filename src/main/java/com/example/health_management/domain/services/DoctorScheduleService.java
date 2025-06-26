@@ -1,5 +1,6 @@
 package com.example.health_management.domain.services;
 
+import com.example.health_management.application.DTOs.doctor.DoctorAvailableResponse;
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.mapper.DoctorScheduleMapper;
 import com.example.health_management.common.shared.enums.AppointmentStatus;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,17 @@ public class DoctorScheduleService {
     public List<DoctorScheduleDTO> getDoctorSchedules(Long doctorId) {
         List<DoctorSchedule> doctorSchedules = doctorScheduleRepository.findAllByDoctorId(doctorId);
         return doctorSchedules.stream().map(doctorScheduleMapper::toDTO).toList();
+    }
+
+    public List<DoctorAvailableResponse> getAvailableTimes(Long doctorId) {
+        List<DoctorSchedule> schedules = doctorScheduleRepository.findAllByDoctorId(doctorId);
+        return schedules.stream()
+                .map(schedule -> DoctorAvailableResponse.builder()
+                        .time(schedule.getStartTime())
+                        .isAvailable(!isDoctorBusy(doctorId, schedule.getStartTime()))
+                        .build())
+                .distinct()
+                .toList();
     }
 
     public void updateDoctorSchedule(DoctorScheduleDTO doctorScheduleDTO) {

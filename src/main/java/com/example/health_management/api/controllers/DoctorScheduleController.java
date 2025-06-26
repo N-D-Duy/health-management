@@ -1,5 +1,6 @@
 package com.example.health_management.api.controllers;
 
+import com.example.health_management.application.DTOs.doctor.DoctorAvailableResponse;
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.domain.services.DoctorScheduleService;
@@ -26,6 +27,13 @@ public class DoctorScheduleController {
     public @ResponseBody ResponseEntity<ApiResponse<List<DoctorScheduleDTO>>> getDoctorSchedules(@PathVariable("id") Long doctorId) {
         List<DoctorScheduleDTO> doctorSchedules = doctorScheduleService.getDoctorSchedules(doctorId);
         ApiResponse<List<DoctorScheduleDTO>> response = ApiResponse.<List<DoctorScheduleDTO>>builder().code(200).data(doctorSchedules).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{doctorId}/available-times")
+    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorAvailableResponse>>> getAvailableTimes(@PathVariable("doctorId") Long doctorId) {
+        List<DoctorAvailableResponse> availableTimes = doctorScheduleService.getAvailableTimes(doctorId);
+        ApiResponse<List<DoctorAvailableResponse>> response = ApiResponse.<List<DoctorAvailableResponse>>builder().code(200).data(availableTimes).message("Success").build();
         return ResponseEntity.ok(response);
     }
 
