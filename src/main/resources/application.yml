@@ -36,7 +36,3 @@ management:
   endpoint:
     health:
       show-details: always
-
-client:
-  mail:
-    url: ${MAIL_CLIENT_URL}

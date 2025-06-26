@@ -37,3 +37,7 @@ cron-jobs:
   profiles:
     - name: AUTO_REFUND
       cron: "0/30 * * * * ?"
+
+client:
+  mail:
+    url: http://localhost:4567

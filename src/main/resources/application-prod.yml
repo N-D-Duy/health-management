@@ -28,3 +28,7 @@ cron-jobs:
   profiles:
     - name: AUTO_REFUND
       cron: "0 0 0 * * ?"
+
+client:
+  mail:
+    url: ${MAIL_CLIENT_URL}
