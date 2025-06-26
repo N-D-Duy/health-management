@@ -42,6 +42,8 @@ dependencies {
     api(libs.org.apache.poi.poi.ooxml)
     api(libs.org.xhtmlrenderer.flying.saucer.pdf.itext5)
     api(libs.org.springframework.boot.spring.boot.starter.thymeleaf)
+    api(libs.org.springframework.boot.spring.boot.starter.webflux)
+    api(libs.org.springframework.boot.spring.boot.starter.quartz)
 
     runtimeOnly(libs.org.postgresql.postgresql)
     runtimeOnly(libs.io.opentelemetry.instrumentation.opentelemetry.logback.appender.v1.v0)

@@ -32,4 +32,6 @@ public interface DoctorRepository extends SoftDeleteRepository<Doctor, Long> {
             "LEFT JOIN FETCH d.schedules " +
             "WHERE d IN :doctors")
     List<Doctor> findDoctorsWithSchedules(@Param("doctors") Collection<Doctor> doctors);
+
+
 }

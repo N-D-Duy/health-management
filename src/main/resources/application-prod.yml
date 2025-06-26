@@ -23,3 +23,12 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:changelog/db.changelog-master.yml
+
+cron-jobs:
+  profiles:
+    - name: AUTO_REFUND
+      cron: "0 0 0 * * ?"
+
+client:
+  mail:
+    url: ${MAIL_CLIENT_URL}

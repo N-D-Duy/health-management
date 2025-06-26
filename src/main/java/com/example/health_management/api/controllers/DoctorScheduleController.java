@@ -1,9 +1,9 @@
 package com.example.health_management.api.controllers;
 
+import com.example.health_management.application.DTOs.doctor.DoctorAvailableResponse;
 import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.apiresponse.ApiResponse;
 import com.example.health_management.domain.services.DoctorScheduleService;
-import com.example.health_management.domain.services.exporters.ExcelScheduleExporter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -26,6 +26,21 @@ public class DoctorScheduleController {
     public @ResponseBody ResponseEntity<ApiResponse<List<DoctorScheduleDTO>>> getDoctorSchedules(@PathVariable("id") Long doctorId) {
         List<DoctorScheduleDTO> doctorSchedules = doctorScheduleService.getDoctorSchedules(doctorId);
         ApiResponse<List<DoctorScheduleDTO>> response = ApiResponse.<List<DoctorScheduleDTO>>builder().code(200).data(doctorSchedules).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{doctorId}/busy-times")
+    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorAvailableResponse>>> getBusyTimes(@PathVariable("doctorId") Long doctorId) {
+        List<DoctorAvailableResponse> availableTimes = doctorScheduleService.getBusyTimes(doctorId);
+        ApiResponse<List<DoctorAvailableResponse>> response = ApiResponse.<List<DoctorAvailableResponse>>builder().code(200).data(availableTimes).message("Success").build();
+        return ResponseEntity.ok(response);
+    }
+
+    //get busy times base on doctor id and patient requesting the schedule (to see what times are unavailable for the patient)
+    @GetMapping("/{doctorId}/busy-times/{patientId}")
+    public @ResponseBody ResponseEntity<ApiResponse<List<DoctorAvailableResponse>>> getBusyTimesForPatient(@PathVariable("doctorId") Long doctorId, @PathVariable("patientId") Long patientId) {
+        List<DoctorAvailableResponse> availableTimes = doctorScheduleService.getBusyTimesForPatient(doctorId, patientId);
+        ApiResponse<List<DoctorAvailableResponse>> response = ApiResponse.<List<DoctorAvailableResponse>>builder().code(200).data(availableTimes).message("Success").build();
         return ResponseEntity.ok(response);
     }
 

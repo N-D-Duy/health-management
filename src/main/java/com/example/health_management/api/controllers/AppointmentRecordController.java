@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -44,7 +43,6 @@ public class AppointmentRecordController {
         ApiResponse<AppointmentRecordDTO> apiResponse = ApiResponse.<AppointmentRecordDTO>builder().code(HttpStatus.OK.value()).data(AppointmentRecordDTO).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
-
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<AppointmentRecordDTO>> createAppointmentRecord(@RequestBody AppointmentRecordRequestDTO appointmentRecordRequestDto) {
@@ -97,26 +95,36 @@ public class AppointmentRecordController {
     }
 
 
-    @PostMapping("medication/create")
+    @PostMapping("/medication/create")
     public ResponseEntity<ApiResponse<MedicationDTO>> createMedication(@RequestBody MedicationDTO medicationDTO) {
         MedicationDTO response = medicationService.create(medicationDTO);
         ApiResponse<MedicationDTO> apiResponse = ApiResponse.<MedicationDTO>builder().code(HttpStatus.OK.value()).data(response).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 
-    @PutMapping("medication/update")
+    @PutMapping("/medication/update")
     public ResponseEntity<ApiResponse<MedicationDTO>> updateMedication(@RequestBody MedicationDTO medicationDTO) {
         MedicationDTO response = medicationService.update(medicationDTO);
         ApiResponse<MedicationDTO> apiResponse = ApiResponse.<MedicationDTO>builder().code(HttpStatus.OK.value()).data(response).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
 
-    @GetMapping("export/{id}")
-    public @ResponseBody ResponseEntity<ByteArrayResource> exportDoctorSchedules(@PathVariable("id") Long id, @RequestParam("lang") String language) {
+    @GetMapping("/export/{id}")
+    public @ResponseBody ResponseEntity<ByteArrayResource> exportAppointment(@PathVariable("id") Long id, @RequestParam("lang") String language) {
         ByteArrayResource file = AppointmentRecordService.exportAppointmentPDF(id, language);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getFilename())
                 .body(file);
+    }
+
+    @PostMapping("/cancel/{userId}/{appointmentId}")
+    public ResponseEntity<ApiResponse<String>> cancelAppointment(
+            @PathVariable("userId") Long userId,
+            @PathVariable("appointmentId") Long appointmentId
+    ) {
+        String result = AppointmentRecordService.cancelAppointment(userId, appointmentId);
+        ApiResponse<String> apiResponse = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data(result).message("Success").build();
+        return ResponseEntity.ok(apiResponse);
     }
 }

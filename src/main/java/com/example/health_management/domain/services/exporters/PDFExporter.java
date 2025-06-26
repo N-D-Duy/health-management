@@ -1,5 +1,6 @@
 package com.example.health_management.domain.services.exporters;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class PDFExporter {
     private final SpringTemplateEngine templateEngine;
 
@@ -56,7 +58,6 @@ public class PDFExporter {
                     return fileName;
                 }
             };
-
         } catch (Exception e) {
             throw new RuntimeException("Error generating PDF", e);
         }

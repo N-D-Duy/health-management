@@ -65,17 +65,17 @@ services:
       - health-management-network
 
   #portainer:
-  portainer:
-    image: portainer/portainer-ce:2.30.1
-    container_name: portainer
-    restart: unless-stopped
-    ports:
-      - "9999:9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    networks:
-      - health-management-network
+#  portainer:
+#    image: portainer/portainer-ce:2.30.1
+#    container_name: portainer
+#    restart: unless-stopped
+#    ports:
+#      - "9999:9000"
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - portainer_data:/data
+#    networks:
+#      - health-management-network
 
 
   application:
@@ -108,8 +108,8 @@ volumes:
         driver: local
     redis_insight:
         driver: local
-    portainer_data:
-        driver: local
+#    portainer_data:
+#        driver: local
 networks:
     health-management-network:
         driver: bridge

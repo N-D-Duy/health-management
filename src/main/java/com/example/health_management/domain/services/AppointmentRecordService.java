@@ -7,17 +7,13 @@ import com.example.health_management.application.DTOs.doctor.DoctorScheduleDTO;
 import com.example.health_management.application.DTOs.prescription.PrescriptionDTO;
 import com.example.health_management.application.mapper.AppointmentRecordMapper;
 import com.example.health_management.common.shared.enums.AppointmentStatus;
+import com.example.health_management.common.shared.enums.DepositStatus;
 import com.example.health_management.common.shared.exceptions.ConflictException;
 import com.example.health_management.domain.cache.services.AppointmentCacheService;
-import com.example.health_management.domain.entities.AppointmentRecord;
-import com.example.health_management.domain.entities.Doctor;
-import com.example.health_management.domain.entities.HealthProvider;
-import com.example.health_management.domain.entities.User;
-import com.example.health_management.domain.repositories.AppointmentRecordRepository;
-import com.example.health_management.domain.repositories.DoctorRepository;
-import com.example.health_management.domain.repositories.HealthProviderRepository;
-import com.example.health_management.domain.repositories.UserRepository;
+import com.example.health_management.domain.entities.*;
+import com.example.health_management.domain.repositories.*;
 import com.example.health_management.domain.services.exporters.PDFExporter;
+import com.example.health_management.infrastructure.client.MailClient;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +22,15 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +48,8 @@ public class AppointmentRecordService {
     private final PrescriptionService prescriptionService;
     private final DoctorScheduleService doctorScheduleService;
     private final AppointmentCacheService appointmentCacheService;
+    private final AccountRepository accountRepository;
+    private final MailClient mailClient;
 
     public AppointmentRecordDTO create(AppointmentRecordRequestDTO request) {
         try {
@@ -61,21 +67,35 @@ public class AppointmentRecordService {
             appointmentRecord.setAppointmentType(request.getAppointmentType());
             appointmentRecord.setScheduledAt(request.getScheduledAt());
             appointmentRecord.setStatus(request.getStatus());
-            appointmentRecord.setPaymentStatus(request.getPaymentStatus());
 
             appointmentRecord.setDoctor(doctor);
             appointmentRecord.setUser(user);
             appointmentRecord.setHealthProvider(healthProvider);
 
+
+            //check if there is any deposit been holding
+            AppointmentRecord latestHeldDeposit = appointmentRecordRepository
+                    .findLatestHeldDepositByUserId(user.getId())
+                    .orElse(null);
+            if (latestHeldDeposit != null) {
+                if (latestHeldDeposit.getDepositStatus() == DepositStatus.HOLD) {
+                    // If there is a held deposit, update the appointment record to use this deposit
+                    latestHeldDeposit.setDepositStatus(DepositStatus.USED);
+                    appointmentRecord.setStatus(AppointmentStatus.SCHEDULED);
+                    appointmentRecordRepository.save(latestHeldDeposit);
+                    log.info("Deposit status updated to USED");
+                }
+            }
             AppointmentRecord savedRecord = appointmentRecordRepository.save(appointmentRecord);
 
             DoctorScheduleDTO doctorScheduleDTO = DoctorScheduleDTO.builder()
                     .doctorId(request.getDoctorId())
                     .startTime(request.getScheduledAt())
                     .patientName(user.getFirstName() + " " + user.getLastName())
-                    .appointmentStatus(request.getStatus().toString())
+                    .appointmentStatus(AppointmentStatus.SCHEDULED)
                     .examinationType("-")
                     .note(request.getNote())
+                    .appointmentRecord(savedRecord)
                     .build();
 
             doctorScheduleService.createDoctorSchedule(doctorScheduleDTO);
@@ -83,11 +103,32 @@ public class AppointmentRecordService {
             AppointmentRecordDTO result = appointmentRecordMapper.toDTO(savedRecord);
             appointmentCacheService.invalidateAppointmentCaches(savedRecord.getId(), user.getId(), doctor.getId());
 
+            //notify the user and doctor about the new appointment
+            notifyNewAppointment(appointmentRecord);
             return result;
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new ConflictException("Error creating appointment record: " + e.getMessage());
+        }
+    }
+
+    private void notifyNewAppointment(AppointmentRecord result) {
+        String patientEmail = result.getUser().getAccount().getEmail();
+        String patientName = result.getUser().getFirstName() + " " + result.getUser().getLastName();
+        String doctorEmail = result.getDoctor().getUser().getAccount().getEmail();
+        String doctorName = result.getDoctor().getUser().getFirstName() + " " + result.getDoctor().getUser().getLastName();
+        String contentDoctor = "You have a new appointment scheduled with patient " + patientName +
+                " on " + result.getScheduledAt() + ". Please check your appointment details.";
+        String contentPatient = "You have booked an appointment with doctor " + doctorName +
+                " on " + result.getScheduledAt() + " successfully. Please check your appointment details.";
+        try{
+            mailClient.sendMail(doctorEmail, contentDoctor).subscribe();
+            mailClient.sendMail(patientEmail, contentPatient).subscribe();
+            log.info("New appointment notification sent to patient: {}, doctor: {}", patientEmail, doctorEmail);
+        } catch (Exception e) {
+            log.error("Failed to send new appointment notification: {}", e.getMessage());
+            throw new ConflictException("Failed to send new appointment notification: " + e.getMessage());
         }
     }
 
@@ -98,13 +139,9 @@ public class AppointmentRecordService {
                     .orElseThrow(() -> new ConflictException("AppointmentRecord not found"));
 
             appointmentRecordMapper.update(appointmentRecord, request);
-
             prescriptionService.updatePrescription(appointmentRecord, request);
-
             updateRelationships(appointmentRecord, request);
-
             appointmentRecordRepository.save(appointmentRecord);
-
             AppointmentRecordDTO updatedAppointment = appointmentRecordMapper.toDTO(appointmentRecord);
             Long userId = appointmentRecord.getUser().getId();
             Long doctorId = appointmentRecord.getDoctor().getId();
@@ -147,7 +184,7 @@ public class AppointmentRecordService {
             appointmentRecord.setStatus(AppointmentStatus.CANCELLED);
             appointmentRecordRepository.deleteById(appointmentRecordId);
 
-            doctorScheduleService.updateDoctorScheduleStatus(appointmentRecordId, AppointmentStatus.CANCELLED.toString());
+            doctorScheduleService.updateDoctorScheduleStatusByAppointmentId(appointmentRecordId, AppointmentStatus.CANCELLED);
 
             appointmentCacheService.invalidateAppointmentCaches(appointmentRecordId, userId, doctorId);
 
@@ -240,6 +277,18 @@ public class AppointmentRecordService {
         }
     }
 
+    private String getAvatarDir(Long uid) {
+        try {
+            String avatar = "src/main/resources/static/avatars/user_" + uid + ".jpg";
+            Path imagePath = Paths.get(avatar);
+            byte[] imageBytes = Files.readAllBytes(imagePath);
+            String base64 = Base64.getEncoder().encodeToString(imageBytes);
+            return "data:image/jpeg;base64," + base64;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ByteArrayResource exportAppointmentPDF(Long appointmentRecordId, String language) {
         try{
             if(language == null || language.isEmpty()) {
@@ -256,25 +305,188 @@ public class AppointmentRecordService {
             Map<String, Object> data = new HashMap<>();
             data.put("scheduled_at", appointmentRecord.getScheduledAt());
             data.put("user", appointmentRecord.getUser());
+            data.put("userAvatar", getAvatarDir(appointmentRecord.getUser().getId()));
             data.put("doctor", appointmentRecord.getDoctor());
             data.put("note", appointmentRecord.getNote());
 
             PrescriptionDTO prescription = appointmentRecord.getPrescription();
             data.put("prescription", prescription);
 
-            data.put("medicalHistories", appointmentRecord.getPrescription().getMedicalConditions());
+            data.put("medicalHistories", prescription != null && prescription.getMedicalConditions() != null ? prescription.getMedicalConditions() : List.of());
+            data.put("medications", prescription != null && prescription.getDetails() != null ? prescription.getDetails() : List.of());
 
-            data.put("medications", prescription != null ? prescription.getDetails() : List.of());
-
-            String fileName = "Doctor_Schedule_" + appointmentRecord.getDoctor().getFirstName() + ".pdf";
+            String fileName = "Appointment" + "_" + appointmentRecord.getUser().getFirstName() + ".pdf";
 
             String template = language.equalsIgnoreCase("en") ? "template_appointment_en" : "template_appointment_vie";
             return new PDFExporter().generatePdfFromTemplate(template, data, fileName);
-
         } catch (Exception e) {
             log.error("Error exporting appointment PDF: {}", e.getMessage());
             throw new ConflictException("Error exporting appointment PDF: " + e.getMessage());
         }
     }
 
+    public String cancelAppointment(Long userId, Long appointmentId) {
+        AppointmentRecord appointment = appointmentRecordRepository.findById(appointmentId)
+                .filter(a -> a.getUser().getId().equals(userId) || a.getDoctor().getUser().getId().equals(userId))
+                .orElseThrow(() -> new RuntimeException("Appointment not found or user mismatch"));
+        if(appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new ConflictException("Appointment already cancelled");
+        }
+
+        if(appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new ConflictException("Cannot cancel a completed appointment");
+        }
+
+        if(appointment.getScheduledAt().isBefore(LocalDateTime.now())) {
+            throw new ConflictException("Cannot cancel an appointment that has already passed");
+        }
+
+        if(accountRepository.isPatient(userId)){
+            return patientCancelAppointment(appointment);
+        }
+        else if(accountRepository.isDoctor(userId)){
+            return doctorCancelAppointment(appointment);
+        } else {
+            throw new ConflictException("User is neither a doctor nor a patient");
+        }
+
+
+    }
+
+    /*
+    * string 1: email
+    * string 2: content to send to this email
+    * */
+    private void sendCancellationNotification(Map<String, String> notificationData) {
+        if(notificationData == null || notificationData.isEmpty()) {
+            throw new ConflictException("Notification data cannot be null or empty");
+        }
+        notificationData.forEach((key, value) -> {
+            if(key == null || key.isEmpty() || value == null || value.isEmpty()) {
+                throw new ConflictException("Email and content cannot be null or empty");
+            }
+            try {
+                mailClient.sendMail(key, value).subscribe();
+                log.info("Cancellation notification sent to: {}", key);
+            } catch (Exception e) {
+                log.error("Failed to send cancellation notification to {}: {}", key, e.getMessage());
+                throw new ConflictException("Failed to send cancellation notification: " + e.getMessage());
+            }
+        });
+    }
+
+    private void notifyCancellation(AppointmentRecord appointment, Map<String, String> message) {
+        String patientEmail = appointment.getUser().getAccount().getEmail();
+        String doctorEmail = appointment.getDoctor().getUser().getAccount().getEmail();
+
+
+        sendCancellationNotification(Map.of(
+            patientEmail, message.get("patient"),
+            doctorEmail, message.get("doctor")
+        ));
+    }
+
+
+    private String patientCancelAppointment(AppointmentRecord appointment) {
+        try {
+            String result;
+            String doctorName = appointment.getDoctor().getUser().getFirstName() + " " + appointment.getDoctor().getUser().getLastName();
+            String mailContent;
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime createdAt = appointment.getCreatedAt();
+            LocalDateTime scheduledAt = appointment.getScheduledAt();
+
+            if (Duration.between(createdAt, now).toMinutes() <= 15) {
+                appointment.setDepositStatus(DepositStatus.FULL_REFUND_PENDING);
+                result = "You just cancelled appointment with doctor " + doctorName + ". Full deposit will be refunded to you soon.";
+                mailContent = "Patient has cancelled the appointment. Full deposit will be refunded to them.";
+            } else if (scheduledAt.isAfter(now.plusHours(12))) {
+                appointment.setDepositStatus(DepositStatus.PARTIAL_REFUND_PENDING);
+                result = "You just cancelled appointment with doctor " + doctorName + ". 50% of your deposit is lost based on policy";
+                mailContent = "Patient has cancelled the appointment. They will lose 50% of the deposit.";
+            } else {
+                appointment.setDepositStatus(DepositStatus.LOST);
+                result = "You just cancelled appointment with doctor " + doctorName + ". Full deposit is lost based on policy";
+                mailContent = "Patient has cancelled the appointment. Full deposit is lost.";
+            }
+
+            setAppointmentStatusCancel(appointment);
+            doctorScheduleService.updateDoctorScheduleStatusByAppointmentId(
+                    appointment.getId(), AppointmentStatus.CANCELLED);
+
+            appointmentRecordRepository.save(appointment);
+            appointmentCacheService.invalidateAppointmentCaches(
+                    appointment.getId(), appointment.getUser().getId(), appointment.getDoctor().getId());
+
+            notifyCancellation(appointment, Map.of(
+                    "patient", result,
+                    "doctor", mailContent
+            ));
+            return result;
+        } catch (Exception e) {
+            log.error("Error cancelling appointment for patient: {}", e.getMessage());
+            throw new ConflictException("Error cancelling appointment: " + e.getMessage());
+        }
+    }
+
+
+    private String doctorCancelAppointment(AppointmentRecord appointment) {
+        try {
+            String patientName = appointment.getUser().getFirstName() + " " + appointment.getUser().getLastName();
+            // Bác sĩ hủy: tạm giữ cọc (user sẽ chọn đổi hoặc hoàn cọc sau)
+            appointment.setDepositStatus(DepositStatus.HOLD);
+
+            setAppointmentStatusCancel(appointment);
+
+            doctorScheduleService.updateDoctorScheduleStatusByAppointmentId(
+                    appointment.getId(),
+                    AppointmentStatus.CANCELLED
+            );
+
+            appointmentRecordRepository.save(appointment);
+
+            appointmentCacheService.invalidateAppointmentCaches(
+                    appointment.getId(),
+                    appointment.getUser().getId(),
+                    appointment.getDoctor().getId()
+            );
+            String result = "You just cancelled the appointment with patient: " + patientName + " , the deposit is on hold";
+            String mailContent = "Doctor has cancelled the appointment. Deposit is on hold until further action. You can choose to refund or reschedule later. After 24 hours, the deposit will be refunded automatically.";
+            notifyCancellation(appointment, Map.of(
+                    "patient", result,
+                    "doctor", mailContent
+            ));
+            return result;
+        } catch (Exception e) {
+            log.error("Error cancelling appointment for doctor: {}", e.getMessage());
+            throw new ConflictException("Error cancelling appointment: " + e.getMessage());
+        }
+    }
+
+    private void setAppointmentStatusCancel(AppointmentRecord appointment) {
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+    }
+
+    public AppointmentRecord getAppointmentById(Long id) {
+        return appointmentRecordRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment Record not found with ID: " + id));
+    }
+
+    public boolean isAppointmentExists(Long appointmentId) {
+        return appointmentRecordRepository.existsById(appointmentId);
+    }
+
+    public void updateStatus(Long appointmentId, AppointmentStatus status) {
+        AppointmentRecord appointmentRecord = getAppointmentById(appointmentId);
+        appointmentRecord.setStatus(status);
+        appointmentRecordRepository.save(appointmentRecord);
+        appointmentCacheService.invalidateAppointmentCaches(appointmentId, appointmentRecord.getUser().getId(), appointmentRecord.getDoctor().getId());
+    }
+
+    public void updateDepositStatus(Long appointmentId, DepositStatus depositStatus) {
+        AppointmentRecord appointmentRecord = getAppointmentById(appointmentId);
+        appointmentRecord.setDepositStatus(depositStatus);
+        appointmentRecordRepository.save(appointmentRecord);
+        appointmentCacheService.invalidateAppointmentCaches(appointmentId, appointmentRecord.getUser().getId(), appointmentRecord.getDoctor().getId());
+    }
 }

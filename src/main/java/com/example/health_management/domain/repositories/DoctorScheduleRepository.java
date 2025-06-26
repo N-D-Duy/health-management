@@ -1,7 +1,9 @@
 package com.example.health_management.domain.repositories;
 
+import com.example.health_management.common.shared.enums.AppointmentStatus;
 import com.example.health_management.common.utils.softdelete.SoftDeleteRepository;
 import com.example.health_management.domain.entities.DoctorSchedule;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,12 +20,20 @@ public interface DoctorScheduleRepository extends SoftDeleteRepository<DoctorSch
     @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.deletedAt IS NULL")
     List<DoctorSchedule> findByTimes(Long doctorId, LocalDateTime startTime);
 
-    @Query("SELECT COUNT(ds) FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.deletedAt IS NULL")
+    @Query("SELECT COUNT(ds) FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime = :startTime AND ds.appointmentStatus='SCHEDULED' AND ds.deletedAt IS NULL")
     Integer countDoctorSchedulesAtTime(Long doctorId, LocalDateTime startTime);
 
     @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.startTime >= :startDate AND ds.startTime <=:endDate AND ds.deletedAt IS NULL")
     List<DoctorSchedule> findByDoctorIdAndDateRange(Long doctorId, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query("SELECT EXISTS (SELECT 1 FROM DoctorSchedule ds WHERE ds.patientName = :patientName AND ds.startTime = :startTime AND ds.deletedAt IS NULL)")
-    boolean existsByPatientNameAndStartTime(String patientName, LocalDateTime startTime);
+    @Query("SELECT EXISTS (SELECT 1 FROM DoctorSchedule ds WHERE ds.patientName = :patientName AND ds.startTime = :startTime AND ds.deletedAt IS NULL AND ds.appointmentStatus = 'SCHEDULED' )")
+    boolean patientBusyAtTime(String patientName, LocalDateTime startTime);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE DoctorSchedule ds SET ds.appointmentStatus = :status WHERE ds.appointmentRecord.id = :appointmentId")
+    void updateAppointmentStatusByAppointmentId(Long appointmentId, AppointmentStatus status);
+
+    @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.patientName = :patientName AND ds.deletedAt IS NULL AND ds.appointmentStatus = 'SCHEDULED'")
+    List<DoctorSchedule> findByPatientName(String patientName);
 }

@@ -15,4 +15,10 @@ public interface AccountRepository  extends SoftDeleteRepository<Account, Long> 
     @Modifying
     @Query("UPDATE Account a SET a.status = 'ACTIVE' WHERE a.email = :email")
     int activeAccount(String email);
+
+    @Query("SELECT COUNT(a) > 0 FROM Account a WHERE a.user.id = :id AND a.role = 'DOCTOR'")
+    boolean isDoctor(Long id);
+
+    @Query("SELECT COUNT(a) > 0 FROM Account a WHERE a.user.id= :id AND a.role = 'USER'")
+    boolean isPatient(Long id);
 }
