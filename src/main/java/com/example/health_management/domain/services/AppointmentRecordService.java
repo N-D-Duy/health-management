@@ -25,8 +25,15 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -251,6 +258,18 @@ public class AppointmentRecordService {
         }
     }
 
+    private String getAvatarDir(Long uid) {
+        try {
+            String avatar = "src/main/resources/static/avatars/user_" + uid + ".jpg";
+            Path imagePath = Paths.get(avatar);
+            byte[] imageBytes = Files.readAllBytes(imagePath);
+            String base64 = Base64.getEncoder().encodeToString(imageBytes);
+            return "data:image/jpeg;base64," + base64;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ByteArrayResource exportAppointmentPDF(Long appointmentRecordId, String language) {
         try{
             if(language == null || language.isEmpty()) {
@@ -267,21 +286,20 @@ public class AppointmentRecordService {
             Map<String, Object> data = new HashMap<>();
             data.put("scheduled_at", appointmentRecord.getScheduledAt());
             data.put("user", appointmentRecord.getUser());
+            data.put("userAvatar", getAvatarDir(appointmentRecord.getUser().getId()));
             data.put("doctor", appointmentRecord.getDoctor());
             data.put("note", appointmentRecord.getNote());
 
             PrescriptionDTO prescription = appointmentRecord.getPrescription();
             data.put("prescription", prescription);
 
-            data.put("medicalHistories", appointmentRecord.getPrescription().getMedicalConditions());
+            data.put("medicalHistories", prescription != null && prescription.getMedicalConditions() != null ? prescription.getMedicalConditions() : List.of());
+            data.put("medications", prescription != null && prescription.getDetails() != null ? prescription.getDetails() : List.of());
 
-            data.put("medications", prescription != null ? prescription.getDetails() : List.of());
-
-            String fileName = "Doctor_Schedule_" + appointmentRecord.getDoctor().getFirstName() + ".pdf";
+            String fileName = "Appointment" + "_" + appointmentRecord.getUser().getFirstName() + ".pdf";
 
             String template = language.equalsIgnoreCase("en") ? "template_appointment_en" : "template_appointment_vie";
             return new PDFExporter().generatePdfFromTemplate(template, data, fileName);
-
         } catch (Exception e) {
             log.error("Error exporting appointment PDF: {}", e.getMessage());
             throw new ConflictException("Error exporting appointment PDF: " + e.getMessage());

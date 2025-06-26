@@ -110,7 +110,7 @@ public class AppointmentRecordController {
     }
 
     @GetMapping("/export/{id}")
-    public @ResponseBody ResponseEntity<ByteArrayResource> exportDoctorSchedules(@PathVariable("id") Long id, @RequestParam("lang") String language) {
+    public @ResponseBody ResponseEntity<ByteArrayResource> exportAppointment(@PathVariable("id") Long id, @RequestParam("lang") String language) {
         ByteArrayResource file = AppointmentRecordService.exportAppointmentPDF(id, language);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
@@ -127,5 +127,4 @@ public class AppointmentRecordController {
         ApiResponse<String> apiResponse = ApiResponse.<String>builder().code(HttpStatus.OK.value()).data(result).message("Success").build();
         return ResponseEntity.ok(apiResponse);
     }
-
 }
