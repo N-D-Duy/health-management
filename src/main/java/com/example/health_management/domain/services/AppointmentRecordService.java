@@ -102,11 +102,33 @@ public class AppointmentRecordService {
 
             AppointmentRecordDTO result = appointmentRecordMapper.toDTO(savedRecord);
             appointmentCacheService.invalidateAppointmentCaches(savedRecord.getId(), user.getId(), doctor.getId());
+
+            //notify the user and doctor about the new appointment
+            notifyNewAppointment(appointmentRecord);
             return result;
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new ConflictException("Error creating appointment record: " + e.getMessage());
+        }
+    }
+
+    private void notifyNewAppointment(AppointmentRecord result) {
+        String patientEmail = result.getUser().getAccount().getEmail();
+        String patientName = result.getUser().getFirstName() + " " + result.getUser().getLastName();
+        String doctorEmail = result.getDoctor().getUser().getAccount().getEmail();
+        String doctorName = result.getDoctor().getUser().getFirstName() + " " + result.getDoctor().getUser().getLastName();
+        String contentDoctor = "You have a new appointment scheduled with patient " + patientName +
+                " on " + result.getScheduledAt() + ". Please check your appointment details.";
+        String contentPatient = "You have booked an appointment with doctor " + doctorName +
+                " on " + result.getScheduledAt() + " successfully. Please check your appointment details.";
+        try{
+            mailClient.sendMail(doctorEmail, contentDoctor).subscribe();
+            mailClient.sendMail(patientEmail, contentPatient).subscribe();
+            log.info("New appointment notification sent to patient: {}, doctor: {}", patientEmail, doctorEmail);
+        } catch (Exception e) {
+            log.error("Failed to send new appointment notification: {}", e.getMessage());
+            throw new ConflictException("Failed to send new appointment notification: " + e.getMessage());
         }
     }
 
