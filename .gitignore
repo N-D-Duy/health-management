@@ -31,8 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
-k8s/secrets.yaml
-docker-compose.yaml
+k8s/secrets.yml
+docker-compose.yml
 
 ### ENV ###
 .env

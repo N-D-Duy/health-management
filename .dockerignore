@@ -1,6 +1,5 @@
 # Ignore Maven/Gradle build directories
 target/
-build/
 
 # Ignore dependency files (if applicable)
 *.jar
