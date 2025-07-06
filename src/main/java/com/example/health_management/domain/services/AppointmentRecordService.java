@@ -19,8 +19,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -279,10 +281,9 @@ public class AppointmentRecordService {
 
     private String getAvatarDir(Long uid) {
         try {
-            String avatar = "src/main/resources/static/avatars/user_" + uid + ".jpg";
-            Path imagePath = Paths.get(avatar);
-            byte[] imageBytes = Files.readAllBytes(imagePath);
-            String base64 = Base64.getEncoder().encodeToString(imageBytes);
+            ClassPathResource imgFile = new ClassPathResource("static/avatars/user_" + uid + ".jpg");
+            byte[] bytes = FileCopyUtils.copyToByteArray(imgFile.getInputStream());
+            String base64 = Base64.getEncoder().encodeToString(bytes);
             return "data:image/jpeg;base64," + base64;
         } catch (IOException e) {
             throw new RuntimeException(e);

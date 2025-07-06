@@ -6,7 +6,7 @@ metadata:
     app: health-management-be
     version: v1
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: health-management-be
@@ -20,26 +20,46 @@ spec:
       serviceAccountName: health-management-be-service-account
       containers:
       - name: health-management-be
-        image: docker.io/duynguyen03/health-management-be:v6.1
+        image: docker.io/duynguyen03/health-management:v4
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
         env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_HOSTNAME
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: POSTGRES_HOSTNAME
+        - name: POSTGRES_PORT
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: POSTGRES_PORT
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: be-secrets
+              key: POSTGRES_DB
         - name: DB_URL
           valueFrom:
             secretKeyRef:
               name: be-secrets
               key: DB_URL
-        - name: DB_USERNAME
+        - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
               name: be-secrets
-              key: DB_USERNAME
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: be-secrets
-              key: DB_PASSWORD
+              key: REDIS_PASSWORD
         - name: REDIS_HOST
           valueFrom:
             secretKeyRef:
@@ -50,8 +70,11 @@ spec:
             secretKeyRef:
               name: be-secrets
               key: REDIS_PORT
-        - name: REDIS_PASSWORD
+        - name: MAIL_CLIENT_URL
           valueFrom:
             secretKeyRef:
               name: be-secrets
-              key: REDIS_PASSWORD
+              key: MAIL_CLIENT_URL
+        - name: SPRING_PROFILES_ACTIVE
+          value: prod
+        

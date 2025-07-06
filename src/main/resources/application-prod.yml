@@ -27,7 +27,7 @@ spring:
 cron-jobs:
   profiles:
     - name: AUTO_REFUND
-      cron: "0 0 0 * * ?"
+      cron: "0 0/1 * * * ?"
 
 client:
   mail:

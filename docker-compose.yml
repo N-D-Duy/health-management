@@ -82,6 +82,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: duynguyen03/health-management:v1
     profiles:
       - app
     container_name: application

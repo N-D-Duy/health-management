@@ -792,6 +792,7 @@ CREATE TABLE  public.transactions
     updated_at timestamp(6) without time zone,
     amount bigint,
     transaction_id character varying(255),
+    m_refund_id character varying(255),
     appointment_record_id bigint,
     zp_trans_token character varying(255)
 );
